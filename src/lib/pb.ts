@@ -36,6 +36,8 @@ class CookieAuthStore {
 
 const cookieStore = new CookieAuthStore();
 
+// Client-only singleton. Never use this in server-side code (hooks, +page.server.ts, +layout.server.ts).
+// Server-side code should use event.locals.pb which is a fresh per-request instance.
 export const pb = new PocketBase(PB_URL);
 
 // Override auth store to use cookies
