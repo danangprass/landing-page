@@ -105,6 +105,10 @@ function createCartStore() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
+    const oldUnsub = unsubRealtime;
+    unsubRealtime = null;
+    if (oldUnsub) oldUnsub();
+
     const userId = auth.user!.id;
 
     pb.collection('cart_items').subscribe('*', (e) => {
