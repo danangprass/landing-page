@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getAuthContext } from '$lib/stores/auth.svelte';
+  import { pb } from '$lib/pb';
   import type { ExpandedProduct } from '$lib/pb-types-ext';
 
   const auth = getAuthContext();
@@ -170,10 +171,50 @@
     errors = {};
   }
 
-  function handlePlaceOrder() {
+  let orderError = $state('');
+  let orderLoading = $state(false);
+
+  async function handlePlaceOrder() {
     if (!agreedToTerms) return;
-    orderPlaced = true;
-    cart.clear();
+    if (!auth.user) return;
+    if (cart.items.length === 0) {
+      orderError = 'Your cart is empty. Please add items before checking out.';
+      return;
+    }
+    orderError = '';
+    orderLoading = true;
+    let orderId: string | null = null;
+    try {
+      const shippingAddress = `${fullName}, ${address1}${address2 ? ', ' + address2 : ''}, ${city}, ${province} ${zip}, ${country}`;
+      const order = await pb.collection('orders').create({
+        user: auth.user.id,
+        status: 'pending',
+        total,
+        shipping_address: shippingAddress,
+        billing_address: shippingAddress,
+      });
+      orderId = order.id;
+      await Promise.all(
+        cart.items.map((item) =>
+          pb.collection('order_items').create({
+            order: order.id,
+            product: item.product.id,
+            quantity: item.quantity,
+            price: item.product.price,
+          })
+        )
+      );
+      await cart.clear();
+      orderPlaced = true;
+    } catch (err: unknown) {
+      if (orderId) {
+        try { await pb.collection('orders').delete(orderId); } catch { /* best-effort rollback */ }
+      }
+      console.error('Order creation failed:', err);
+      orderError = 'Failed to place order. Please try again.';
+    } finally {
+      orderLoading = false;
+    }
   }
 
   let selectedShippingPrice = $derived(
@@ -680,13 +721,22 @@
               </span>
             </label>
 
+            {#if orderError}
+              <p class="text-sm text-[var(--color-error)] mt-2">{orderError}</p>
+            {/if}
+
             <button
               class="btn-primary w-full"
-              disabled={!agreedToTerms}
-              class:disabled-btn={!agreedToTerms}
+              disabled={!agreedToTerms || orderLoading}
+              class:disabled-btn={!agreedToTerms || orderLoading}
               onclick={handlePlaceOrder}
             >
-              Place Order
+              {#if orderLoading}
+                <span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"></span>
+                Placing Order…
+              {:else}
+                Place Order
+              {/if}
             </button>
           </div>
         </div>
