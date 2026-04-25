@@ -44,6 +44,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.cookies.set('pb_auth', encodeURIComponent(payload), {
       path: '/',
       httpOnly: false,
+      secure: !dev,
       sameSite: 'lax',
       maxAge: 604800,
     });

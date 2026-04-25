@@ -1,5 +1,5 @@
 import PocketBase from 'pocketbase';
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 import { env } from '$env/dynamic/public';
 
 const PB_URL = env.PUBLIC_PB_URL ?? 'http://localhost:8090';
@@ -14,7 +14,10 @@ class CookieAuthStore {
 
   save(token: string, model: Record<string, unknown> | null) {
     if (!browser) return;
-    document.cookie = `${this.tokenKey}=${encodeURIComponent(JSON.stringify({ token, model }))}; path=/; SameSite=Lax; max-age=604800`;
+    // Client-side cookie writes cannot be httpOnly — the server hook re-sets the cookie
+    // with httpOnly: true on each response, so this client write is a best-effort fallback.
+    const secure = dev ? '' : '; Secure';
+    document.cookie = `${this.tokenKey}=${encodeURIComponent(JSON.stringify({ token, model }))}; path=/; SameSite=Lax; max-age=604800${secure}`;
   }
 
   load(): { token: string; model: Record<string, unknown> | null } {
@@ -30,7 +33,8 @@ class CookieAuthStore {
 
   clear() {
     if (!browser) return;
-    document.cookie = `${this.tokenKey}=; path=/; SameSite=Lax; max-age=0`;
+    const secure = dev ? '' : '; Secure';
+    document.cookie = `${this.tokenKey}=; path=/; SameSite=Lax; max-age=0${secure}`;
   }
 }
 
