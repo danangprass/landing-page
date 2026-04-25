@@ -102,7 +102,7 @@ orders_data = [
     {"user": users["Alex Kowalski"], "status": "shipped", "total": 1148,
      "shipping_address": "222 Spruce Way, Boston, MA 02101",
      "billing_address": "222 Spruce Way, Boston, MA 02101",
-     "items": [("Pixel 9 Pro", 999, 1), ("Anker 737 Power Bank", 149, 1), ("MagSafe Charger 3-in-1", 0)]},
+     "items": [("Pixel 9 Pro", 999, 1), ("Anker 737 Power Bank", 149, 1), ("MagSafe Charger 3-in-1", 129, 1)]},
 ]
 
 for o in orders_data:

@@ -13,8 +13,6 @@ req = urllib.request.Request(
 with urllib.request.urlopen(req) as resp:
     TOKEN = json.loads(resp.read())["token"]
 
-print(f"Authenticated, token: {TOKEN[:20]}...")
-
 HEADERS = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
 
 def post(collection, data):
@@ -33,6 +31,21 @@ def post(collection, data):
         print(f"  ERROR creating in {collection}: {err}")
         return None
 
+def find_by_slug(collection, slug):
+    encoded = urllib.parse.quote(f'slug="{slug}"')
+    req = urllib.request.Request(
+        f"{BASE}/api/collections/{collection}/records?filter={encoded}&perPage=1",
+        headers=HEADERS
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            items = json.loads(resp.read()).get("items", [])
+            return items[0] if items else None
+    except Exception:
+        return None
+
+import urllib.parse
+
 # --- CATEGORIES ---
 categories = [
     {"name": "Smartphones", "slug": "smartphones", "description": "Latest flagship and mid-range smartphones", "sort_order": 1, "active": True},
@@ -45,10 +58,15 @@ categories = [
 
 cat_ids = {}
 for cat in categories:
-    result = post("categories", cat)
-    if result:
-        cat_ids[cat["slug"]] = result["id"]
-        print(f"  Category: {cat['name']} -> {result['id']}")
+    existing = find_by_slug("categories", cat["slug"])
+    if existing:
+        cat_ids[cat["slug"]] = existing["id"]
+        print(f"  Category (exists): {cat['name']} -> {existing['id']}")
+    else:
+        result = post("categories", cat)
+        if result:
+            cat_ids[cat["slug"]] = result["id"]
+            print(f"  Category: {cat['name']} -> {result['id']}")
 
 # --- PRODUCTS ---
 products = [
@@ -86,10 +104,15 @@ products = [
 
 prod_ids = {}
 for prod in products:
-    result = post("products", prod)
-    if result:
-        prod_ids[prod["slug"]] = result["id"]
-        print(f"  Product: {prod['name']} -> {result['id']}")
+    existing = find_by_slug("products", prod["slug"])
+    if existing:
+        prod_ids[prod["slug"]] = existing["id"]
+        print(f"  Product (exists): {prod['name']} -> {existing['id']}")
+    else:
+        result = post("products", prod)
+        if result:
+            prod_ids[prod["slug"]] = result["id"]
+            print(f"  Product: {prod['name']} -> {result['id']}")
 
 # --- BANNERS ---
 banners = [
