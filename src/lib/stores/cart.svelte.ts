@@ -14,28 +14,33 @@ export interface CartItem {
 function createCartStore() {
   let items = $state<CartItem[]>([]);
   let loading = $state(false);
+  let adding = $state(false);
   let unsubRealtime: (() => void) | null = null;
 
   async function load() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
+    const userId = auth.user!.id;
     loading = true;
     const [result] = await safeCall(() =>
       pb.collection('cart_items').getFullList({
         expand: 'product',
         sort: '-created',
+        filter: `user = "${userId.replace(/"/g, '\\"')}"`,
       }),
       { silent: true }
     );
     loading = false;
 
     if (result) {
-      items = (result as unknown as (CartItemsRecord & { expand?: { product?: ExpandedProduct } })[]).map((record) => ({
-        id: record.id,
-        product: record.expand?.product as ExpandedProduct,
-        quantity: record.quantity,
-      }));
+      items = (result as unknown as (CartItemsRecord & { expand?: { product?: ExpandedProduct } })[])
+        .filter((record) => record.user === userId)
+        .map((record) => ({
+          id: record.id,
+          product: record.expand?.product as ExpandedProduct,
+          quantity: record.quantity,
+        }));
     }
   }
 
@@ -45,28 +50,38 @@ function createCartStore() {
       showToast('Please sign in to add items to your bag', 'info');
       return;
     }
+    if (adding) return;
+    adding = true;
 
-    const existing = items.find(i => i.product.id === productId);
-    if (existing) {
-      await updateQuantity(existing.id, existing.quantity + quantity);
-      return;
-    }
+    try {
+      const existing = items.find(i => i.product.id === productId);
+      if (existing) {
+        await updateQuantity(existing.id, existing.quantity + quantity);
+        return;
+      }
 
-    const [result] = await safeCall(() =>
-      pb.collection('cart_items').create({
-        user: auth.user!.id,
-        product: productId,
-        quantity,
-      })
-    );
+      const [result] = await safeCall(() =>
+        pb.collection('cart_items').create({
+          user: auth.user!.id,
+          product: productId,
+          quantity,
+        })
+      );
 
-    if (result) {
-      showToast('Added to bag', 'success');
-      await load();
+      if (result) {
+        showToast('Added to bag', 'success');
+        await load();
+      }
+    } finally {
+      adding = false;
     }
   }
 
   async function remove(cartItemId: string) {
+    const auth = getAuthContext();
+    if (!auth.isLoggedIn) return;
+    if (!items.some(i => i.id === cartItemId)) return;
+
     const [, err] = await safeCall(() =>
       pb.collection('cart_items').delete(cartItemId)
     );
@@ -82,6 +97,10 @@ function createCartStore() {
       return;
     }
 
+    const auth = getAuthContext();
+    if (!auth.isLoggedIn) return;
+    if (!items.some(i => i.id === cartItemId)) return;
+
     const [result] = await safeCall(() =>
       pb.collection('cart_items').update(cartItemId, { quantity })
     );
@@ -94,11 +113,17 @@ function createCartStore() {
   }
 
   async function clear() {
-    const deletePromises = items.map(i =>
-      pb.collection('cart_items').delete(i.id)
-    );
-    await Promise.all(deletePromises);
+    const snapshot = [...items];
     items = [];
+    const results = await Promise.allSettled(
+      snapshot.map(i => pb.collection('cart_items').delete(i.id))
+    );
+    const failed = results
+      .map((r, idx) => (r.status === 'rejected' ? snapshot[idx] : null))
+      .filter((i): i is CartItem => i !== null);
+    if (failed.length > 0) {
+      items = failed;
+    }
   }
 
   function subscribeRealtime() {
@@ -113,7 +138,6 @@ function createCartStore() {
 
     pb.collection('cart_items').subscribe('*', (e) => {
       if (e.record.user !== userId) return;
-      // Reload to keep in sync with server state
       load();
     }, {
       filter: `user = "${userId.replace(/"/g, '\\"')}"`,
@@ -134,6 +158,7 @@ function createCartStore() {
     get count() { return items.reduce((sum, i) => sum + i.quantity, 0); },
     get subtotal() { return items.reduce((sum, i) => sum + i.product.price * i.quantity, 0); },
     get loading() { return loading; },
+    get adding() { return adding; },
     load,
     add,
     remove,
