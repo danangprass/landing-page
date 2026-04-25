@@ -1,7 +1,8 @@
 import PocketBase from 'pocketbase';
 import { browser } from '$app/environment';
+import { env } from '$env/dynamic/public';
 
-const PB_URL = 'http://localhost:8090';
+const PB_URL = env.PUBLIC_PB_URL ?? 'http://localhost:8090';
 
 /**
  * Cookie-based AuthStore adapter for PocketBase.

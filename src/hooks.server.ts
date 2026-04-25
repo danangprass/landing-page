@@ -1,8 +1,9 @@
 import type { Handle } from '@sveltejs/kit';
 import PocketBase from 'pocketbase';
 import { dev } from '$app/environment';
+import { env } from '$env/dynamic/private';
 
-const PB_URL = 'http://localhost:8090';
+const PB_URL = env.PB_URL ?? 'http://localhost:8090';
 
 export const handle: Handle = async ({ event, resolve }) => {
   // Create a server-side PB instance per request
