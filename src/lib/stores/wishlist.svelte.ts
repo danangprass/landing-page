@@ -85,6 +85,8 @@ function createWishlistStore() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
+    unsubscribeRealtime();
+
     const userId = auth.user!.id;
 
     pb.collection('wishlists').subscribe('*', () => {
