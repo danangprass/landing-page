@@ -55,12 +55,6 @@ if (browser) {
   });
 }
 
-// Use this in server-side contexts (+page.server.ts, +layout.server.ts) instead of the singleton.
-// Prefer event.locals.pb from hooks.server.ts when available — it handles auth automatically.
-export function createServerPb(): PocketBase {
-  return new PocketBase(PB_URL);
-}
-
 export function getImageUrl(record: unknown, filename: string | undefined): string {
 	if (!filename) return '';
 	if (filename.startsWith('http') || filename.startsWith('/')) return filename;
