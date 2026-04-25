@@ -1,4 +1,4 @@
-import json, urllib.request, urllib.error
+import json, urllib.request, urllib.error, urllib.parse
 
 BASE = "http://localhost:8090"
 
