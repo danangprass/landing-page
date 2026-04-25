@@ -9,7 +9,7 @@
 <div class="error-page">
   <div class="error-card">
     <p class="error-code">{page.status}</p>
-    <h1 class="error-title">{page.error?.message ?? 'Something went wrong'}</h1>
+    <h1 class="error-title">Something went wrong</h1>
     <p class="error-subtitle">
       {#if page.status === 404}
         The page you're looking for doesn't exist.

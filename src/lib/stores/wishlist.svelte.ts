@@ -85,7 +85,9 @@ function createWishlistStore() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
-    unsubscribeRealtime();
+    const oldUnsub = unsubRealtime;
+    unsubRealtime = null;
+    if (oldUnsub) oldUnsub();
 
     const userId = auth.user!.id;
 
