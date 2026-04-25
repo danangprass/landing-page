@@ -1,14 +1,14 @@
 <script lang="ts">
   import { getAuthContext } from '$lib/stores/auth.svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
 
   let { children } = $props();
   let auth = getAuthContext();
 
   $effect(() => {
     if (!auth.isLoggedIn && !auth.loading) {
-      const returnUrl = encodeURIComponent($page.url.pathname);
+      const returnUrl = encodeURIComponent(page.url.pathname);
       goto(`/login?redirect=${returnUrl}`);
     }
   });

@@ -15,4 +15,4 @@ EXPOSE 8090
 
 VOLUME /pb_data
 
-CMD ["/pocketbase/pocketbase", "serve", "--http=0.0.0.0:8090"]
+CMD ["/pocketbase/pocketbase", "serve", "--http=0.0.0.0:8090", "--dir=/pb_data"]
