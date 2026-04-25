@@ -3,7 +3,7 @@ import json, urllib.request, urllib.error, urllib.parse
 BASE = "http://localhost:8090"
 
 # Authenticate
-auth_data = json.dumps({"identity": "admin@example.com", "password": "password"}).encode()
+auth_data = json.dumps({"identity": "admin@example.com", "password": "password12"}).encode()
 req = urllib.request.Request(
     f"{BASE}/api/collections/_superusers/auth-with-password",
     data=auth_data,

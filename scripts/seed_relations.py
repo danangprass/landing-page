@@ -3,7 +3,7 @@ import json, urllib.request, urllib.error
 BASE = "http://localhost:8090"
 
 # Authenticate as superuser
-auth_data = json.dumps({"identity": "admin@example.com", "password": "password"}).encode()
+auth_data = json.dumps({"identity": "admin@example.com", "password": "password12"}).encode()
 req = urllib.request.Request(
     f"{BASE}/api/collections/_superusers/auth-with-password",
     data=auth_data,
@@ -34,7 +34,14 @@ def get_ids(collection):
         headers=HEADERS
     )
     with urllib.request.urlopen(req) as resp:
-        return {r["name"]: r["id"] for r in json.loads(resp.read())["items"]}
+        items = json.loads(resp.read())["items"]
+        res = {}
+        for r in items:
+            if "name" not in r:
+                print(f"DEBUG: missing name in {collection} record:", r)
+            else:
+                res[r["name"]] = r["id"]
+        return res
 
 def get_user_ids():
     req = urllib.request.Request(
@@ -45,6 +52,17 @@ def get_user_ids():
         return {r["name"]: r["id"] for r in json.loads(resp.read())["items"]}
 
 users = get_user_ids()
+required_users = [
+    "Sarah Chen", "Emily Nakamura", "Alex Kowalski", "Marcus Rodriguez", 
+    "Aisha Patel", "Jake Thompson", "Priya Sharma", "David Kim"
+]
+for p in required_users:
+    if p not in users:
+        email = p.lower().replace(" ", ".") + "@example.com"
+        print(f"Creating user {p}")
+        res = post("users", {"email": email, "emailVisibility": True, "password": "password123", "passwordConfirm": "password123", "name": p})
+        if res:
+            users[p] = res["id"]
 products = get_ids("products")
 print(f"Users: {len(users)}, Products: {len(products)}")
 
