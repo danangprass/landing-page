@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "pb:types": "pocketbase-typegen --url http://localhost:8090 --email admin@example.com --password password --out src/lib/pb-types.ts"
+    "pb:types": "pocketbase-typegen --url ${PUBLIC_PB_URL:-http://localhost:8090} --email ${PB_ADMIN_EMAIL:-admin@example.com} --password ${PB_ADMIN_PASSWORD:-password} --out src/lib/pb-types.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^6.0.0",
