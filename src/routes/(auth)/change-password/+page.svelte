@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { pb } from '$lib/pb';
+  import { getAuthContext } from '$lib/stores/auth.svelte';
+
+  const auth = getAuthContext();
+
   let currentPassword = $state('');
   let newPassword = $state('');
   let confirmPassword = $state('');
@@ -44,11 +49,21 @@
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!passwordsMatch) return;
+    if (!auth.user) return;
     error = '';
     loading = true;
-    await new Promise(r => setTimeout(r, 1500));
-    loading = false;
-    success = true;
+    try {
+      await pb.collection('users').update(auth.user.id, {
+        oldPassword: currentPassword,
+        password: newPassword,
+        passwordConfirm: confirmPassword,
+      });
+      success = true;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Failed to update password. Check your current password and try again.';
+    } finally {
+      loading = false;
+    }
   }
 </script>
 

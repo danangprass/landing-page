@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { pb } from '$lib/pb';
+
   let email = $state('');
   let loading = $state(false);
   let submitted = $state(false);
@@ -27,9 +29,14 @@
     e.preventDefault();
     error = '';
     loading = true;
-    await new Promise(r => setTimeout(r, 1500));
-    loading = false;
-    submitted = true;
+    try {
+      await pb.collection('users').requestPasswordReset(email);
+      submitted = true;
+    } catch (err: unknown) {
+      error = err instanceof Error ? err.message : 'Failed to send reset email. Please try again.';
+    } finally {
+      loading = false;
+    }
   }
 </script>
 
