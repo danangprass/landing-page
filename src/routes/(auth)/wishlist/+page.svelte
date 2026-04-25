@@ -6,8 +6,12 @@
   const cart = getCartContext();
 
   async function handleMoveToCart(productId: string, wishlistId: string) {
-    await cart.add(productId);
-    wishlist.remove(wishlistId);
+    try {
+      await cart.add(productId);
+      wishlist.remove(wishlistId);
+    } catch {
+      // cart.add already shows a toast on failure; wishlist item is kept
+    }
   }
 </script>
 
