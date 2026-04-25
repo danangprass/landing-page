@@ -9,3 +9,11 @@ node_modules
 vite.config.ts.timestamp-*
 vite.config.js.timestamp-*
 pb_data
+
+# AI and Planning Docs
+.agents
+.agent
+CLAUDE.md
+.claude
+AGENT.md
+.planning
