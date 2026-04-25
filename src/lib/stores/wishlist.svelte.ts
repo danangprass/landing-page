@@ -90,7 +90,7 @@ function createWishlistStore() {
     pb.collection('wishlists').subscribe('*', () => {
       load();
     }, {
-      filter: `user = "${userId}"`,
+      filter: `user = "${userId.replace(/"/g, '\\"')}"`,
     }).then((unsub) => {
       unsubRealtime = unsub;
     });

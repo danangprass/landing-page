@@ -104,6 +104,10 @@ function createProductsStore() {
     });
   }
 
+  function safe(s: string): string {
+    return s.replace(/"/g, '\\"');
+  }
+
   async function loadProducts(opts?: {
     page?: number;
     category?: string;
@@ -116,7 +120,7 @@ function createProductsStore() {
     let categoryId: string | null = null;
     if (opts?.category) {
       const [catResult] = await safeCall(() =>
-        pb.collection('categories').getFirstListItem(`slug = "${opts.category}"`),
+        pb.collection('categories').getFirstListItem(`slug = "${safe(opts.category!)}"`),
         { silent: true }
       );
       if (catResult) {
@@ -126,10 +130,11 @@ function createProductsStore() {
 
     const filters: string[] = [];
     if (categoryId) {
-      filters.push(`category = "${categoryId}"`);
+      filters.push(`category = "${safe(categoryId)}"`);
     }
     if (opts?.search) {
-      filters.push(`name ~ "${opts.search}" || slug ~ "${opts.search}"`);
+      const s = safe(opts.search);
+      filters.push(`name ~ "${s}" || slug ~ "${s}"`);
     }
     // Skip featured on PB — may not have the field; filter client-side if needed
     const filter = filters.length ? filters.join(' && ') : undefined;
@@ -162,7 +167,7 @@ function createProductsStore() {
 
   async function loadProductBySlug(slug: string): Promise<ExpandedProduct | null> {
     const [result] = await safeCall(() =>
-      pb.collection('products').getFirstListItem(`slug = "${slug}"`, {
+      pb.collection('products').getFirstListItem(`slug = "${safe(slug)}"`, {
         expand: 'category',
       }),
       { silent: true }
