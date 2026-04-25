@@ -56,6 +56,7 @@ function createCartStore() {
     try {
       const existing = items.find(i => i.product.id === productId);
       if (existing) {
+        if (!items.some(i => i.id === existing.id)) return;
         await updateQuantity(existing.id, existing.quantity + quantity);
         return;
       }
@@ -114,7 +115,6 @@ function createCartStore() {
 
   async function clear() {
     const snapshot = [...items];
-    items = [];
     const results = await Promise.allSettled(
       snapshot.map(i => pb.collection('cart_items').delete(i.id))
     );
@@ -123,6 +123,9 @@ function createCartStore() {
       .filter((i): i is CartItem => i !== null);
     if (failed.length > 0) {
       items = failed;
+      showToast(`Failed to clear ${failed.length} item(s)`, 'error');
+    } else {
+      items = [];
     }
   }
 
