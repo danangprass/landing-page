@@ -439,6 +439,13 @@
           <div class="space-y-8">
             <h2 class="text-2xl font-semibold text-text-primary">Payment Method</h2>
 
+            <div class="demo-payment-notice" role="note">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="demo-notice-icon" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+              </svg>
+              <span><strong>Demo store</strong> — this is a mock payment form. Enter any test values; no real card data is processed or stored.</span>
+            </div>
+
             <div class="form-card">
               <!-- Card Number -->
               <div>
@@ -449,9 +456,9 @@
                   value={formatCardNumber(cardNumber)}
                   oninput={(e: Event) => { cardNumber = (e.target as HTMLInputElement).value.replace(/\s/g, ''); }}
                   class="field-input"
-                  placeholder="1234 5678 9012 3456"
+                  placeholder="4242 4242 4242 4242"
                   maxlength={19}
-                  autocomplete="cc-number"
+                  autocomplete="off"
                 />
                 {#if errors.cardNumber}
                   <p class="field-error">{errors.cardNumber}</p>
@@ -470,7 +477,7 @@
                     class="field-input"
                     placeholder="MM/YY"
                     maxlength={5}
-                    autocomplete="cc-exp"
+                    autocomplete="off"
                   />
                   {#if errors.expiry}
                     <p class="field-error">{errors.expiry}</p>
@@ -485,7 +492,7 @@
                     class="field-input"
                     placeholder="123"
                     maxlength={4}
-                    autocomplete="cc-csc"
+                    autocomplete="off"
                   />
                   {#if errors.cvv}
                     <p class="field-error">{errors.cvv}</p>
@@ -799,6 +806,25 @@
   .step-content.exiting {
     opacity: 0;
     transform: scale(0.95);
+  }
+
+  /* Demo payment notice */
+  .demo-payment-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: rgba(255, 204, 0, 0.08);
+    border: 1px solid rgba(255, 204, 0, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .demo-notice-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: rgba(255, 204, 0, 0.8);
   }
 
   /* Form card */
