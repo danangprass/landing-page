@@ -11,11 +11,15 @@
 
   const auth = getAuthContext();
 
+  function safeRedirect(url: string | null): string {
+    if (!url || !url.startsWith('/') || url.startsWith('//')) return '/';
+    return url;
+  }
+
   // Redirect if already logged in
   $effect(() => {
     if (auth.isLoggedIn) {
-      const redirectTo = page.url.searchParams.get('redirect') ?? '/';
-      goto(redirectTo);
+      goto(safeRedirect(page.url.searchParams.get('redirect')));
     }
   });
 
@@ -26,8 +30,7 @@
     const success = await auth.login(email, password);
     loading = false;
     if (success) {
-      const redirectTo = page.url.searchParams.get('redirect') ?? '/';
-      goto(redirectTo);
+      goto(safeRedirect(page.url.searchParams.get('redirect')));
     } else {
       error = 'Invalid email or password. Please try again.';
     }
@@ -93,11 +96,6 @@
       </div>
 
       <div class="auth-options">
-        <label class="checkbox-label">
-          <input type="checkbox" class="checkbox-input" />
-          <span class="checkbox-custom"></span>
-          <span class="checkbox-text">Remember me</span>
-        </label>
         <a href="/forgot-password" class="auth-link">Forgot password?</a>
       </div>
 
@@ -260,49 +258,7 @@
   .auth-options {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-  }
-  .checkbox-input {
-    display: none;
-  }
-  .checkbox-custom {
-    width: 1.125rem;
-    height: 1.125rem;
-    border-radius: 4px;
-    border: 1.5px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out);
-    flex-shrink: 0;
-  }
-  .checkbox-input:checked + .checkbox-custom {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-  .checkbox-input:checked + .checkbox-custom::after {
-    content: '';
-    display: block;
-    width: 5px;
-    height: 9px;
-    border: solid var(--color-bg);
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg) translateY(-1px);
-  }
-  .checkbox-input:focus-visible + .checkbox-custom {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-  .checkbox-text {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
+    justify-content: flex-end;
   }
 
   .auth-link {
