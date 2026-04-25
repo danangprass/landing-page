@@ -19,21 +19,25 @@ function createWishlistStore() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
+    const userId = auth.user!.id;
     loading = true;
     const [result] = await safeCall(() =>
       pb.collection('wishlists').getFullList({
         expand: 'product',
         sort: '-created',
+        filter: `user = "${userId.replace(/"/g, '\\"')}"`,
       }),
       { silent: true }
     );
     loading = false;
 
     if (result) {
-      items = (result as unknown as (WishlistsRecord & { expand?: { product?: ExpandedProduct } })[]).map((record) => ({
-        id: record.id,
-        product: record.expand?.product as ExpandedProduct,
-      }));
+      items = (result as unknown as (WishlistsRecord & { expand?: { product?: ExpandedProduct } })[])
+        .filter((record) => record.user === userId)
+        .map((record) => ({
+          id: record.id,
+          product: record.expand?.product as ExpandedProduct,
+        }));
     }
   }
 
@@ -50,6 +54,7 @@ function createWishlistStore() {
 
     const existing = items.find(i => i.product.id === productId);
     if (existing) {
+      if (!items.some(i => i.id === existing.id)) return;
       const [, err] = await safeCall(() =>
         pb.collection('wishlists').delete(existing.id)
       );
@@ -72,6 +77,10 @@ function createWishlistStore() {
   }
 
   async function remove(wishlistId: string) {
+    const auth = getAuthContext();
+    if (!auth.isLoggedIn) return;
+    if (!items.some(i => i.id === wishlistId)) return;
+
     const [, err] = await safeCall(() =>
       pb.collection('wishlists').delete(wishlistId)
     );
