@@ -43,7 +43,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     const payload = JSON.stringify({ token: currentToken, model: pb.authStore.record });
     event.cookies.set('pb_auth', encodeURIComponent(payload), {
       path: '/',
-      httpOnly: true,
+      httpOnly: false,
       secure: !dev,
       sameSite: 'lax',
       maxAge: 604800,
