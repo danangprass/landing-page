@@ -13,27 +13,27 @@
     {
       title: 'Support',
       links: [
-        { label: 'Contact Us', href: '#' },
-        { label: 'FAQs', href: '#' },
-        { label: 'Shipping', href: '#' },
-        { label: 'Returns', href: '#' }
+        { label: 'Contact Us', href: 'mailto:support@electrastore.com' },
+        { label: 'FAQs', href: '/faq' },
+        { label: 'Shipping', href: '/shipping' },
+        { label: 'Returns', href: '/returns' }
       ]
     },
     {
       title: 'About',
       links: [
-        { label: 'Our Story', href: '#' },
-        { label: 'Careers', href: '#' },
-        { label: 'Press', href: '#' },
-        { label: 'Sustainability', href: '#' }
+        { label: 'Our Story', href: '/about' },
+        { label: 'Careers', href: '/careers' },
+        { label: 'Press', href: '/press' },
+        { label: 'Sustainability', href: '/sustainability' }
       ]
     },
     {
       title: 'Legal',
       links: [
-        { label: 'Privacy Policy', href: '#' },
-        { label: 'Terms of Service', href: '#' },
-        { label: 'Cookie Policy', href: '#' }
+        { label: 'Privacy Policy', href: '/privacy' },
+        { label: 'Terms of Service', href: '/terms' },
+        { label: 'Cookie Policy', href: '/cookies' }
       ]
     }
   ];

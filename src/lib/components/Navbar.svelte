@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import { getAuthContext } from '$lib/stores/auth.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
 
   let searchOpen = $state(false);
+  let searchQuery = $state('');
   let scrolled = $state(false);
   let badgeVisible = $state(false);
   let wishlistBadgeVisible = $state(false);
@@ -44,10 +46,21 @@
 
   function toggleSearch() {
     searchOpen = !searchOpen;
+    if (!searchOpen) searchQuery = '';
   }
 
   function closeSearch() {
     searchOpen = false;
+    searchQuery = '';
+  }
+
+  function handleSearchSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      closeSearch();
+      goto(`/products?search=${encodeURIComponent(q)}`);
+    }
   }
 </script>
 
@@ -71,7 +84,7 @@
       </button>
 
       <!-- Wishlist -->
-      <a href="/products?category=phones" class="action-btn" aria-label="Wishlist">
+      <a href="/wishlist" class="action-btn" aria-label="Wishlist">
         <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
@@ -108,7 +121,7 @@
     <div class="search-overlay" onclick={closeSearch} role="presentation"></div>
   {/if}
   <div class="search-bar" class:open={searchOpen}>
-    <div class="search-bar-inner section-padding">
+    <form class="search-bar-inner section-padding" onsubmit={handleSearchSubmit}>
       <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
       </svg>
@@ -118,13 +131,14 @@
         placeholder="Search products..."
         aria-label="Search products"
         autofocus={searchOpen}
+        bind:value={searchQuery}
       />
-      <button class="search-close" onclick={closeSearch} aria-label="Close search">
+      <button class="search-close" type="button" onclick={closeSearch} aria-label="Close search">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-    </div>
+    </form>
   </div>
 </nav>
 
