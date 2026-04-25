@@ -31,10 +31,10 @@
     loading = true;
     try {
       await pb.collection('users').requestPasswordReset(email);
-      submitted = true;
-    } catch (err: unknown) {
-      error = err instanceof Error ? err.message : 'Failed to send reset email. Please try again.';
+    } catch {
+      // Silently swallow errors to prevent email enumeration
     } finally {
+      submitted = true;
       loading = false;
     }
   }

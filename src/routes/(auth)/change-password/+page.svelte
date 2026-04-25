@@ -49,7 +49,10 @@
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!passwordsMatch) return;
-    if (!auth.user) return;
+    if (!auth.user) {
+      error = 'You must be logged in to change your password.';
+      return;
+    }
     error = '';
     loading = true;
     try {
@@ -60,7 +63,14 @@
       });
       success = true;
     } catch (err: unknown) {
-      error = err instanceof Error ? err.message : 'Failed to update password. Check your current password and try again.';
+      const pbError = err as { status?: number };
+      if (pbError.status === 400) {
+        error = 'Current password is incorrect or new password does not meet requirements.';
+      } else if (pbError.status === 404) {
+        error = 'User account not found. Please log in again.';
+      } else {
+        error = 'Failed to update password. Please try again later.';
+      }
     } finally {
       loading = false;
     }
