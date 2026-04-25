@@ -252,7 +252,7 @@
     top: 2px;
     right: 2px;
     background-color: var(--color-accent);
-    color: var(--color-bg);
+    color: #ffffff;
     font-size: 0.5625rem;
     font-weight: 700;
     line-height: 1;
@@ -319,7 +319,7 @@
   .auth-cta {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-bg);
+    color: #ffffff;
     background-color: var(--color-accent);
     text-decoration: none;
     padding: 0.375rem 1rem;
@@ -340,7 +340,7 @@
     position: fixed;
     inset: 0;
     z-index: 40;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
