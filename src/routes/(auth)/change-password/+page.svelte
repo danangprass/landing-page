@@ -1,4 +1,9 @@
 <script lang="ts">
+  import { pb } from '$lib/pb';
+  import { getAuthContext } from '$lib/stores/auth.svelte';
+
+  const auth = getAuthContext();
+
   let currentPassword = $state('');
   let newPassword = $state('');
   let confirmPassword = $state('');
@@ -44,11 +49,31 @@
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!passwordsMatch) return;
+    if (!auth.user) {
+      error = 'You must be logged in to change your password.';
+      return;
+    }
     error = '';
     loading = true;
-    await new Promise(r => setTimeout(r, 1500));
-    loading = false;
-    success = true;
+    try {
+      await pb.collection('users').update(auth.user.id, {
+        oldPassword: currentPassword,
+        password: newPassword,
+        passwordConfirm: confirmPassword,
+      });
+      success = true;
+    } catch (err: unknown) {
+      const pbError = err as { status?: number };
+      if (pbError.status === 400) {
+        error = 'Current password is incorrect or new password does not meet requirements.';
+      } else if (pbError.status === 404) {
+        error = 'User account not found. Please log in again.';
+      } else {
+        error = 'Failed to update password. Please try again later.';
+      }
+    } finally {
+      loading = false;
+    }
   }
 </script>
 

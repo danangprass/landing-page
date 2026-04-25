@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { pb } from '$lib/pb';
+
   let email = $state('');
   let loading = $state(false);
   let submitted = $state(false);
@@ -27,9 +29,14 @@
     e.preventDefault();
     error = '';
     loading = true;
-    await new Promise(r => setTimeout(r, 1500));
-    loading = false;
-    submitted = true;
+    try {
+      await pb.collection('users').requestPasswordReset(email);
+    } catch {
+      // Silently swallow errors to prevent email enumeration
+    } finally {
+      submitted = true;
+      loading = false;
+    }
   }
 </script>
 
