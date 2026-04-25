@@ -112,7 +112,7 @@ function createCartStore() {
       // Reload to keep in sync with server state
       load();
     }, {
-      filter: `user = "${userId}"`,
+      filter: `user = "${userId.replace(/"/g, '\\"')}"`,
     }).then((unsub) => {
       unsubRealtime = unsub;
     });
