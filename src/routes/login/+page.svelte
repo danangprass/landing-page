@@ -12,8 +12,21 @@
   const auth = getAuthContext();
 
   function safeRedirect(url: string | null): string {
-    if (!url || !url.startsWith('/') || url.startsWith('//')) return '/';
-    return url;
+    if (!url) return '/';
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(url);
+    } catch {
+      return '/';
+    }
+    const lower = decoded.toLowerCase().trim();
+    if (lower.startsWith('javascript:') || lower.startsWith('vbscript:') || lower.startsWith('data:')) {
+      return '/';
+    }
+    if (!decoded.startsWith('/') || decoded.startsWith('//') || decoded.startsWith('/\\')) {
+      return '/';
+    }
+    return decoded;
   }
 
   // Redirect if already logged in
