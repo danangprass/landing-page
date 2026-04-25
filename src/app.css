@@ -48,13 +48,14 @@
   /* Buttons: press feedback with scale, blur transition for state changes */
   .btn-primary {
     @apply bg-accent text-bg font-semibold px-6 py-3 rounded-full;
-    transition: transform 160ms var(--ease-out), background-color 200ms var(--ease-out), filter 200ms var(--ease-out);
+    transition: transform 160ms var(--ease-spring), background-color 200ms var(--ease-out), filter 200ms var(--ease-out);
   }
   .btn-primary:hover {
     @apply bg-accent-hover;
   }
   .btn-primary:active {
     transform: scale(0.97);
+    filter: brightness(0.95);
   }
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover {
@@ -64,13 +65,14 @@
 
   .btn-secondary {
     @apply border border-accent text-accent font-semibold px-6 py-3 rounded-full;
-    transition: transform 160ms var(--ease-out), background-color 200ms var(--ease-out), color 200ms var(--ease-out), border-color 200ms var(--ease-out);
+    transition: transform 160ms var(--ease-spring), background-color 200ms var(--ease-out), color 200ms var(--ease-out), border-color 200ms var(--ease-out);
   }
   .btn-secondary:hover {
     @apply bg-accent text-bg border-accent;
   }
   .btn-secondary:active {
     transform: scale(0.97);
+    filter: brightness(0.95);
   }
   @media (hover: hover) and (pointer: fine) {
     .btn-secondary:hover {
@@ -81,13 +83,21 @@
   /* Cards: hover lift with proper easing, touch-safe */
   .card {
     @apply bg-surface rounded-lg overflow-hidden;
-    transition: box-shadow 250ms var(--ease-out), transform 250ms var(--ease-out);
+    transition: box-shadow 300ms var(--ease-out), transform 300ms var(--ease-spring);
   }
   @media (hover: hover) and (pointer: fine) {
     .card:hover {
       box-shadow: var(--shadow-elevated);
-      transform: translateY(-2px);
+      transform: translateY(-4px) scale(1.01);
     }
+  }
+
+  /* Generic interactive utility: nav icons, small buttons, icon-only controls */
+  .interactive {
+    transition: transform 160ms var(--ease-spring);
+  }
+  .interactive:active {
+    transform: scale(0.94);
   }
 
   .section-padding {
@@ -141,6 +151,27 @@
     opacity: 1;
     transform: none;
     transition: opacity 200ms ease;
+  }
+  .card {
+    transition: box-shadow 200ms ease;
+  }
+  .card:hover {
+    transform: none;
+  }
+  .btn-primary,
+  .btn-secondary {
+    transition: background-color 200ms ease, filter 200ms ease;
+  }
+  .btn-primary:active,
+  .btn-secondary:active {
+    transform: none;
+    filter: brightness(0.95);
+  }
+  .interactive {
+    transition: none;
+  }
+  .interactive:active {
+    transform: none;
   }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
