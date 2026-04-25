@@ -177,8 +177,13 @@
   async function handlePlaceOrder() {
     if (!agreedToTerms) return;
     if (!auth.user) return;
+    if (cart.items.length === 0) {
+      orderError = 'Your cart is empty. Please add items before checking out.';
+      return;
+    }
     orderError = '';
     orderLoading = true;
+    let orderId: string | null = null;
     try {
       const shippingAddress = `${fullName}, ${address1}${address2 ? ', ' + address2 : ''}, ${city}, ${province} ${zip}, ${country}`;
       const order = await pb.collection('orders').create({
@@ -188,6 +193,7 @@
         shipping_address: shippingAddress,
         billing_address: shippingAddress,
       });
+      orderId = order.id;
       await Promise.all(
         cart.items.map((item) =>
           pb.collection('order_items').create({
@@ -201,7 +207,11 @@
       await cart.clear();
       orderPlaced = true;
     } catch (err: unknown) {
-      orderError = err instanceof Error ? err.message : 'Failed to place order. Please try again.';
+      if (orderId) {
+        try { await pb.collection('orders').delete(orderId); } catch { /* best-effort rollback */ }
+      }
+      console.error('Order creation failed:', err);
+      orderError = 'Failed to place order. Please try again.';
     } finally {
       orderLoading = false;
     }
