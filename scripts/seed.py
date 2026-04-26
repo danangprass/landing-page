@@ -1,9 +1,9 @@
-import json, urllib.request, urllib.error, urllib.parse
+import json, os, urllib.request, urllib.error, urllib.parse
 
 BASE = "http://localhost:8090"
 
 # Authenticate
-auth_data = json.dumps({"identity": "admin@example.com", "password": "password12"}).encode()
+auth_data = json.dumps({"identity": os.getenv("PB_ADMIN_EMAIL", "admin@example.com"), "password": os.getenv("PB_ADMIN_PASSWORD", "password12")}).encode()
 req = urllib.request.Request(
     f"{BASE}/api/collections/_superusers/auth-with-password",
     data=auth_data,
@@ -44,7 +44,62 @@ def find_by_slug(collection, slug):
     except Exception:
         return None
 
-import urllib.parse
+def patch_collection_rules(collection_name, rules):
+    """Set API rules on a collection via the admin API (PATCH /api/collections/:name).
+
+    In PocketBase, an empty string "" means public access (no auth required).
+    null means the rule is locked (no access). This must be called after
+    collections are created to ensure unauthenticated visitors can read
+    public data like products and categories.
+    """
+    payload = json.dumps(rules).encode()
+    req = urllib.request.Request(
+        f"{BASE}/api/collections/{collection_name}",
+        data=payload,
+        headers=HEADERS,
+        method="PATCH"
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            json.loads(resp.read())
+            print(f"  Rules updated for '{collection_name}': listRule={rules.get('listRule')!r}, viewRule={rules.get('viewRule')!r}")
+    except urllib.error.HTTPError as e:
+        print(f"  WARNING: Could not patch rules for '{collection_name}': {e.read().decode()}")
+
+# --- PATCH PUBLIC API RULES ---
+# Empty string "" = public access (no authentication required).
+# This fixes 403 Forbidden errors on the landing page for unauthenticated visitors.
+# PocketBase defaults new collections to null rules (no access) so we must set them explicitly.
+print("--- Patching collection API rules ---")
+
+for col in ["categories", "products", "banners", "testimonials"]:
+    patch_collection_rules(col, {
+        "listRule": "", "viewRule": "",
+        "createRule": None, "updateRule": None, "deleteRule": None,
+    })
+
+patch_collection_rules("reviews", {
+    "listRule": "", "viewRule": "",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": "@request.auth.id = user.id",
+    "deleteRule": "@request.auth.id = user.id",
+})
+
+for col in ["cart_items", "wishlists", "orders"]:
+    patch_collection_rules(col, {
+        "listRule": "@request.auth.id = user.id",
+        "viewRule": "@request.auth.id = user.id",
+        "createRule": "@request.auth.id != \"\"",
+        "updateRule": "@request.auth.id = user.id",
+        "deleteRule": "@request.auth.id = user.id",
+    })
+
+patch_collection_rules("order_items", {
+    "listRule": "@request.auth.id = order.user.id",
+    "viewRule": "@request.auth.id = order.user.id",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": None, "deleteRule": None,
+})
 
 # --- CATEGORIES ---
 categories = [
