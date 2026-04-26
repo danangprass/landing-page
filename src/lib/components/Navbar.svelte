@@ -81,12 +81,14 @@
     // Compute transform-origin from button position before opening
     if (!authPopoverOpen && signInBtnEl) {
       const rect = signInBtnEl.getBoundingClientRect();
-      const navEl = signInBtnEl.closest('nav');
-      const navRect = navEl?.getBoundingClientRect();
+      const navEl = signInBtnEl.closest<HTMLElement>('nav');
+      const navRect = navEl?.getBoundingClientRect() ?? null;
       if (navRect) {
         // origin X = center of button relative to the full-width panel
         const originX = rect.left + rect.width / 2 - navRect.left;
         authPopoverStyle = `transform-origin: ${originX}px top`;
+      } else {
+        authPopoverStyle = 'transform-origin: right top';
       }
     }
 
