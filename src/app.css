@@ -1,17 +1,17 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #000000;
-  --color-surface: #1d1d1f;
-  --color-surface-hover: #2d2d2f;
-  --color-text-primary: #f5f5f7;
-  --color-text-secondary: #86868b;
-  --color-accent: #2997ff;
-  --color-accent-hover: #0a84ff;
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-hover: #e8e8ed;
+  --color-text-primary: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-accent: #0071e3;
+  --color-accent-hover: #0077ed;
   --color-success: #30d158;
   --color-warning: #ff9f0a;
   --color-error: #ff453a;
-  --color-border: #424245;
+  --color-border: #d2d2d7;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
 
@@ -20,8 +20,8 @@
   --radius-lg: 18px;
   --radius-full: 9999px;
 
-  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.12);
 
   /* Design engineering: custom easing curves */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -47,7 +47,8 @@
 @layer components {
   /* Buttons: press feedback with scale, blur transition for state changes */
   .btn-primary {
-    @apply bg-accent text-bg font-semibold px-6 py-3 rounded-full;
+    @apply bg-accent font-semibold px-6 py-3 rounded-full;
+    color: #ffffff;
     transition: transform 160ms var(--ease-spring), background-color 200ms var(--ease-out), filter 200ms var(--ease-out);
   }
   .btn-primary:hover {
@@ -68,7 +69,8 @@
     transition: transform 160ms var(--ease-spring), background-color 200ms var(--ease-out), color 200ms var(--ease-out), border-color 200ms var(--ease-out);
   }
   .btn-secondary:hover {
-    @apply bg-accent text-bg border-accent;
+    @apply bg-accent border-accent;
+    color: #ffffff;
   }
   .btn-secondary:active {
     transform: scale(0.97);
@@ -76,7 +78,8 @@
   }
   @media (hover: hover) and (pointer: fine) {
     .btn-secondary:hover {
-      @apply bg-accent text-bg border-accent;
+      @apply bg-accent border-accent;
+      color: #ffffff;
     }
   }
 
