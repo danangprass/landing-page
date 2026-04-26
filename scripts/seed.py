@@ -1,9 +1,9 @@
-import json, urllib.request, urllib.error, urllib.parse
+import json, os, urllib.request, urllib.error, urllib.parse
 
 BASE = "http://localhost:8090"
 
 # Authenticate
-auth_data = json.dumps({"identity": "admin@example.com", "password": "password12"}).encode()
+auth_data = json.dumps({"identity": os.getenv("PB_ADMIN_EMAIL", "admin@example.com"), "password": os.getenv("PB_ADMIN_PASSWORD", "password12")}).encode()
 req = urllib.request.Request(
     f"{BASE}/api/collections/_superusers/auth-with-password",
     data=auth_data,
