@@ -3,7 +3,7 @@ import PocketBase from 'pocketbase';
 const pb = new PocketBase('http://localhost:8090');
 
 async function auth() {
-  await pb.collection('_superusers').authWithPassword('admin@example.com', 'password12');
+  await pb.collection('_superusers').authWithPassword(process.env.PB_ADMIN_EMAIL || 'admin@example.com', process.env.PB_ADMIN_PASSWORD || 'password12');
   console.log('Authenticated as admin');
 }
 
