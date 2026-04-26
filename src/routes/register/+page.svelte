@@ -52,7 +52,7 @@
     }
     error = '';
     loading = true;
-    const success = await auth.register({ name, email, password, passwordConfirm: confirmPassword });
+    const success = await auth.register({ name: name.trim(), email: email.trim(), password, passwordConfirm: confirmPassword });
     loading = false;
     if (success) {
       goto('/');
