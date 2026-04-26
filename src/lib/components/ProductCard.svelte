@@ -112,20 +112,20 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    transition: transform 250ms var(--ease-out);
+    transition: transform 350ms var(--ease-spring);
   }
 
   .product-emoji {
     font-size: 3.75rem;
     line-height: 1;
-    opacity: 0.3;
+    opacity: 0.5;
     color: var(--color-text-secondary);
   }
 
-  /* Image hover: scale on pointer devices only */
+  /* Image hover: float + scale on pointer devices only */
   @media (hover: hover) and (pointer: fine) {
     .product-card:hover .product-emoji-wrap {
-      transform: scale(1.03);
+      transform: translateY(-4px) scale(1.05);
     }
   }
 
@@ -155,15 +155,15 @@
 
   .badge-new {
     background-color: var(--color-accent);
-    color: var(--color-bg);
+    color: #ffffff;
   }
   .badge-sale {
     background-color: var(--color-warning);
-    color: var(--color-bg);
+    color: #ffffff;
   }
   .badge-limited {
     background-color: var(--color-error);
-    color: var(--color-bg);
+    color: #ffffff;
   }
 
   /* Wishlist button */
@@ -176,13 +176,13 @@
     height: 2rem;
     border-radius: 50%;
     border: none;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(255, 255, 255, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition:
-      transform 160ms var(--ease-out),
+      transform 200ms var(--ease-spring),
       background-color 200ms var(--ease-out);
   }
 
@@ -192,7 +192,8 @@
 
   @media (hover: hover) and (pointer: fine) {
     .wishlist-btn:hover {
-      background-color: rgba(0, 0, 0, 0.8);
+      transform: scale(1.08);
+      background-color: rgba(255, 255, 255, 0.95);
     }
   }
 
