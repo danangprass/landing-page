@@ -10,6 +10,7 @@
   let loading = $state(false);
   let error = $state('');
   let agreeTerms = $state(false);
+  let fieldErrors = $state<Record<string, string>>({});
 
   const auth = getAuthContext();
 
@@ -37,7 +38,18 @@
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
-    if (!passwordsMatch || !agreeTerms) return;
+    fieldErrors = {};
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Full name is required.';
+    if (!email.trim()) errs.email = 'Email address is required.';
+    if (!password) errs.password = 'Password is required.';
+    if (!confirmPassword) errs.confirmPassword = 'Please confirm your password.';
+    if (password && confirmPassword && !passwordsMatch) errs.confirmPassword = 'Passwords do not match.';
+    if (!agreeTerms) errs.terms = 'You must agree to the Terms of Service.';
+    if (Object.keys(errs).length > 0) {
+      fieldErrors = errs;
+      return;
+    }
     error = '';
     loading = true;
     const success = await auth.register({ name, email, password, passwordConfirm: confirmPassword });
@@ -70,18 +82,20 @@
     <form onsubmit={handleSubmit} class="auth-form">
       <div class="field-group">
         <label for="name" class="field-label">Full Name</label>
-        <input id="name" type="text" bind:value={name} class="field-input" placeholder="Your full name" autocomplete="name" required />
+        <input id="name" type="text" bind:value={name} class="field-input" class:field-input--error={!!fieldErrors.name} placeholder="Your full name" autocomplete="name" />
+        {#if fieldErrors.name}<span class="field-error">{fieldErrors.name}</span>{/if}
       </div>
 
       <div class="field-group">
         <label for="email" class="field-label">Email</label>
-        <input id="email" type="email" bind:value={email} class="field-input" placeholder="you@example.com" autocomplete="email" required />
+        <input id="email" type="email" bind:value={email} class="field-input" class:field-input--error={!!fieldErrors.email} placeholder="you@example.com" autocomplete="email" />
+        {#if fieldErrors.email}<span class="field-error">{fieldErrors.email}</span>{/if}
       </div>
 
       <div class="field-group">
         <label for="password" class="field-label">Password</label>
         <div class="field-input-wrap">
-          <input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} class="field-input field-input--has-toggle" placeholder="Create a password" autocomplete="new-password" required />
+          <input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} class="field-input field-input--has-toggle" class:field-input--error={!!fieldErrors.password} placeholder="Create a password" autocomplete="new-password" />
           <button type="button" class="password-toggle" onclick={() => (showPassword = !showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
             {#if showPassword}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23" /></svg>
@@ -90,6 +104,7 @@
             {/if}
           </button>
         </div>
+        {#if fieldErrors.password}<span class="field-error">{fieldErrors.password}</span>{/if}
         {#if password}
           <div class="password-strength">
             <div class="strength-bar">
@@ -109,23 +124,27 @@
           type={showPassword ? 'text' : 'password'}
           bind:value={confirmPassword}
           class="field-input"
-          class:field-input--error={!passwordsMatch && confirmPassword !== ''}
+          class:field-input--error={!!fieldErrors.confirmPassword || (!passwordsMatch && confirmPassword !== '')}
           placeholder="Confirm your password"
           autocomplete="new-password"
-          required
         />
-        {#if !passwordsMatch && confirmPassword !== ''}
+        {#if fieldErrors.confirmPassword}
+          <span class="field-error">{fieldErrors.confirmPassword}</span>
+        {:else if !passwordsMatch && confirmPassword !== ''}
           <span class="field-error">Passwords do not match</span>
         {/if}
       </div>
 
-      <label class="checkbox-label">
-        <input type="checkbox" class="checkbox-input" bind:checked={agreeTerms} />
-        <span class="checkbox-custom"></span>
-        <span class="checkbox-text">I agree to the <a href="/terms" class="auth-link">Terms of Service</a> and <a href="/privacy" class="auth-link">Privacy Policy</a></span>
-      </label>
+      <div>
+        <label class="checkbox-label" class:checkbox-label--error={!!fieldErrors.terms}>
+          <input type="checkbox" class="checkbox-input" bind:checked={agreeTerms} />
+          <span class="checkbox-custom" class:checkbox-custom--error={!!fieldErrors.terms}></span>
+          <span class="checkbox-text">I agree to the <a href="/terms" class="auth-link">Terms of Service</a> and <a href="/privacy" class="auth-link">Privacy Policy</a></span>
+        </label>
+        {#if fieldErrors.terms}<span class="field-error">{fieldErrors.terms}</span>{/if}
+      </div>
 
-      <button type="submit" class="btn-primary auth-submit" disabled={loading || !agreeTerms}>
+      <button type="submit" class="btn-primary auth-submit" disabled={loading}>
         {#if loading}
           <span class="spinner"></span>
           Creating account…
@@ -197,6 +216,7 @@
   .checkbox-input:checked + .checkbox-custom::after { content: ''; display: block; width: 5px; height: 9px; border: solid var(--color-bg); border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-1px); }
   .checkbox-input:focus-visible + .checkbox-custom { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   .checkbox-text { font-size: 0.875rem; color: var(--color-text-secondary); }
+  .checkbox-custom--error { border-color: var(--color-error); }
   .auth-link { color: var(--color-accent); text-decoration: none; transition: color 160ms var(--ease-out); }
   .auth-link:active { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) { .auth-link:hover { color: var(--color-accent-hover); } }
