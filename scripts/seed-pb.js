@@ -3,7 +3,7 @@ import PocketBase from 'pocketbase';
 const pb = new PocketBase('http://localhost:8090');
 
 async function auth() {
-  await pb.admins.authWithPassword('admin@example.com', 'password');
+  await pb.collection('_superusers').authWithPassword(process.env.PB_ADMIN_EMAIL || 'admin@example.com', process.env.PB_ADMIN_PASSWORD || 'password12');
   console.log('Authenticated as admin');
 }
 
@@ -12,79 +12,90 @@ async function createCollections() {
     {
       name: 'categories',
       type: 'base',
-      schema: [
+      fields: [
         { name: 'name', type: 'text', required: true },
-        { name: 'slug', type: 'text', required: true, options: { max: 100 } },
+        { name: 'slug', type: 'text', required: true, max: 100 },
         { name: 'description', type: 'text', required: false },
         { name: 'sort_order', type: 'number', required: true },
-        { name: 'active', type: 'bool', required: true },
+        { name: 'active', type: 'bool', required: false },
       ],
     },
     {
       name: 'products',
       type: 'base',
-      schema: [
+      fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'slug', type: 'text', required: true },
         { name: 'description', type: 'text', required: false },
         { name: 'price', type: 'number', required: true },
         { name: 'compare_at_price', type: 'number', required: false },
-        { name: 'category', type: 'relation', required: true, options: { collectionId: 'categories', maxSelect: 1 } },
-        { name: 'featured', type: 'bool', required: true },
-        { name: 'active', type: 'bool', required: true },
+        { name: 'category', type: 'relation', required: true, collectionId: 'categories', maxSelect: 1 },
+        { name: 'featured', type: 'bool', required: false },
+        { name: 'active', type: 'bool', required: false },
         { name: 'stock', type: 'number', required: true },
         { name: 'sku', type: 'text', required: true },
-        { name: 'image', type: 'file', required: false, options: { maxSelect: 1, maxSize: 5242880, mimeTypes: ['image/*'] } },
+        { name: 'image', type: 'file', required: false, maxSelect: 1, maxSize: 5242880, mimeTypes: ['image/*'] },
       ],
     },
     {
       name: 'banners',
       type: 'base',
-      schema: [
+      fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'subtitle', type: 'text', required: false },
         { name: 'link_url', type: 'text', required: false },
         { name: 'sort_order', type: 'number', required: true },
-        { name: 'active', type: 'bool', required: true },
+        { name: 'active', type: 'bool', required: false },
         { name: 'image', type: 'file', required: false },
       ],
     },
     {
       name: 'testimonials',
       type: 'base',
-      schema: [
+      fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'role', type: 'text', required: false },
         { name: 'body', type: 'text', required: true },
         { name: 'rating', type: 'number', required: true },
         { name: 'sort_order', type: 'number', required: true },
-        { name: 'active', type: 'bool', required: true },
+        { name: 'active', type: 'bool', required: false },
         { name: 'avatar', type: 'file', required: false },
+      ],
+    },
+    {
+      name: 'reviews',
+      type: 'base',
+      fields: [
+        { name: 'product', type: 'relation', required: true, collectionId: 'products' },
+        { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
+        { name: 'rating', type: 'number', required: true },
+        { name: 'title', type: 'text', required: true },
+        { name: 'body', type: 'text', required: true }
       ],
     },
     {
       name: 'cart_items',
       type: 'base',
-      schema: [
-        { name: 'user', type: 'relation', required: true, options: { collectionId: '_pb_users_auth_' } },
-        { name: 'product', type: 'relation', required: true, options: { collectionId: 'products' } },
+      fields: [
+        { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
+        { name: 'product', type: 'relation', required: true, collectionId: 'products' },
         { name: 'quantity', type: 'number', required: true },
       ],
     },
     {
       name: 'wishlists',
       type: 'base',
-      schema: [
-        { name: 'user', type: 'relation', required: true, options: { collectionId: '_pb_users_auth_' } },
-        { name: 'product', type: 'relation', required: true, options: { collectionId: 'products' } },
+      fields: [
+        { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
+        { name: 'product', type: 'relation', required: true, collectionId: 'products' },
       ],
     },
     {
       name: 'orders',
       type: 'base',
-      schema: [
-        { name: 'user', type: 'relation', required: true, options: { collectionId: '_pb_users_auth_' } },
-        { name: 'status', type: 'select', required: true, options: { values: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] } },
+      fields: [
+        { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
+        { name: 'status', type: 'select', required: true, values: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
         { name: 'total', type: 'number', required: true },
         { name: 'shipping_address', type: 'text', required: false },
         { name: 'billing_address', type: 'text', required: false },
@@ -93,29 +104,47 @@ async function createCollections() {
     {
       name: 'order_items',
       type: 'base',
-      schema: [
-        { name: 'order', type: 'relation', required: true, options: { collectionId: 'orders' } },
-        { name: 'product', type: 'relation', required: true, options: { collectionId: 'products' } },
+      fields: [
+        { name: 'order', type: 'relation', required: true, collectionId: 'orders' },
+        { name: 'product', type: 'relation', required: true, collectionId: 'products' },
         { name: 'quantity', type: 'number', required: true },
         { name: 'price', type: 'number', required: true },
       ],
     },
   ];
 
+  const colmap = {};
   for (const col of collections) {
     try {
       const existing = await pb.collections.getOne(col.name);
       console.log(`Collection '${col.name}' already exists, skipping.`);
+      colmap[col.name] = existing.id;
       continue;
     } catch {
       // collection does not exist, create it
     }
 
     try {
-      await pb.collections.create(col);
-      console.log(`Created collection: ${col.name}`);
+      // Resolve relation IDs dynamically
+      for (const field of col.fields || []) {
+        if (field.type === 'relation') {
+          const relationName = field.collectionId;
+          if (relationName === '_pb_users_auth_') {
+            const userCol = await pb.collections.getOne('users');
+            field.collectionId = userCol.id;
+          } else if (colmap[relationName]) {
+            field.collectionId = colmap[relationName];
+          } else {
+            // For safety if not found (though all relations should be ordered)
+            console.warn(`Warning: Could not find mapping for ${relationName}`);
+          }
+        }
+      }
+      const created = await pb.collections.create(col);
+      colmap[col.name] = created.id;
+      console.log(`Created collection: ${col.name} (${created.id})`);
     } catch (err) {
-      console.error(`Failed to create collection '${col.name}':`, err.message);
+      console.error(`Failed to create collection '${col.name}':`, err.message, JSON.stringify(err.response?.data, null, 2));
       throw err;
     }
   }
@@ -163,7 +192,12 @@ async function seedProducts() {
   ];
 
   for (const item of data) {
-    await pb.collection('products').create(item);
+    try {
+      await pb.collection('products').create(item);
+    } catch (err) {
+      console.error("Failed creating product:", item.name, err.message, JSON.stringify(err.response?.data || {}));
+      throw err;
+    }
   }
   console.log('Seeded products');
 }
