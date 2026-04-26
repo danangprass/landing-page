@@ -1,9 +1,9 @@
-import json, urllib.request, urllib.error
+import json, os, secrets, urllib.request, urllib.error
 
 BASE = "http://localhost:8090"
 
 # Authenticate as superuser
-auth_data = json.dumps({"identity": "admin@example.com", "password": "password12"}).encode()
+auth_data = json.dumps({"identity": os.getenv("PB_ADMIN_EMAIL", "admin@example.com"), "password": os.getenv("PB_ADMIN_PASSWORD", "password12")}).encode()
 req = urllib.request.Request(
     f"{BASE}/api/collections/_superusers/auth-with-password",
     data=auth_data,
@@ -60,8 +60,10 @@ for p in required_users:
     if p not in users:
         email = p.lower().replace(" ", ".") + "@example.com"
         print(f"Creating user {p}")
-        res = post("users", {"email": email, "emailVisibility": True, "password": "password123", "passwordConfirm": "password123", "name": p})
+        secure_password = secrets.token_urlsafe(16)
+        res = post("users", {"email": email, "emailVisibility": True, "password": secure_password, "passwordConfirm": secure_password, "name": p})
         if res:
+            print(f"  → password: {secure_password}  (save this — cannot be retrieved later)")
             users[p] = res["id"]
 products = get_ids("products")
 print(f"Users: {len(users)}, Products: {len(products)}")
