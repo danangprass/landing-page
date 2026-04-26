@@ -12,6 +12,12 @@ async function createCollections() {
     {
       name: 'categories',
       type: 'base',
+      // Public read access — "" means allow everyone (no auth required)
+      listRule: '',
+      viewRule: '',
+      createRule: null,
+      updateRule: null,
+      deleteRule: null,
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'slug', type: 'text', required: true, max: 100 },
@@ -23,6 +29,12 @@ async function createCollections() {
     {
       name: 'products',
       type: 'base',
+      // Public read access — "" means allow everyone (no auth required)
+      listRule: '',
+      viewRule: '',
+      createRule: null,
+      updateRule: null,
+      deleteRule: null,
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'slug', type: 'text', required: true },
@@ -40,6 +52,12 @@ async function createCollections() {
     {
       name: 'banners',
       type: 'base',
+      // Public read access — "" means allow everyone (no auth required)
+      listRule: '',
+      viewRule: '',
+      createRule: null,
+      updateRule: null,
+      deleteRule: null,
       fields: [
         { name: 'title', type: 'text', required: true },
         { name: 'subtitle', type: 'text', required: false },
@@ -52,6 +70,12 @@ async function createCollections() {
     {
       name: 'testimonials',
       type: 'base',
+      // Public read access — "" means allow everyone (no auth required)
+      listRule: '',
+      viewRule: '',
+      createRule: null,
+      updateRule: null,
+      deleteRule: null,
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'role', type: 'text', required: false },
@@ -65,6 +89,12 @@ async function createCollections() {
     {
       name: 'reviews',
       type: 'base',
+      // Public read, auth required for write
+      listRule: '',
+      viewRule: '',
+      createRule: '@request.auth.id != ""',
+      updateRule: '@request.auth.id = user.id',
+      deleteRule: '@request.auth.id = user.id',
       fields: [
         { name: 'product', type: 'relation', required: true, collectionId: 'products' },
         { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
@@ -76,6 +106,12 @@ async function createCollections() {
     {
       name: 'cart_items',
       type: 'base',
+      // Restricted to the owning user only
+      listRule: '@request.auth.id = user.id',
+      viewRule: '@request.auth.id = user.id',
+      createRule: '@request.auth.id != ""',
+      updateRule: '@request.auth.id = user.id',
+      deleteRule: '@request.auth.id = user.id',
       fields: [
         { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
         { name: 'product', type: 'relation', required: true, collectionId: 'products' },
@@ -85,6 +121,12 @@ async function createCollections() {
     {
       name: 'wishlists',
       type: 'base',
+      // Restricted to the owning user only
+      listRule: '@request.auth.id = user.id',
+      viewRule: '@request.auth.id = user.id',
+      createRule: '@request.auth.id != ""',
+      updateRule: '@request.auth.id = user.id',
+      deleteRule: '@request.auth.id = user.id',
       fields: [
         { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
         { name: 'product', type: 'relation', required: true, collectionId: 'products' },
@@ -93,6 +135,12 @@ async function createCollections() {
     {
       name: 'orders',
       type: 'base',
+      // Restricted to the owning user only
+      listRule: '@request.auth.id = user.id',
+      viewRule: '@request.auth.id = user.id',
+      createRule: '@request.auth.id != ""',
+      updateRule: '@request.auth.id = user.id',
+      deleteRule: null,
       fields: [
         { name: 'user', type: 'relation', required: true, collectionId: '_pb_users_auth_' },
         { name: 'status', type: 'select', required: true, values: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
@@ -104,6 +152,12 @@ async function createCollections() {
     {
       name: 'order_items',
       type: 'base',
+      // Restricted to the user who owns the parent order
+      listRule: '@request.auth.id = order.user.id',
+      viewRule: '@request.auth.id = order.user.id',
+      createRule: '@request.auth.id != ""',
+      updateRule: null,
+      deleteRule: null,
       fields: [
         { name: 'order', type: 'relation', required: true, collectionId: 'orders' },
         { name: 'product', type: 'relation', required: true, collectionId: 'products' },
@@ -117,8 +171,22 @@ async function createCollections() {
   for (const col of collections) {
     try {
       const existing = await pb.collections.getOne(col.name);
-      console.log(`Collection '${col.name}' already exists, skipping.`);
       colmap[col.name] = existing.id;
+
+      // Patch API rules even if collection already exists — fixes 403 on existing deployments
+      const rulesPatch = {};
+      const ruleKeys = ['listRule', 'viewRule', 'createRule', 'updateRule', 'deleteRule'];
+      for (const key of ruleKeys) {
+        if (Object.prototype.hasOwnProperty.call(col, key)) {
+          rulesPatch[key] = col[key];
+        }
+      }
+      if (Object.keys(rulesPatch).length > 0) {
+        await pb.collections.update(existing.id, rulesPatch);
+        console.log(`Collection '${col.name}' already exists — updated API rules.`);
+      } else {
+        console.log(`Collection '${col.name}' already exists, skipping.`);
+      }
       continue;
     } catch {
       // collection does not exist, create it
