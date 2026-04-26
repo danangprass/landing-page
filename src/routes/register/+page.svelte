@@ -13,6 +13,26 @@
 
   const auth = getAuthContext();
 
+  // Reveal animation: add .visible to all .reveal elements when they enter the viewport
+  $effect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const elements = document.querySelectorAll('.reveal');
+    for (const el of elements) {
+      observer.observe(el);
+    }
+    return () => observer.disconnect();
+  });
+
   // Redirect if already logged in
   $effect(() => {
     if (auth.isLoggedIn) {

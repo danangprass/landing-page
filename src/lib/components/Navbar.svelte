@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { goto, afterNavigate } from '$app/navigation';
   import { getAuthContext } from '$lib/stores/auth.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
@@ -42,6 +42,12 @@
     return () => {
       document.body.style.overflow = '';
     };
+  });
+
+  // Close search overlay on route changes so it doesn't persist across page navigations
+  afterNavigate(() => {
+    searchOpen = false;
+    searchQuery = '';
   });
 
   function toggleSearch() {

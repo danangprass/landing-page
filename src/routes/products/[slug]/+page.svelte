@@ -1,14 +1,13 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import { getProductsContext } from '$lib/stores/products.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import PriceDisplay from '$lib/components/PriceDisplay.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import type { CategoriesRecord } from '$lib/pb-types';
-import type { ExpandedProduct } from '$lib/pb-types-ext';
+  import type { ExpandedProduct } from '$lib/pb-types-ext';
   import { getImageUrl } from '$lib/pb';
-
-  let { params } = $props();
 
   const store = getProductsContext();
   let cart = getCartContext();
@@ -18,7 +17,9 @@ import type { ExpandedProduct } from '$lib/pb-types-ext';
   let category = $state<CategoriesRecord | null>(null);
 
   $effect(() => {
-    store.loadProductBySlug(params.slug).then(p => {
+    const slug = page.params.slug;
+    if (!slug) return;
+    store.loadProductBySlug(slug).then(p => {
       product = p ?? null;
       category = p?.expand?.category ?? null;
     });
