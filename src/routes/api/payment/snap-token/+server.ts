@@ -56,7 +56,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				last_name: lastName,
 				email: String(user.email || ''),
 				...(shippingAddress && typeof shippingAddress === 'object'
-					? { shipping_address: shippingAddress }
+					? { shipping_address: shippingAddress as Record<string, unknown> }
 					: {}),
 			},
 		});

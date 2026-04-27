@@ -43,7 +43,7 @@ describe('createSnapToken', () => {
 		const headers = init?.headers as Record<string, string>;
 		expect(headers['Content-Type']).toBe('application/json');
 		expect(headers['Accept']).toBe('application/json');
-		expect(headers['Authorization']).toBe(`Basic ${Buffer.from('test-server-key:').toString('base64')}`);
+		expect(headers['Authorization']).toBe(`Basic ${btoa('test-server-key:')}`);
 
 		const body = JSON.parse(init?.body as string);
 		expect(body.transaction_details).toEqual({

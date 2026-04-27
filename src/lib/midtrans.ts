@@ -30,7 +30,7 @@ export async function createSnapToken(order: SnapOrder): Promise<{ snapToken: st
 		throw new Error('SERVER_KEY is not configured');
 	}
 
-	const auth = Buffer.from(`${serverKey}:`).toString('base64');
+	const auth = btoa(`${serverKey}:`);
 
 	const response = await fetch(SNAP_API_URL, {
 		method: 'POST',
