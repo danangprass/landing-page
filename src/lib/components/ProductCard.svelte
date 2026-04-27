@@ -29,7 +29,7 @@
   function handleAddToBag(e: MouseEvent) {
     e.stopPropagation();
     e.preventDefault();
-    cart.add(product.id);
+    cart.add(product.id, 1, product as unknown as import('$lib/pb-types-ext').ExpandedProduct);
   }
 
   function handleWishlistToggle(e: MouseEvent) {

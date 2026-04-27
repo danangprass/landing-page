@@ -16,10 +16,11 @@
   const wishlist = setWishlistContext();
   const products = setProductsContext();
 
-  // Load cart and wishlist when user logs in
+  // Load cart always (localStorage for anonymous, server for authenticated)
+  // and wishlist when user logs in
   $effect(() => {
+    cart.load();
     if (auth.isLoggedIn) {
-      cart.load();
       wishlist.load();
       cart.subscribeRealtime();
       wishlist.subscribeRealtime();
