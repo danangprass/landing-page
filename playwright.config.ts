@@ -7,6 +7,7 @@ export default defineConfig({
         reuseExistingServer: true,
     },
     testDir: 'tests',
+    testMatch: '**/*.spec.ts',
     projects: [
         {
             name: 'chromium',
