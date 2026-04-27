@@ -152,9 +152,20 @@ export const OrdersStatusOptions = {
 	"cancelled": "cancelled",
 } as const
 export type OrdersStatusOptions = typeof OrdersStatusOptions[keyof typeof OrdersStatusOptions]
+
+export const OrdersOrderStatusOptions = {
+	"pending": "pending",
+	"paid": "paid",
+	"failed": "failed",
+	"cancelled": "cancelled",
+} as const
+export type OrdersOrderStatusOptions = typeof OrdersOrderStatusOptions[keyof typeof OrdersOrderStatusOptions]
+
 export type OrdersRecord = {
 	billing_address?: string
 	id: string
+	midtrans_transaction_id?: string
+	order_status?: OrdersOrderStatusOptions
 	shipping_address?: string
 	status: OrdersStatusOptions
 	total: number

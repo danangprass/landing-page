@@ -127,12 +127,12 @@
     });
   }
 
-  async function updateOrderStatus(orderId: string, status: string) {
+  async function updateOrderStatus(orderId: string, status: string, transactionId?: string) {
     try {
-      await fetch(`/api/orders/${orderId}`, {
+      await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, transactionId }),
       });
     } catch (err) {
       console.error('Failed to update order status:', err);
@@ -197,29 +197,30 @@
 
       await loadSnapScript();
 
+      type SnapResult = { transaction_id?: string; payment_type?: string };
       type SnapPayOptions = {
-        onSuccess?: () => void;
-        onPending?: () => void;
-        onError?: () => void;
+        onSuccess?: (result: SnapResult) => void;
+        onPending?: (result: SnapResult) => void;
+        onError?: (result: SnapResult) => void;
         onClose?: () => void;
       };
       const snap = (window as Window & { snap?: { pay(token: string, opts: SnapPayOptions): void } }).snap;
       if (!snap) throw new Error('Snap.js failed to initialize');
 
       snap.pay(snapToken, {
-        onSuccess: async () => {
-          await updateOrderStatus(orderId, 'paid');
+        onSuccess: async (result) => {
+          await updateOrderStatus(orderId, 'paid', result.transaction_id);
           paymentResult = 'success';
           orderPlaced = true;
           await cart.clear();
         },
-        onPending: async () => {
-          await updateOrderStatus(orderId, 'pending');
+        onPending: async (result) => {
+          await updateOrderStatus(orderId, 'pending', result.transaction_id);
           paymentResult = 'pending';
           orderPlaced = true;
         },
-        onError: async () => {
-          await updateOrderStatus(orderId, 'failed');
+        onError: async (result) => {
+          await updateOrderStatus(orderId, 'failed', result.transaction_id);
           paymentResult = 'failed';
           orderError = 'Payment failed. Please try again.';
         },

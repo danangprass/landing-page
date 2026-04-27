@@ -68,17 +68,17 @@ test.describe('Payment Snap Token API', () => {
 	});
 });
 
-test.describe('Order Status PATCH API', () => {
-	test('PATCH /api/orders/:id without auth returns 401', async ({ request }) => {
-		const res = await request.patch('/api/orders/fake-order-id', {
+test.describe('Order Status PATCH API (/api/orders/:id/status)', () => {
+	test('PATCH /api/orders/:id/status without auth returns 401', async ({ request }) => {
+		const res = await request.patch('/api/orders/fake-order-id/status', {
 			data: { status: 'paid' },
 		});
 		expect(res.status()).toBe(401);
 	});
 
-	test('PATCH /api/orders/:id with invalid status returns 400', async ({ request }) => {
-		const res = await request.patch('/api/orders/fake-order-id', {
-			data: { status: 'invalid-status' },
+	test('PATCH /api/orders/:id/status with invalid status returns 400', async ({ request }) => {
+		const res = await request.patch('/api/orders/fake-order-id/status', {
+			data: { status: 'shipped' },
 			headers: {
 				Cookie:
 					'pb_auth=' +
@@ -209,7 +209,7 @@ test.describe('Snap Client Integration', () => {
 				body: JSON.stringify({ snapToken: 'mock-snap-token', redirectUrl: '' }),
 			});
 		});
-		await page.route('/api/orders/ORDER-MOCK-003', async (route) => {
+		await page.route('/api/orders/ORDER-MOCK-003/status', async (route) => {
 			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true }) });
 		});
 		await page.route('https://app.sandbox.midtrans.com/snap/snap.js', async (route) => {
