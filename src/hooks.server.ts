@@ -13,7 +13,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const authCookie = event.cookies.get('pb_auth');
 	if (authCookie) {
 		try {
-			const { token, model } = JSON.parse(decodeURIComponent(authCookie));
+			const parsed = JSON.parse(decodeURIComponent(authCookie));
+			if (!parsed || typeof parsed !== 'object' || typeof parsed.token !== 'string') {
+				throw new Error('Invalid cookie structure');
+			}
+			const { token, model } = parsed;
 			pb.authStore.save(token, model);
 			// Verify the token is still valid
 			if (pb.authStore.isValid) {
