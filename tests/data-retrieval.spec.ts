@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Blackbox: Data Retrieval from PocketBase Database', () => {
-    test.use({ baseURL: 'http://localhost:5173' });
 
     test('Landing page loads real featured products from PocketBase', async ({ page }) => {
         await page.goto('/');
