@@ -56,15 +56,23 @@
     error = '';
     loading = true;
     try {
-      await pb.collection('users').update(auth.user.id, {
-        oldPassword: currentPassword,
-        password: newPassword,
-        passwordConfirm: confirmPassword,
+      const res = await fetch('/api/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          oldPassword: currentPassword,
+          newPassword: newPassword,
+          passwordConfirm: confirmPassword,
+        }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to update password');
+      }
       success = true;
     } catch (err: unknown) {
-      const pbError = err as { status?: number };
-      if (pbError.status === 400) {
+      const pbError = err as { status?: number; message?: string };
+      if (pbError.status === 400 || pbError.message?.includes('incorrect')) {
         error = 'Current password is incorrect or new password does not meet requirements.';
       } else if (pbError.status === 404) {
         error = 'User account not found. Please log in again.';

@@ -14,6 +14,12 @@ vi.mock('svelte', async (importOriginal) => {
     };
 });
 
+vi.mock('$app/state', () => ({
+    page: {
+        data: { user: null },
+    },
+}));
+
 vi.mock('$lib/pb', () => ({
     pb: {
         authStore: {

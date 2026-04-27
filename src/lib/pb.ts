@@ -1,64 +1,63 @@
 import PocketBase from 'pocketbase';
-import { browser, dev } from '$app/environment';
+import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
 
 const PB_URL = env.PUBLIC_PB_URL ?? 'http://localhost:8090';
 
 /**
- * Cookie-based AuthStore adapter for PocketBase.
- * Stores auth token in cookies instead of localStorage for XSS protection.
- * Works with SvelteKit SSR — server reads cookies, client reads/writes them.
+ * In-memory auth store for the browser PocketBase client.
+ * Never persists the token to localStorage or readable cookies.
+ * The server manages the httpOnly auth cookie in hooks.server.ts.
  */
-class CookieAuthStore {
-  private tokenKey = 'pb_auth';
+class MemoryAuthStore {
+	token = '';
+	model: Record<string, unknown> | null = null;
 
-  save(token: string, model: Record<string, unknown> | null) {
-    if (!browser) return;
-    // Client-side cookie writes cannot be httpOnly — the server hook re-sets the cookie
-    // with httpOnly: true on each response, so this client write is a best-effort fallback.
-    const secure = dev ? '' : '; Secure';
-    document.cookie = `${this.tokenKey}=${encodeURIComponent(JSON.stringify({ token, model }))}; path=/; SameSite=Lax; max-age=604800${secure}`;
-  }
+	get isValid() {
+		return !!this.token;
+	}
 
-  load(): { token: string; model: Record<string, unknown> | null } {
-    if (!browser) return { token: '', model: null };
-    const match = document.cookie.match(new RegExp(`(?:^|; )${this.tokenKey}=([^;]*)`));
-    if (!match) return { token: '', model: null };
-    try {
-      return JSON.parse(decodeURIComponent(match[1]));
-    } catch {
-      return { token: '', model: null };
-    }
-  }
+	get isAdmin() {
+		return false;
+	}
 
-  clear() {
-    if (!browser) return;
-    const secure = dev ? '' : '; Secure';
-    document.cookie = `${this.tokenKey}=; path=/; SameSite=Lax; max-age=0${secure}`;
-  }
+	get record() {
+		return this.model;
+	}
+
+	private _callbacks: Array<(token: string, model: Record<string, unknown> | null) => void> = [];
+
+	save(token: string, model: Record<string, unknown> | null) {
+		this.token = token;
+		this.model = model;
+		for (const cb of this._callbacks) {
+			cb(token, model);
+		}
+	}
+
+	clear() {
+		this.token = '';
+		this.model = null;
+		for (const cb of this._callbacks) {
+			cb('', null);
+		}
+	}
+
+	onChange(callback: (token: string, model: Record<string, unknown> | null) => void) {
+		this._callbacks.push(callback);
+		return () => {
+			const idx = this._callbacks.indexOf(callback);
+			if (idx >= 0) this._callbacks.splice(idx, 1);
+		};
+	}
 }
-
-const cookieStore = new CookieAuthStore();
 
 // Client-only singleton. Never use this in server-side code (hooks, +page.server.ts, +layout.server.ts).
 // Server-side code should use event.locals.pb which is a fresh per-request instance.
-export const pb = new PocketBase(PB_URL);
-
-// Override auth store to use cookies
-if (browser) {
-  const saved = cookieStore.load();
-  if (saved.token) {
-    pb.authStore.save(saved.token, saved.model as unknown as Parameters<typeof pb.authStore.save>[1]);
-  }
-
-  pb.authStore.onChange((_token, model) => {
-    if (_token) {
-      cookieStore.save(_token, model as Record<string, unknown> | null);
-    } else {
-      cookieStore.clear();
-    }
-  });
-}
+export const pb = new PocketBase(
+	PB_URL,
+	browser ? (new MemoryAuthStore() as unknown as InstanceType<typeof PocketBase>['authStore']) : undefined
+);
 
 export function getImageUrl(record: unknown, filename: string | undefined): string {
 	if (!filename) return '';
