@@ -74,7 +74,7 @@ test.describe('Open Bug Verification — #54 Product Search Filtering', () => {
     await expect(page.locator('.product-card')).toHaveCount(10);
   });
 
-  test('search updates URL but does not filter products', async ({ page }) => {
+  test('search updates URL and filters products correctly', async ({ page }) => {
     // Open search
     await page.click('button[aria-label="Search products"]');
     await page.fill('input[aria-label="Search products"]', 'phone');
@@ -83,21 +83,19 @@ test.describe('Open Bug Verification — #54 Product Search Filtering', () => {
     // URL should include search param
     await expect(page).toHaveURL(/search=phone/);
 
-    // BUG: All 10 products are still shown instead of just phone products
+    // Should show only phone products (ProPhone 16 Pro, ProPhone 16, ProCharger)
     const productCount = await page.locator('.product-card').count();
-    expect(productCount).toBe(10); // Currently buggy — should be 2 (ProPhone 16 Pro, ProPhone 16)
+    expect(productCount).toBe(3);
   });
 
-  test('search for non-existent term shows all products instead of empty state', async ({ page }) => {
+  test('search for non-existent term shows empty state', async ({ page }) => {
     await page.goto('/products?search=xyznonexistent');
     // Wait for any async product loading
     await page.waitForTimeout(1000);
 
-    // BUG: Should show empty state, but currently shows all products
-    // Count how many products are currently displayed (may vary if PB is down)
+    // Should show empty state (no products match)
     const productCount = await page.locator('.product-card').count();
-    // The bug is that products are shown at all; there should be 0 with empty state
-    expect(productCount).toBeGreaterThan(0); // Currently buggy — shows products instead of empty
+    expect(productCount).toBe(0);
   });
 });
 
