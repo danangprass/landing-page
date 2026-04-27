@@ -137,9 +137,9 @@ describe('Products Store — Data Retrieval (Whitebox)', () => {
 
         it('sets loading state correctly during fetch', async () => {
             const mockedSafeCall = vi.mocked(safeCall);
-            let resolveFn: (v: unknown) => void;
-            const promise = new Promise((resolve) => { resolveFn = resolve; });
-            mockedSafeCall.mockReturnValueOnce(promise as Promise<unknown>);
+            let resolveFn: (v: [{ items: never[]; totalPages: number; page: number }, null]) => void;
+            const promise = new Promise<[{ items: never[]; totalPages: number; page: number }, null]>((resolve) => { resolveFn = resolve; });
+            mockedSafeCall.mockReturnValueOnce(promise);
 
             const store = setProductsContext();
             const loadPromise = store.loadProducts();
@@ -293,8 +293,8 @@ describe('Products Store — Data Retrieval (Whitebox)', () => {
 
             const firstProduct = store.products[0];
             expect(Array.isArray(firstProduct.images)).toBe(true);
-            expect(firstProduct.images.length).toBeGreaterThan(0);
-            expect(typeof firstProduct.images[0]).toBe('string');
+            expect(firstProduct.images?.length).toBeGreaterThan(0);
+            expect(typeof firstProduct.images?.[0]).toBe('string');
         });
     });
 });

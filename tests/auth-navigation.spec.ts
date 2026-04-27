@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Sign in navigation comparison: Navbar vs Register page', () => {
-    test.use({ baseURL: 'http://localhost:5173' });
 
     test('Navbar Sign in link navigates directly to /login', async ({ page }) => {
         await page.goto('/');
