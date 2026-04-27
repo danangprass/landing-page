@@ -84,8 +84,7 @@ test.describe('Open Bug Verification — #54 Product Search Filtering', () => {
     await expect(page).toHaveURL(/search=phone/);
 
     // Should show only phone products (ProPhone 16 Pro, ProPhone 16, ProCharger)
-    const productCount = await page.locator('.product-card').count();
-    expect(productCount).toBe(3);
+    await expect(page.locator('.product-card')).toHaveCount(3);
   });
 
   test('search for non-existent term shows empty state', async ({ page }) => {

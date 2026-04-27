@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { afterNavigate } from '$app/navigation';
   import { untrack } from 'svelte';
   import { getProductsContext } from '$lib/stores/products.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
@@ -25,6 +26,13 @@
     if (s !== untrack(() => searchQuery)) {
       searchQuery = s;
     }
+  });
+
+  afterNavigate(() => {
+    const cat = page.url.searchParams.get('category') ?? '';
+    const s = page.url.searchParams.get('search') ?? '';
+    if (cat !== selectedCategory) selectedCategory = cat;
+    if (s !== searchQuery) searchQuery = s;
   });
 
   $effect(() => {
