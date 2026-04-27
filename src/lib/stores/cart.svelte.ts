@@ -29,7 +29,10 @@ function getLocalCart(): LocalCartEntry[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as LocalCartEntry[];
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.name === 'SecurityError') {
+      showToast('Storage access blocked. Please disable private browsing or adjust cookie settings.', 'error');
+    }
     return [];
   }
 }
@@ -38,7 +41,10 @@ function setLocalCart(entries: LocalCartEntry[]) {
   if (!browser) return;
   try {
     localStorage.setItem(LOCAL_CART_KEY, JSON.stringify(entries));
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.name === 'SecurityError') {
+      showToast('Storage access blocked. Your cart will not persist between sessions.', 'error');
+    }
     // storage may be full or unavailable
   }
 }
@@ -47,7 +53,10 @@ function clearLocalCart() {
   if (!browser) return;
   try {
     localStorage.removeItem(LOCAL_CART_KEY);
-  } catch {
+  } catch (err) {
+    if (err instanceof Error && err.name === 'SecurityError') {
+      showToast('Storage access blocked.', 'error');
+    }
     // ignore
   }
 }
@@ -80,6 +89,7 @@ function createCartStore() {
   let items = $state<CartItem[]>([]);
   let loading = $state(false);
   let adding = $state(false);
+  let merging = $state(false);
   let unsubRealtime: (() => void) | null = null;
 
   async function load() {
@@ -117,8 +127,10 @@ function createCartStore() {
     }
 
     // Merge anonymous cart into server cart after successful load
+    if (merging) return;
     const local = getLocalCart();
     if (local.length > 0) {
+      merging = true;
       for (const entry of local) {
         const existing = items.find((i) => i.product.id === entry.productId);
         if (existing) {
@@ -128,9 +140,10 @@ function createCartStore() {
             })
           );
           if (updated) {
+            const newQuantity = (updated as unknown as CartItemsRecord).quantity;
             items = items.map((i) =>
               i.id === existing.id
-                ? { ...i, quantity: i.quantity + entry.quantity }
+                ? { ...i, quantity: newQuantity }
                 : i
             );
           }
@@ -154,13 +167,14 @@ function createCartStore() {
           }
         }
       }
+      merging = false;
       clearLocalCart();
       showToast('Your bag items have been saved to your account', 'success');
     }
   }
 
   async function add(productId: string, quantity = 1, productSnapshot?: ExpandedProduct) {
-    if (adding) return;
+    if (adding || merging) return;
     adding = true;
 
     try {
@@ -188,13 +202,11 @@ function createCartStore() {
 
         const local = getLocalCart();
         const existing = local.find((i) => i.productId === productId);
-        if (existing) {
-          existing.quantity += quantity;
-        } else {
-          local.push({ productId, quantity, product });
-        }
-        setLocalCart(local);
-        items = local.map((entry) => ({
+        const updatedLocal = existing
+          ? local.map((i) => i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i)
+          : [...local, { productId, quantity, product }];
+        setLocalCart(updatedLocal);
+        items = updatedLocal.map((entry) => ({
           id: `local-${entry.productId}`,
           product: entry.product,
           quantity: entry.quantity,
@@ -260,16 +272,15 @@ function createCartStore() {
     const auth = getAuthContext();
     if (!auth.isLoggedIn) {
       const local = getLocalCart();
-      const entry = local.find((i) => `local-${i.productId}` === cartItemId);
-      if (entry) {
-        entry.quantity = quantity;
-        setLocalCart(local);
-        items = local.map((e) => ({
-          id: `local-${e.productId}`,
-          product: e.product,
-          quantity: e.quantity,
-        }));
-      }
+      const updatedLocal = local.map((e) =>
+        `local-${e.productId}` === cartItemId ? { ...e, quantity } : e
+      );
+      setLocalCart(updatedLocal);
+      items = updatedLocal.map((e) => ({
+        id: `local-${e.productId}`,
+        product: e.product,
+        quantity: e.quantity,
+      }));
       return;
     }
     if (!items.some(i => i.id === cartItemId)) return;
