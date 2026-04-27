@@ -51,7 +51,11 @@ function filterStatic(opts?: { category?: string; search?: string; featured?: bo
   }
   if (opts?.search) {
     const s = opts.search.toLowerCase();
-    items = items.filter(p => p.name.toLowerCase().includes(s) || p.slug.toLowerCase().includes(s));
+    items = items.filter(p =>
+      p.name.toLowerCase().includes(s) ||
+      p.slug.toLowerCase().includes(s) ||
+      (p.description ?? '').toLowerCase().includes(s)
+    );
   }
   if (opts?.featured) {
     items = items.filter(p => p.featured);
@@ -134,7 +138,7 @@ function createProductsStore() {
     }
     if (opts?.search) {
       const s = safe(opts.search);
-      filters.push(`name ~ "${s}" || slug ~ "${s}"`);
+      filters.push(`name ~ "${s}" || slug ~ "${s}" || description ~ "${s}"`);
     }
     // Skip featured on PB — may not have the field; filter client-side if needed
     const filter = filters.length ? filters.join(' && ') : undefined;

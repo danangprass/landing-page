@@ -8,6 +8,7 @@
   const store = getProductsContext();
 
   let selectedCategory = $state(page.url.searchParams.get('category') ?? '');
+  let searchQuery = $state(page.url.searchParams.get('search') ?? '');
   let sortBy: string = $state('featured');
   let priceRange: number[] = $state([0, 2000]);
   let mobileFilterOpen = $state(false);
@@ -20,17 +21,42 @@
   });
 
   $effect(() => {
+    const s = page.url.searchParams.get('search') ?? '';
+    if (s !== untrack(() => searchQuery)) {
+      searchQuery = s;
+    }
+  });
+
+  $effect(() => {
     store.loadCategories();
   });
 
   $effect(() => {
-    store.loadProducts({ category: selectedCategory || undefined });
+    store.loadProducts({ category: selectedCategory || undefined, search: searchQuery || undefined });
   });
 
-  let filteredProducts = $derived(store.products);
+  let filteredProducts = $derived.by(() => {
+    let items = store.products;
+
+    // Client-side price filter
+    items = items.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+
+    // Client-side sort
+    if (sortBy === 'price-asc') {
+      items = [...items].sort((a, b) => a.price - b.price);
+    } else if (sortBy === 'price-desc') {
+      items = [...items].sort((a, b) => b.price - a.price);
+    } else if (sortBy === 'newest') {
+      items = [...items].sort((a, b) => Number(b.id) - Number(a.id));
+    } else if (sortBy === 'rating') {
+      items = [...items].sort((a, b) => ((b as unknown as Record<string, unknown>).rating as number ?? 0) - ((a as unknown as Record<string, unknown>).rating as number ?? 0));
+    }
+
+    return items;
+  });
 
   let hasActiveFilters = $derived(
-    selectedCategory !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
+    selectedCategory !== '' || searchQuery !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
   );
 
   function handleCategoryChange(cat: string) {
@@ -41,7 +67,7 @@
     else url.searchParams.delete('category');
     window.history.replaceState({}, '', url.pathname + url.search);
     // Ensure products reload immediately on category change
-    store.loadProducts({ category: cat || undefined });
+    store.loadProducts({ category: cat || undefined, search: searchQuery || undefined });
   }
 
   function handleSortChange(sort: string) { sortBy = sort; }
@@ -50,7 +76,11 @@
   function handleClearAll() {
     sortBy = 'featured';
     priceRange = [0, 2000];
+    searchQuery = '';
     handleCategoryChange('');
+    const url = new URL(page.url);
+    url.searchParams.delete('search');
+    window.history.replaceState({}, '', url.pathname + url.search);
   }
 
   $effect(() => {
@@ -98,7 +128,9 @@
     <div class="flex-1 min-w-0">
       {#if filteredProducts.length === 0 && !store.loading}
         <div class="flex flex-col items-center justify-center py-20 text-center">
-          <p class="text-text-secondary text-lg">No products match your filters.</p>
+          <p class="text-text-secondary text-lg">
+            {searchQuery ? `No products found matching "${searchQuery}".` : 'No products match your filters.'}
+          </p>
           <button class="mt-4 text-accent text-sm" onclick={handleClearAll}>Clear all filters</button>
         </div>
       {:else}
