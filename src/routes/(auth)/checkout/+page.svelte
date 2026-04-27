@@ -116,7 +116,10 @@
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.id = 'midtrans-snap';
-      script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+      const isSandbox = data.clientKey.startsWith('SB-');
+      script.src = isSandbox
+        ? 'https://app.sandbox.midtrans.com/snap/snap.js'
+        : 'https://app.midtrans.com/snap/snap.js';
       script.setAttribute('data-client-key', data.clientKey);
       script.onload = () => resolve();
       script.onerror = () => reject(new Error('Failed to load payment script'));
@@ -181,8 +184,8 @@
             name: item.product.name,
           })),
           shippingAddress: {
-            first_name: fullName.split(' ')[0],
-            last_name: fullName.split(' ').slice(1).join(' ') || undefined,
+            first_name: fullName.trim().split(' ')[0] || 'N/A',
+            last_name: fullName.trim().split(' ').slice(1).join(' ') || undefined,
             address: address1,
             city,
             postal_code: zip,
@@ -206,9 +209,9 @@
       snap.pay(snapToken, {
         onSuccess: async () => {
           await updateOrderStatus(orderId, 'paid');
-          await cart.clear();
           paymentResult = 'success';
           orderPlaced = true;
+          await cart.clear();
         },
         onPending: async () => {
           await updateOrderStatus(orderId, 'pending');
