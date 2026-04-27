@@ -231,12 +231,12 @@
   .strength-label-strong { color: var(--color-success); }
   .checkbox-label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
   .checkbox-input { display: none; }
-  .checkbox-custom { width: 1.125rem; height: 1.125rem; border-radius: 4px; border: 1.5px solid var(--color-border); display: flex; align-items: center; justify-content: center; transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out); flex-shrink: 0; }
-  .checkbox-input:checked + .checkbox-custom { background-color: var(--color-accent); border-color: var(--color-accent); }
-  .checkbox-input:checked + .checkbox-custom::after { content: ''; display: block; width: 5px; height: 9px; border: solid var(--color-bg); border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-1px); }
-  .checkbox-input:focus-visible + .checkbox-custom { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-  .checkbox-text { font-size: 0.875rem; color: var(--color-text-secondary); }
-  .checkbox-custom--error { border-color: var(--color-error); }
+  .checkbox-custom { width: 1.125rem; height: 1.125rem; border-radius: 4px; background-color: #1d1d1f; border: 1.5px solid #424245; display: flex; align-items: center; justify-content: center; transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out); flex-shrink: 0; }
+  .checkbox-input:checked + .checkbox-custom { background-color: #2997ff; border-color: #2997ff; }
+  .checkbox-input:checked + .checkbox-custom::after { content: ''; display: block; width: 5px; height: 9px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg) translateY(-1px); }
+  .checkbox-input:focus-visible + .checkbox-custom { outline: 2px solid #2997ff; outline-offset: 2px; }
+  .checkbox-text { font-size: 0.875rem; color: #f5f5f7; }
+  .checkbox-custom--error { border-color: #ff453a; }
   .auth-link { color: var(--color-accent); text-decoration: none; transition: color 160ms var(--ease-out); }
   .auth-link:active { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) { .auth-link:hover { color: var(--color-accent-hover); } }
