@@ -32,11 +32,16 @@ function createAuthStore() {
 	syncFromPageData();
 
 	// React to navigation / form action results that update page.data
-	$effect(() => {
-		// Track page.data.user reactively
-		const _ = page.data?.user;
-		syncFromPageData();
-	});
+	// Wrap in try/catch so unit tests (outside component context) don't crash
+	try {
+		$effect(() => {
+			// Track page.data.user reactively
+			const _ = page.data?.user;
+			syncFromPageData();
+		});
+	} catch {
+		// Outside Svelte component context — ignore
+	}
 
 	async function login(email: string, password: string) {
 		loading = true;
