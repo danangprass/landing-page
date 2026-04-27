@@ -9,17 +9,12 @@
   let scrolled = $state(false);
   let badgeVisible = $state(false);
   let wishlistBadgeVisible = $state(false);
-  let authPopoverOpen = $state(false);
   let auth = getAuthContext();
   let cart = getCartContext();
   let wishlist = getWishlistContext();
 
   let cartCount = $derived(cart?.count ?? 0);
   let wishlistCount = $derived(wishlist?.ids?.length ?? 0);
-
-  // Button element ref for computing dynamic transform-origin
-  let signInBtnEl: HTMLButtonElement | null = $state(null);
-  let authPopoverStyle = $state('');
 
   $effect(() => {
     badgeVisible = cartCount > 0;
@@ -38,9 +33,9 @@
     return () => window.removeEventListener('scroll', onScroll);
   });
 
-  // Lock body scroll when any panel is open
+  // Lock body scroll when search panel is open
   $effect(() => {
-    if (searchOpen || authPopoverOpen) {
+    if (searchOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -57,8 +52,6 @@
   });
 
   function toggleSearch() {
-    // Close auth popover if open
-    if (authPopoverOpen) authPopoverOpen = false;
     searchOpen = !searchOpen;
     if (!searchOpen) searchQuery = '';
   }
@@ -77,39 +70,10 @@
     }
   }
 
-  function toggleAuthPopover() {
-    // Close search if open
-    if (searchOpen) {
-      searchOpen = false;
-      searchQuery = '';
-    }
-
-    // Compute transform-origin from button position before opening
-    if (!authPopoverOpen && signInBtnEl) {
-      const rect = signInBtnEl.getBoundingClientRect();
-      const navEl = signInBtnEl.closest<HTMLElement>('nav');
-      const navRect = navEl?.getBoundingClientRect() ?? null;
-      if (navRect) {
-        // origin X = center of button relative to the full-width panel
-        const originX = rect.left + rect.width / 2 - navRect.left;
-        authPopoverStyle = `transform-origin: ${originX}px top`;
-      } else {
-        authPopoverStyle = 'transform-origin: right top';
-      }
-    }
-
-    authPopoverOpen = !authPopoverOpen;
-  }
-
-  function closeAuthPopover() {
-    authPopoverOpen = false;
-  }
-
-  // Close panels on Escape key
+  // Close search on Escape key
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       if (searchOpen) closeSearch();
-      if (authPopoverOpen) closeAuthPopover();
     }
   }
 </script>
@@ -161,16 +125,7 @@
           <span class="auth-link auth-greeting">Hi, {auth.user?.name?.split(' ')[0] ?? 'User'}</span>
           <button class="auth-link" onclick={() => auth.logout()}>Sign out</button>
         {:else}
-          <!-- Sign in button opens the auth popover panel -->
-          <button
-            class="auth-link"
-            bind:this={signInBtnEl}
-            onclick={toggleAuthPopover}
-            aria-expanded={authPopoverOpen}
-            aria-haspopup="true"
-          >
-            Sign in
-          </button>
+          <a href="/login" class="auth-link">Sign in</a>
           <a href="/register" class="auth-cta">Create Account</a>
         {/if}
       </div>
@@ -180,8 +135,8 @@
   <!-- ─── Shared overlay (always mounted — CSS opacity enables exit animation) ─── -->
   <div
     class="nav-overlay"
-    class:overlay-visible={searchOpen || authPopoverOpen}
-    onclick={() => { closeSearch(); closeAuthPopover(); }}
+    class:overlay-visible={searchOpen}
+    onclick={() => { closeSearch(); }}
     role="presentation"
   ></div>
 
@@ -207,27 +162,6 @@
     </form>
   </div>
 
-  <!-- ─── Auth popover panel ─── -->
-  <div
-    class="auth-popover"
-    class:open={authPopoverOpen}
-    style={authPopoverStyle}
-    role="dialog"
-    aria-modal="true"
-    aria-label="Sign in options"
-  >
-    <div class="auth-popover-inner section-padding">
-      <p class="auth-popover-label">Your account</p>
-      <div class="auth-popover-actions">
-        <a href="/login" class="auth-popover-signin" onclick={closeAuthPopover}>
-          Sign in
-        </a>
-        <a href="/register" class="auth-popover-cta" onclick={closeAuthPopover}>
-          Create Account
-        </a>
-      </div>
-    </div>
-  </div>
 </nav>
 
 <style>
@@ -509,101 +443,6 @@
     }
   }
 
-  /* ─── Auth popover panel ─── */
-  .auth-popover {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: var(--color-surface);
-    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
-    /* Scale from computed transform-origin (set via inline style) */
-    transform: translateY(-8px) scaleY(0.92);
-    transform-origin: right top; /* fallback; overridden by dynamic inline style */
-    opacity: 0;
-    pointer-events: none;
-    z-index: 51;
-    transition:
-      transform 300ms var(--ease-out),
-      opacity 200ms var(--ease-out);
-  }
-
-  /* @starting-style: provides the "entry from zero" state in browsers that support it */
-  @supports (transition-behavior: allow-discrete) {
-    .auth-popover {
-      transition-behavior: allow-discrete;
-    }
-    @starting-style {
-      .auth-popover.open {
-        transform: translateY(-8px) scaleY(0.92);
-        opacity: 0;
-      }
-    }
-  }
-
-  .auth-popover.open {
-    transform: translateY(0) scaleY(1);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .auth-popover-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 3rem;
-    gap: 1rem;
-  }
-
-  .auth-popover-label {
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .auth-popover-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .auth-popover-signin {
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    padding: 0.375rem 0.75rem;
-    border-radius: var(--radius-full);
-    transition: color 160ms var(--ease-out), background-color 200ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-  .auth-popover-signin:active {
-    transform: scale(0.97);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .auth-popover-signin:hover {
-      color: var(--color-text-primary);
-      background-color: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
-    }
-  }
-
-  .auth-popover-cta {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--color-bg);
-    background-color: var(--color-accent);
-    text-decoration: none;
-    padding: 0.375rem 1rem;
-    border-radius: var(--radius-full);
-    transition: background-color 200ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-  .auth-popover-cta:active {
-    transform: scale(0.97);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .auth-popover-cta:hover {
-      background-color: var(--color-accent-hover);
-    }
-  }
 
   /* ─── Focus-visible for a11y ─── */
   :global(:focus-visible) {
@@ -619,11 +458,8 @@
     .action-badge,
     .nav-overlay,
     .search-bar,
-    .auth-popover,
     .auth-link,
     .auth-cta,
-    .auth-popover-signin,
-    .auth-popover-cta,
     .search-close {
       transition-duration: 0.01ms !important;
     }
