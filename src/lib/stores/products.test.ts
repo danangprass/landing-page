@@ -89,7 +89,9 @@ describe('Products Store — Data Retrieval (Whitebox)', () => {
             await store.loadProducts({ search: 'prophone' });
 
             const expected = staticProducts.filter(p =>
-                p.name.toLowerCase().includes('prophone') || p.slug.toLowerCase().includes('prophone')
+                p.name.toLowerCase().includes('prophone') ||
+                p.slug.toLowerCase().includes('prophone') ||
+                p.description.toLowerCase().includes('prophone')
             );
             expect(store.products.length).toBe(expected.length);
         });

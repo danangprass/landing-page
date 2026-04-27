@@ -183,33 +183,29 @@
     }
     orderError = '';
     orderLoading = true;
-    let orderId: string | null = null;
     try {
       const shippingAddress = `${fullName}, ${address1}${address2 ? ', ' + address2 : ''}, ${city}, ${province} ${zip}, ${country}`;
-      const order = await pb.collection('orders').create({
-        user: auth.user.id,
-        status: 'pending',
-        total,
-        shipping_address: shippingAddress,
-        billing_address: shippingAddress,
-      });
-      orderId = order.id;
-      await Promise.all(
-        cart.items.map((item) =>
-          pb.collection('order_items').create({
-            order: order.id,
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          total,
+          shipping_address: shippingAddress,
+          billing_address: shippingAddress,
+          items: cart.items.map((item) => ({
             product: item.product.id,
             quantity: item.quantity,
             price: item.product.price,
-          })
-        )
-      );
+          })),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || 'Failed to place order');
+      }
       await cart.clear();
       orderPlaced = true;
     } catch (err: unknown) {
-      if (orderId) {
-        try { await pb.collection('orders').delete(orderId); } catch { /* best-effort rollback */ }
-      }
       console.error('Order creation failed:', err);
       orderError = 'Failed to place order. Please try again.';
     } finally {
