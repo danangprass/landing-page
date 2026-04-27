@@ -30,7 +30,7 @@
     return map[category?.slug ?? ''] ?? '📦';
   }
 
-  function handleAddToBag() { if (product) cart.add(product.id); }
+  function handleAddToBag() { if (product) cart.add(product.id, 1, product); }
   function handleWishlistToggle() { if (product) wishlist.toggle(product.id); }
 
   /* ── Reveal elements when product loads ── */
