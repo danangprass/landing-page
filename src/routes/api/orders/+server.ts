@@ -9,9 +9,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const order = await locals.pb.collection('orders').create({
 			user: locals.user.id,
 			status: 'pending',
+			order_status: 'pending',
 			total: data.total,
 			shipping_address: data.shipping_address,
 			billing_address: data.billing_address,
+			...(data.midtrans_transaction_id ? { midtrans_transaction_id: data.midtrans_transaction_id } : {}),
 		});
 		orderId = order.id;
 		await Promise.all(
