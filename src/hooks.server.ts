@@ -23,6 +23,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 			if (pb.authStore.isValid) {
 				try {
 					await pb.collection('users').authRefresh();
+					// Persist refreshed token back to cookie immediately
+					const payload = JSON.stringify({ token: pb.authStore.token, model: pb.authStore.record });
+					event.cookies.set('pb_auth', encodeURIComponent(payload), {
+						path: '/',
+						httpOnly: true,
+						secure: !dev,
+						sameSite: 'strict',
+						maxAge: 604800,
+					});
 				} catch {
 					// Token expired or invalid — clear it
 					pb.authStore.clear();
@@ -38,23 +47,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.pb = pb;
 	event.locals.user = pb.authStore.record ?? null;
 
-	const response = await resolve(event);
-
-	// Persist any auth changes back to the httpOnly cookie
-	const currentToken = pb.authStore.token;
-	if (currentToken) {
-		const payload = JSON.stringify({ token: currentToken, model: pb.authStore.record });
-		event.cookies.set('pb_auth', encodeURIComponent(payload), {
-			path: '/',
-			httpOnly: true,
-			secure: !dev,
-			sameSite: 'strict',
-			maxAge: 604800,
-		});
-	} else {
-		// Auth was cleared during the request — delete the cookie
-		event.cookies.delete('pb_auth', { path: '/' });
-	}
-
-	return response;
+	return await resolve(event);
 };
