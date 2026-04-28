@@ -126,62 +126,62 @@ function createCartStore() {
           quantity: record.quantity,
         }))
         .filter((item): item is CartItem => !!item.product);
-    }
-    loadedForAuth = true;
+      loadedForAuth = true;
 
-    // Merge anonymous cart into server cart after successful load
-    if (merging) return;
-    const local = getLocalCart();
-    if (local.length > 0) {
-      merging = true;
-      for (const entry of local) {
-        const existing = items.find((i) => i.product?.id === entry.productId);
-        if (existing) {
-          const [updated, updateErr] = await safeCall(async () => {
-            const res = await fetch(`/api/cart/${existing.id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ quantity: existing.quantity + entry.quantity }),
+      // Merge anonymous cart into server cart after successful load
+      if (merging) return;
+      const local = getLocalCart();
+      if (local.length > 0) {
+        merging = true;
+        for (const entry of local) {
+          const existing = items.find((i) => i.product?.id === entry.productId);
+          if (existing) {
+            const [updated, updateErr] = await safeCall(async () => {
+              const res = await fetch(`/api/cart/${existing.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: existing.quantity + entry.quantity }),
+              });
+              if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
+              return res.json();
             });
-            if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
-            return res.json();
-          });
-          if (updated) {
-            items = items.map((i) =>
-              i.id === existing.id
-                ? { ...i, quantity: (updated as unknown as CartItemsRecord).quantity }
-                : i
-            );
-          } else if (updateErr) {
-            showToast(updateErr.message, 'error');
-          }
-        } else {
-          const [created, createErr] = await safeCall(async () => {
-            const res = await fetch('/api/cart', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ product: entry.productId, quantity: entry.quantity }),
+            if (updated) {
+              items = items.map((i) =>
+                i.id === existing.id
+                  ? { ...i, quantity: (updated as unknown as CartItemsRecord).quantity }
+                  : i
+              );
+            } else if (updateErr) {
+              showToast(updateErr.message, 'error');
+            }
+          } else {
+            const [created, createErr] = await safeCall(async () => {
+              const res = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product: entry.productId, quantity: entry.quantity }),
+              });
+              if (!res.ok) throw new Error(`Failed to add item: ${res.status}`);
+              return res.json();
             });
-            if (!res.ok) throw new Error(`Failed to add item: ${res.status}`);
-            return res.json();
-          });
-          if (created) {
-            items = [
-              ...items,
-              {
-                id: (created as unknown as { id: string }).id,
-                product: entry.product,
-                quantity: entry.quantity,
-              },
-            ];
-          } else if (createErr) {
-            showToast(createErr.message, 'error');
+            if (created) {
+              items = [
+                ...items,
+                {
+                  id: (created as unknown as { id: string }).id,
+                  product: entry.product,
+                  quantity: entry.quantity,
+                },
+              ];
+            } else if (createErr) {
+              showToast(createErr.message, 'error');
+            }
           }
         }
+        merging = false;
+        clearLocalCart();
+        showToast('Your bag items have been saved to your account', 'success');
       }
-      merging = false;
-      clearLocalCart();
-      showToast('Your bag items have been saved to your account', 'success');
     }
   }
 

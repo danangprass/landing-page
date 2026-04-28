@@ -34,8 +34,8 @@ function createWishlistStore() {
 					product: record.expand?.product as ExpandedProduct | undefined,
 				}))
 				.filter((item): item is WishlistItem => !!item.product);
+			loadedForAuth = true;
 		}
-		loadedForAuth = true;
 	}
 
 	function has(productId: string): boolean {
