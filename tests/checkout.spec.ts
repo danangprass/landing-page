@@ -19,6 +19,7 @@ test.describe('Checkout Flow', () => {
 		// to login. In CI without auth, we verify the page source contains exactly these
 		// two step labels and no "Payment" step label.
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		if (!page.url().includes('/checkout')) return; // unauthenticated — redirect expected
 
 		const stepLabels = page.locator('.step-label');
@@ -30,6 +31,7 @@ test.describe('Checkout Flow', () => {
 
 	test('shipping validation prevents continuing with empty fields', async ({ page }) => {
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		if (!page.url().includes('/checkout')) return; // unauthenticated in CI
 
 		await page.click('button:has-text("Continue to Review")');
@@ -39,6 +41,7 @@ test.describe('Checkout Flow', () => {
 
 	test('valid shipping form advances to review step', async ({ page }) => {
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		if (!page.url().includes('/checkout')) return; // unauthenticated in CI
 
 		await page.fill('#fullName', 'John Doe');
