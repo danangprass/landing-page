@@ -16,8 +16,8 @@ function createWishlistStore() {
 	let loading = $state(false);
 	let loadedForAuth = $state(false);
 
-	async function load() {
-		if (!auth.isLoggedIn || loading || loadedForAuth) return;
+	async function load(force = false) {
+		if (!auth.isLoggedIn || loading || (!force && loadedForAuth && auth.isLoggedIn)) return;
 
 		loading = true;
 		const [result, err] = await safeCall(async () => {
@@ -77,7 +77,7 @@ function createWishlistStore() {
 			});
 			if (result) {
 				showToast('Added to wishlist', 'success');
-				await load();
+				await load(true);
 			} else if (err) {
 				showToast(err.message, 'error');
 			}

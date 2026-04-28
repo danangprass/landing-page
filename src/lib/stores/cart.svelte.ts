@@ -95,10 +95,10 @@ function createCartStore() {
   let loadedForAuth = $state(false);
   let unsubRealtime: (() => void) | null = null;
 
-  async function load() {
+  async function load(force = false) {
     if (loading) return;
     const shouldLoadForAuth = auth.isLoggedIn;
-    if (loadedForAuth === shouldLoadForAuth) return;
+    if (!force && loadedForAuth && shouldLoadForAuth) return;
     if (!shouldLoadForAuth) {
       loadedForAuth = false;
       const local = getLocalCart();
@@ -253,7 +253,7 @@ function createCartStore() {
 
       if (result) {
         showToast('Added to bag', 'success');
-        await load();
+        await load(true);
       } else if (err) {
         showToast(err.message, 'error');
       }
