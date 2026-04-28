@@ -95,6 +95,7 @@ test.describe('Snap Client Integration', () => {
 	test('review step shows payment via Midtrans message (no card fields)', async ({ page }) => {
 		// Navigate to checkout and fill shipping to reach review step
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 
 		// If redirected to login, check that card form is absent from checkout page
 		const url = page.url();
@@ -129,6 +130,7 @@ test.describe('Snap Client Integration', () => {
 		});
 
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		const url = page.url();
 		if (!url.includes('/checkout')) return; // skip if not authenticated
 
@@ -175,6 +177,7 @@ test.describe('Snap Client Integration', () => {
 		});
 
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		const url = page.url();
 		if (!url.includes('/checkout')) return;
 
@@ -221,6 +224,7 @@ test.describe('Snap Client Integration', () => {
 		});
 
 		await page.goto('/checkout');
+		await page.waitForTimeout(500); // allow client-side auth redirect to complete
 		const url = page.url();
 		if (!url.includes('/checkout')) return;
 
