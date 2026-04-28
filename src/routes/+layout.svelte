@@ -27,6 +27,7 @@
     } else {
       cart.unsubscribeRealtime();
       wishlist.unsubscribeRealtime();
+      wishlist.reset();
     }
 
     return () => {
