@@ -7,9 +7,9 @@
 </script>
 
 <div class="price-display">
-  <span class="price-current">${price}</span>
+  <span class="price-current">${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
   {#if originalPrice}
-    <span class="price-original">${originalPrice}</span>
+    <span class="price-original">${originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
   {/if}
   {#if discount}
     <span class="price-badge">-{discount}%</span>

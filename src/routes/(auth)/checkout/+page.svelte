@@ -47,6 +47,9 @@
   function getProductCategorySlug(product: ExpandedProduct): string {
     return product.expand?.category?.slug ?? '';
   }
+  function formatPrice(dollars: number): string {
+    return `$${dollars.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
 
   let currentStep = $state(1);
   let orderPlaced = $state(false);
@@ -488,7 +491,7 @@
                       </div>
                     </div>
                     <span class="text-text-primary font-semibold">
-                      {method.price === 0 ? 'Free' : `$${method.price.toFixed(2)}`}
+                      {method.price === 0 ? 'Free' : `$${method.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     </span>
                   </label>
                 {/each}
@@ -527,7 +530,7 @@
                         Qty {item.quantity}
                       </p>
                     </div>
-                    <span class="text-text-primary font-semibold shrink-0">${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <span class="text-text-primary font-semibold shrink-0">{formatPrice(item.product.price * item.quantity)}</span>
                   </div>
                 {/each}
               </div>
@@ -571,7 +574,7 @@
                 {#if method.id === shippingMethod}
                   <p class="text-text-secondary">
                     {method.label} &mdash;
-                    {method.price === 0 ? 'Free' : `$${method.price.toFixed(2)}`}
+                    {method.price === 0 ? 'Free' : `$${method.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     ({method.description})
                   </p>
                 {/if}
@@ -589,20 +592,20 @@
               <div class="space-y-3">
                 <div class="flex justify-between text-text-secondary">
                   <span>Subtotal</span>
-                  <span>${cart.subtotal.toFixed(2)}</span>
+                  <span>{formatPrice(cart.subtotal)}</span>
                 </div>
                 <div class="flex justify-between text-text-secondary">
                   <span>Shipping</span>
-                  <span>{selectedShippingPrice === 0 ? 'Free' : `$${selectedShippingPrice.toFixed(2)}`}</span>
+                  <span>{selectedShippingPrice === 0 ? 'Free' : `${formatPrice(selectedShippingPrice)}`}</span>
                 </div>
                 <div class="flex justify-between text-text-secondary">
                   <span>Tax (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{formatPrice(tax)}</span>
                 </div>
                 <div class="border-t border-border my-2"></div>
                 <div class="flex justify-between text-text-primary text-lg font-semibold">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatPrice(total)}</span>
                 </div>
               </div>
             </div>
