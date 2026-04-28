@@ -7,7 +7,6 @@ export const GET: RequestHandler = async ({ locals }) => {
 		const userId = String(locals.user.id);
 		const items = await locals.pb.collection('cart_items').getFullList({
 			expand: 'product',
-			sort: '-created',
 			filter: `user = '${userId.replace(/'/g, "''")}'`,
 		});
 		return json(items);
