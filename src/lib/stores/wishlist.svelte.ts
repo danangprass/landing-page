@@ -1,5 +1,4 @@
 import { getContext, setContext } from 'svelte';
-import { pb } from '$lib/pb';
 import { safeCall, showToast } from '$lib/pb-error-handler.svelte';
 import { getAuthContext } from './auth.svelte';
 import type { WishlistsRecord } from '$lib/pb-types';
@@ -13,35 +12,33 @@ export interface WishlistItem {
 function createWishlistStore() {
 	let items = $state<WishlistItem[]>([]);
 	let loading = $state(false);
-	let unsubRealtime: (() => void) | null = null;
 
 	async function load() {
 		const auth = getAuthContext();
 		if (!auth.isLoggedIn) return;
 
-		const userId = auth.user!.id;
 		loading = true;
-		const [result] = await safeCall(() =>
-			fetch('/api/wishlist').then((res) => {
-				if (!res.ok) throw new Error('Failed to load wishlist');
-				return res.json();
-			}),
-			{ silent: true }
-		);
+		const [result, err] = await safeCall(async () => {
+			const res = await fetch('/api/wishlist');
+			if (!res.ok) throw new Error(`Failed to load wishlist: ${res.status}`);
+			return res.json();
+		}, { silent: true });
 		loading = false;
 
 		if (result) {
-			items = (result as unknown as (WishlistsRecord & { expand?: { product?: ExpandedProduct } })[])
-				.filter((record) => record.user === userId)
+			items = (result as (WishlistsRecord & { expand?: { product?: ExpandedProduct } })[])
 				.map((record) => ({
 					id: record.id,
-					product: record.expand?.product as ExpandedProduct,
-				}));
+					product: record.expand?.product as ExpandedProduct | undefined,
+				}))
+				.filter((item): item is WishlistItem => !!item.product);
+		} else if (err) {
+			showToast(err.message, 'error');
 		}
 	}
 
 	function has(productId: string): boolean {
-		return items.some(i => i.product.id === productId);
+		return items.some(i => i.product?.id === productId);
 	}
 
 	async function toggle(productId: string) {
@@ -51,33 +48,38 @@ function createWishlistStore() {
 			return;
 		}
 
-		const existing = items.find(i => i.product.id === productId);
+		const existing = items.find(i => i.product?.id === productId);
 		if (existing) {
 			if (!items.some(i => i.id === existing.id)) return;
-			const [, err] = await safeCall(() =>
-				fetch(`/api/wishlist/${existing.id}`, { method: 'DELETE' }).then((res) => {
-					if (!res.ok) throw new Error('Failed to remove item');
-					return res.json();
-				})
-			);
+			const [, err] = await safeCall(async () => {
+				const res = await fetch(`/api/wishlist/${existing.id}`, { method: 'DELETE' });
+				if (!res.ok) throw new Error(`Failed to remove item: ${res.status}`);
+				return res.json();
+			});
 			if (!err) {
 				items = items.filter(i => i.id !== existing.id);
 				showToast('Removed from wishlist', 'info');
+			} else {
+				showToast(err.message, 'error');
 			}
 		} else {
-			const [result] = await safeCall(() =>
-				fetch('/api/wishlist', {
+			const [result, err] = await safeCall(async () => {
+				const res = await fetch('/api/wishlist', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ user: auth.user!.id, product: productId }),
-				}).then((res) => {
-					if (!res.ok) throw new Error('Failed to add item');
-					return res.json();
-				})
-			);
+					body: JSON.stringify({ product: productId }),
+				});
+				if (!res.ok) {
+					const data = await res.json().catch(() => ({}));
+					throw new Error(data.message || `Failed to add item: ${res.status}`);
+				}
+				return res.json();
+			});
 			if (result) {
 				showToast('Added to wishlist', 'success');
 				await load();
+			} else if (err) {
+				showToast(err.message, 'error');
 			}
 		}
 	}
@@ -87,47 +89,31 @@ function createWishlistStore() {
 		if (!auth.isLoggedIn) return;
 		if (!items.some(i => i.id === wishlistId)) return;
 
-		const [, err] = await safeCall(() =>
-			fetch(`/api/wishlist/${wishlistId}`, { method: 'DELETE' }).then((res) => {
-				if (!res.ok) throw new Error('Failed to remove item');
-				return res.json();
-			})
-		);
+		const [, err] = await safeCall(async () => {
+			const res = await fetch(`/api/wishlist/${wishlistId}`, { method: 'DELETE' });
+			if (!res.ok) throw new Error(`Failed to remove item: ${res.status}`);
+			return res.json();
+		});
 		if (!err) {
 			items = items.filter(i => i.id !== wishlistId);
 			showToast('Removed from wishlist', 'info');
+		} else {
+			showToast(err.message, 'error');
 		}
 	}
 
 	function subscribeRealtime() {
-		const auth = getAuthContext();
-		if (!auth.isLoggedIn || !pb.authStore.isValid) return;
-
-		const oldUnsub = unsubRealtime;
-		unsubRealtime = null;
-		if (oldUnsub) oldUnsub();
-
-		const userId = auth.user!.id;
-
-		pb.collection('wishlists').subscribe('*', () => {
-			load();
-		}, {
-			filter: `user = "${userId.replace(/"/g, '\\"')}"`,
-		}).then((unsub) => {
-			unsubRealtime = unsub;
-		});
+		// Realtime via browser pb client is not auth-enabled (MemoryAuthStore has no token).
+		// wishlist state is refreshed on toggle and page load instead.
 	}
 
 	function unsubscribeRealtime() {
-		if (unsubRealtime) {
-			unsubRealtime();
-			unsubRealtime = null;
-		}
+		// no-op
 	}
 
 	return {
 		get items() { return items; },
-		get ids() { return items.map(i => i.product.id); },
+		get ids() { return items.map(i => i.product?.id).filter((id): id is string => !!id); },
 		get loading() { return loading; },
 		has,
 		toggle,
