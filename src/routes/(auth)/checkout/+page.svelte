@@ -608,25 +608,26 @@
             </div>
 
             <!-- Terms checkbox -->
-            <label class="terms-label">
-              <div class="relative mt-0.5">
-                <input
-                  type="checkbox"
-                  bind:checked={agreedToTerms}
-                  class="peer sr-only"
-                />
-                <div class="checkbox-box">
-                  {#if agreedToTerms}
-                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  {/if}
+            <div class="flex items-start gap-x-1">
+              <label class="terms-label">
+                <div class="relative mt-0.5">
+                  <input
+                    type="checkbox"
+                    bind:checked={agreedToTerms}
+                    class="peer sr-only"
+                  />
+                  <div class="checkbox-box">
+                    {#if agreedToTerms}
+                      <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    {/if}
+                  </div>
                 </div>
-              </div>
-              <span class="text-sm text-text-secondary">
-                I agree to the <a href="/terms" class="terms-link">Terms of Service</a>
-              </span>
-            </label>
+                <span class="text-sm text-text-secondary">I agree to the</span>
+              </label>
+              <a href="/terms" target="_blank" rel="noopener noreferrer" class="terms-link text-sm mt-0.5">Terms of Service</a>
+            </div>
 
             {#if orderError}
               <div class="error-notice" role="alert">
