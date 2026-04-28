@@ -74,12 +74,6 @@
       <span class="product-emoji">{emoji}</span>
     </div>
 
-    <!-- Add to Bag overlay — slides up on hover -->
-    <div class="bag-overlay" aria-hidden="true">
-      <button class="bag-overlay-btn" onclick={handleAddToBag} tabindex="-1">
-        Add to Bag
-      </button>
-    </div>
   </div>
 
   <div class="product-info">
@@ -136,7 +130,7 @@
     transition: filter 300ms var(--ease-out);
   }
 
-  /* ── Hover: image floats, bag overlay slides up ── */
+  /* ── Hover: image floats ── */
   @media (hover: hover) and (pointer: fine) {
     .product-card:hover .product-emoji-wrap {
       transform: translateY(-6px) scale(1.08);
@@ -145,60 +139,6 @@
     .product-card:hover .product-emoji {
       filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.18));
     }
-
-    .product-card:hover .bag-overlay {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    /* Hide the compact footer CTA on hover — overlay takes over */
-    .product-card:hover .add-to-bag-btn {
-      opacity: 0;
-      transform: scale(0.9);
-      pointer-events: none;
-    }
-  }
-
-  /* ── Bag overlay (hover-only) ── */
-  .bag-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0.875rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.32) 0%, transparent 100%);
-    transform: translateY(100%);
-    opacity: 0;
-    transition:
-      transform 280ms var(--ease-out),
-      opacity 280ms var(--ease-out);
-    display: flex;
-    justify-content: center;
-  }
-
-  .bag-overlay-btn {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: #1d1d1f;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    padding: 0.5rem 1.25rem;
-    border-radius: var(--radius-full);
-    border: none;
-    cursor: pointer;
-    letter-spacing: -0.01em;
-    transition: background-color 160ms var(--ease-out), transform 160ms var(--ease-spring);
-    white-space: nowrap;
-  }
-
-  .bag-overlay-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.03);
-  }
-
-  .bag-overlay-btn:active {
-    transform: scale(0.97);
   }
 
   /* ── Badge ── */
@@ -366,16 +306,9 @@
   /* Reduced motion: keep opacity, no transforms */
   @media (prefers-reduced-motion: reduce) {
     .product-emoji-wrap,
-    .bag-overlay,
-    .bag-overlay-btn,
     .add-to-bag-btn,
     .wishlist-btn {
       transition: none;
-    }
-
-    .bag-overlay {
-      transform: none;
-      opacity: 1;
     }
   }
 </style>

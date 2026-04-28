@@ -1,0 +1,14 @@
+{
+  "cookies": [
+    {
+      "name": "pb_auth",
+      "value": "%7B%22token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2xsZWN0aW9uSWQiOiJfcGJfdXNlcnNfYXV0aF8iLCJleHAiOjE3Nzc5ODI5MDgsImlkIjoieTczZThjZnZmYTY2ODF2IiwicmVmcmVzaGFibGUiOnRydWUsInR5cGUiOiJhdXRoIn0.fkAIzbJ5cB7NYUH2w1PL09MTJqszKqxVpJjOzDR0bA4%22%2C%22model%22%3A%7B%22avatar%22%3A%22%22%2C%22collectionId%22%3A%22_pb_users_auth_%22%2C%22collectionName%22%3A%22users%22%2C%22created%22%3A%222026-04-27%2016%3A20%3A54.415Z%22%2C%22email%22%3A%22danang%40example.com%22%2C%22emailVisibility%22%3Afalse%2C%22id%22%3A%22y73e8cfvfa6681v%22%2C%22name%22%3A%22Danang%20Prasetyo%22%2C%22updated%22%3A%222026-04-27%2016%3A20%3A54.415Z%22%2C%22verified%22%3Afalse%7D%7D",
+      "domain": "localhost",
+      "path": "/",
+      "httpOnly": true,
+      "sameSite": "Strict",
+      "expires": 1777982908
+    }
+  ],
+  "origins": []
+}
