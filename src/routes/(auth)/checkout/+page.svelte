@@ -171,18 +171,37 @@
       const { orderId } = await res.json() as { orderId: string };
       currentOrderId = orderId;
 
+      const snapItems = cart.items.map((item) => ({
+        id: item.product.id,
+        price: Math.round(item.product.price),
+        quantity: item.quantity,
+        name: item.product.name,
+      }));
+      const snapShippingPrice = Math.round(selectedShippingPrice);
+      const snapTax = Math.round(cart.subtotal * 0.08);
+      const snapTotal = snapItems.reduce((s, i) => s + i.price * i.quantity, 0) + snapShippingPrice + snapTax;
+
       const snapRes = await fetch('/api/payment/snap-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId,
-          total,
-          items: cart.items.map((item) => ({
-            id: item.product.id,
-            price: item.product.price,
-            quantity: item.quantity,
-            name: item.product.name,
-          })),
+          total: snapTotal,
+          items: [
+            ...snapItems,
+            ...(snapShippingPrice > 0 ? [{
+              id: 'shipping',
+              price: snapShippingPrice,
+              quantity: 1,
+              name: `Shipping — ${SHIPPING_METHODS.find(m => m.id === shippingMethod)?.label || 'Standard'}`,
+            }] : []),
+            {
+              id: 'tax',
+              price: snapTax,
+              quantity: 1,
+              name: 'Tax',
+            },
+          ],
           shippingAddress: {
             first_name: fullName.trim().split(' ')[0] || 'N/A',
             last_name: fullName.trim().split(' ').slice(1).join(' ') || undefined,

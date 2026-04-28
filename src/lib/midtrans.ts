@@ -30,6 +30,7 @@ export async function createSnapToken(order: SnapOrder): Promise<{ snapToken: st
 		throw new Error('SERVER_KEY is not configured');
 	}
 
+	const siteUrl = env.SITE_URL || 'http://localhost:4173';
 	const auth = btoa(`${serverKey}:`);
 
 	const response = await fetch(SNAP_API_URL, {
@@ -46,6 +47,11 @@ export async function createSnapToken(order: SnapOrder): Promise<{ snapToken: st
 			},
 			item_details: order.items,
 			customer_details: order.customerDetails,
+			callbacks: {
+				finish: `${siteUrl}/checkout?payment_status=success`,
+				error: `${siteUrl}/checkout?payment_status=error`,
+				pending: `${siteUrl}/checkout?payment_status=pending`,
+			},
 		}),
 	});
 

@@ -16,21 +16,20 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			...(data.midtrans_transaction_id ? { midtrans_transaction_id: data.midtrans_transaction_id } : {}),
 		});
 		orderId = order.id;
-		await Promise.all(
-			data.items.map((item: { product: string; quantity: number; price: number }) =>
-				locals.pb.collection('order_items').create({
-					order: order.id,
-					product: item.product,
-					quantity: item.quantity,
-					price: item.price,
-				})
-			)
-		);
+		for (const item of data.items as { product: string; quantity: number; price: number }[]) {
+			await locals.pb.collection('order_items').create({
+				order: order.id,
+				product: item.product,
+				quantity: item.quantity,
+				price: item.price,
+			});
+		}
 		return json({ success: true, orderId: order.id });
-	} catch {
+	} catch (err) {
+		console.error('[API /orders POST]', err);
 		if (orderId) {
 			try { await locals.pb.collection('orders').delete(orderId); } catch { /* best-effort rollback */ }
 		}
-		throw error(500, 'Failed to place order');
+		throw error(500, err instanceof Error ? err.message : 'Failed to place order');
 	}
 };
