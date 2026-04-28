@@ -40,7 +40,12 @@
   });
 
   $effect(() => {
-    store.loadProducts({ category: selectedCategory || undefined, search: searchQuery || undefined });
+    const category = selectedCategory || undefined;
+    const search = searchQuery || undefined;
+    const sort = sortBy || undefined;
+    const min = priceRange[0] || undefined;
+    const max = priceRange[1] < 2000 ? priceRange[1] : undefined;
+    store.loadProducts({ category, search, sort, minPrice: min, maxPrice: max });
   });
 
   let filteredProducts = $derived.by(() => {

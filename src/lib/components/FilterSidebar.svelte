@@ -24,12 +24,17 @@
   let store = getProductsContext();
   let categories = $derived(store.categories);
 
-  let minPrice = $state(priceRange[0]);
-  let maxPrice = $state(priceRange[1]);
+  let minPrice = $state(0);
+  let maxPrice = $state(2000);
   let expandedSections = $state<Record<string, boolean>>({
     sort: true,
     category: true,
     price: true
+  });
+
+  $effect(() => {
+    minPrice = priceRange[0];
+    maxPrice = priceRange[1];
   });
 
   const sortOptions = [

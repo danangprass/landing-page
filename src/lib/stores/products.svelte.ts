@@ -112,11 +112,22 @@ function createProductsStore() {
     return s.replace(/"/g, '\\"');
   }
 
+  const SORT_MAP: Record<string, string> = {
+    'featured': '-name',
+    'price-asc': 'price',
+    'price-desc': '-price',
+    'newest': '-created',
+    'rating': '-rating',
+  };
+
   async function loadProducts(opts?: {
     page?: number;
     category?: string;
     search?: string;
     featured?: boolean;
+    sort?: string;
+    minPrice?: number;
+    maxPrice?: number;
   }) {
     loading = true;
     const currentPage = opts?.page ?? 1;
@@ -140,13 +151,18 @@ function createProductsStore() {
       const s = safe(opts.search);
       filters.push(`name ~ "${s}" || slug ~ "${s}" || description ~ "${s}"`);
     }
-    // Skip featured on PB — may not have the field; filter client-side if needed
+    if (opts?.minPrice !== undefined && opts.minPrice > 0) {
+      filters.push(`price >= ${opts.minPrice}`);
+    }
+    if (opts?.maxPrice !== undefined && opts.maxPrice < 2000) {
+      filters.push(`price <= ${opts.maxPrice}`);
+    }
     const filter = filters.length ? filters.join(' && ') : undefined;
 
     const [result] = await safeCall(() =>
       pb.collection('products').getList(currentPage, perPage, {
         expand: 'category',
-        sort: '-name',
+        sort: SORT_MAP[opts?.sort ?? 'featured'] ?? '-name',
         ...(filter ? { filter } : {}),
       }),
       { silent: true }
