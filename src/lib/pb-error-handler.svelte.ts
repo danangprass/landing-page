@@ -104,8 +104,8 @@ export async function safeCall<T>(fn: () => Promise<T>, opts?: SafeCallOptions):
 		return [data, null];
 	} catch (err) {
 		const parsed = parseError(err);
-		console.error('[PB]', parsed.status, parsed.message, err);
 		if (!opts?.silent) {
+			console.error('[PB]', parsed.status, parsed.message, err);
 			showToast(parsed.message, parsed.type);
 		}
 		return [null, parsed];

@@ -11,8 +11,9 @@ export const GET: RequestHandler = async ({ locals }) => {
 			filter: `user = '${userId.replace(/'/g, "''")}'`,
 		});
 		return json(items);
-	} catch {
-		throw error(500, 'Failed to load wishlist');
+	} catch (err) {
+		console.error('[API /wishlist GET]', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to load wishlist');
 	}
 };
 
@@ -30,7 +31,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			product: data.product,
 		});
 		return json(item);
-	} catch {
-		throw error(500, 'Failed to add item');
+	} catch (err) {
+		console.error('[API /wishlist POST]', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to add item');
 	}
 };

@@ -11,8 +11,9 @@ export const GET: RequestHandler = async ({ locals }) => {
 			filter: `user = '${userId.replace(/'/g, "''")}'`,
 		});
 		return json(items);
-	} catch {
-		throw error(500, 'Failed to load cart');
+	} catch (err) {
+		console.error('[API /cart GET]', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to load cart');
 	}
 };
 
@@ -34,8 +35,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			quantity: data.quantity,
 		});
 		return json(item);
-	} catch {
-		throw error(500, 'Failed to add item');
+	} catch (err) {
+		console.error('[API /cart POST]', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to add item');
 	}
 };
 
@@ -48,7 +50,8 @@ export const DELETE: RequestHandler = async ({ locals }) => {
 		});
 		await Promise.all(items.map((i) => locals.pb.collection('cart_items').delete(i.id)));
 		return json({ success: true, deleted: items.length });
-	} catch {
-		throw error(500, 'Failed to clear cart');
+	} catch (err) {
+		console.error('[API /cart DELETE]', err);
+		throw error(500, err instanceof Error ? err.message : 'Failed to clear cart');
 	}
 };

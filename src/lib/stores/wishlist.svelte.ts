@@ -14,9 +14,10 @@ function createWishlistStore() {
 
 	let items = $state<WishlistItem[]>([]);
 	let loading = $state(false);
+	let loadedForAuth = $state(false);
 
 	async function load() {
-		if (!auth.isLoggedIn) return;
+		if (!auth.isLoggedIn || loading || loadedForAuth) return;
 
 		loading = true;
 		const [result, err] = await safeCall(async () => {
@@ -33,9 +34,8 @@ function createWishlistStore() {
 					product: record.expand?.product as ExpandedProduct | undefined,
 				}))
 				.filter((item): item is WishlistItem => !!item.product);
-		} else if (err) {
-			showToast(err.message, 'error');
 		}
+		loadedForAuth = true;
 	}
 
 	function has(productId: string): boolean {

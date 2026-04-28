@@ -92,10 +92,15 @@ function createCartStore() {
   let loading = $state(false);
   let adding = $state(false);
   let merging = $state(false);
+  let loadedForAuth = $state(false);
   let unsubRealtime: (() => void) | null = null;
 
   async function load() {
-    if (!auth.isLoggedIn) {
+    if (loading) return;
+    const shouldLoadForAuth = auth.isLoggedIn;
+    if (loadedForAuth === shouldLoadForAuth) return;
+    if (!shouldLoadForAuth) {
+      loadedForAuth = false;
       const local = getLocalCart();
       items = local.map((entry) => ({
         id: `local-${entry.productId}`,
@@ -121,9 +126,8 @@ function createCartStore() {
           quantity: record.quantity,
         }))
         .filter((item): item is CartItem => !!item.product);
-    } else if (err) {
-      showToast(err.message, 'error');
     }
+    loadedForAuth = true;
 
     // Merge anonymous cart into server cart after successful load
     if (merging) return;
