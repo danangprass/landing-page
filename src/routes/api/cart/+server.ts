@@ -38,3 +38,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		throw error(500, 'Failed to add item');
 	}
 };
+
+export const DELETE: RequestHandler = async ({ locals }) => {
+	if (!locals.user) throw error(401, 'Unauthorized');
+	try {
+		const userId = String(locals.user.id);
+		const items = await locals.pb.collection('cart_items').getFullList({
+			filter: `user = '${userId.replace(/'/g, "''")}'`,
+		});
+		await Promise.all(items.map((i) => locals.pb.collection('cart_items').delete(i.id)));
+		return json({ success: true, deleted: items.length });
+	} catch {
+		throw error(500, 'Failed to clear cart');
+	}
+};
