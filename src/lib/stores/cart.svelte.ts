@@ -86,6 +86,8 @@ function mapStaticProduct(p: Product): ExpandedProduct {
 }
 
 function createCartStore() {
+  const auth = getAuthContext();
+
   let items = $state<CartItem[]>([]);
   let loading = $state(false);
   let adding = $state(false);
@@ -93,7 +95,6 @@ function createCartStore() {
   let unsubRealtime: (() => void) | null = null;
 
   async function load() {
-    const auth = getAuthContext();
     if (!auth.isLoggedIn) {
       const local = getLocalCart();
       items = local.map((entry) => ({
@@ -185,7 +186,6 @@ function createCartStore() {
     adding = true;
 
     try {
-      const auth = getAuthContext();
       if (!auth.isLoggedIn) {
         let product = productSnapshot;
         if (!product) {
@@ -259,7 +259,6 @@ function createCartStore() {
   }
 
   async function remove(cartItemId: string) {
-    const auth = getAuthContext();
     if (!auth.isLoggedIn) {
       const local = getLocalCart().filter((i) => `local-${i.productId}` !== cartItemId);
       setLocalCart(local);
@@ -292,7 +291,6 @@ function createCartStore() {
       return;
     }
 
-    const auth = getAuthContext();
     if (!auth.isLoggedIn) {
       const local = getLocalCart();
       const updatedLocal = local.map((e) =>
@@ -328,7 +326,6 @@ function createCartStore() {
   }
 
   async function clear() {
-    const auth = getAuthContext();
     if (!auth.isLoggedIn) {
       clearLocalCart();
       items = [];
@@ -347,7 +344,6 @@ function createCartStore() {
   }
 
   function subscribeRealtime() {
-    const auth = getAuthContext();
     if (!auth.isLoggedIn) return;
 
     const oldUnsub = unsubRealtime;

@@ -10,11 +10,12 @@ export interface WishlistItem {
 }
 
 function createWishlistStore() {
+	const auth = getAuthContext();
+
 	let items = $state<WishlistItem[]>([]);
 	let loading = $state(false);
 
 	async function load() {
-		const auth = getAuthContext();
 		if (!auth.isLoggedIn) return;
 
 		loading = true;
@@ -42,7 +43,6 @@ function createWishlistStore() {
 	}
 
 	async function toggle(productId: string) {
-		const auth = getAuthContext();
 		if (!auth.isLoggedIn) {
 			showToast('Please sign in to save items', 'info');
 			return;
@@ -85,7 +85,6 @@ function createWishlistStore() {
 	}
 
 	async function remove(wishlistId: string) {
-		const auth = getAuthContext();
 		if (!auth.isLoggedIn) return;
 		if (!items.some(i => i.id === wishlistId)) return;
 
