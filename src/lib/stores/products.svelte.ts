@@ -109,7 +109,12 @@ function createProductsStore() {
   }
 
   function safe(s: string): string {
-    return s.replace(/"/g, '\\"');
+    // Escape double quotes for PocketBase string literals
+    s = s.replace(/"/g, '\\"');
+    // Escape regex metacharacters for PocketBase ~ (like) operator:
+    // * ? [ ] ( ) { } ^ $ . | \ + have special meaning in regex-like patterns
+    s = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return s;
   }
 
   const SORT_MAP: Record<string, string> = {
@@ -149,7 +154,7 @@ function createProductsStore() {
     }
     if (opts?.search) {
       const s = safe(opts.search);
-      filters.push(`name ~ "${s}" || slug ~ "${s}" || description ~ "${s}"`);
+      filters.push(`name ~ "${s}" || slug ~ "${s}" || (description != null && description ~ "${s}")`);
     }
     if (opts?.minPrice !== undefined && opts.minPrice > 0) {
       filters.push(`price >= ${opts.minPrice}`);
