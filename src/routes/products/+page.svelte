@@ -48,25 +48,8 @@
     store.loadProducts({ category, search, sort, minPrice: min, maxPrice: max });
   });
 
-  let filteredProducts = $derived.by(() => {
-    let items = store.products;
-
-    // Client-side price filter
-    items = items.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
-
-    // Client-side sort
-    if (sortBy === 'price-asc') {
-      items = [...items].sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      items = [...items].sort((a, b) => b.price - a.price);
-    } else if (sortBy === 'newest') {
-      items = [...items].sort((a, b) => Number(b.id) - Number(a.id));
-    } else if (sortBy === 'rating') {
-      items = [...items].sort((a, b) => ((b as unknown as Record<string, unknown>).rating as number ?? 0) - ((a as unknown as Record<string, unknown>).rating as number ?? 0));
-    }
-
-    return items;
-  });
+  // Backend handles filtering and sorting; use store.products directly
+  let filteredProducts = $derived(store.products);
 
   let hasActiveFilters = $derived(
     selectedCategory !== '' || searchQuery !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
