@@ -104,26 +104,23 @@ function createCartStore() {
       return;
     }
 
-    const userId = auth.user!.id;
     loading = true;
-    const [result] = await safeCall(() =>
-      pb.collection('cart_items').getFullList({
-        expand: 'product',
-        sort: '-created',
-        filter: `user = "${userId.replace(/"/g, '\\"')}"`,
-      }),
-      { silent: true }
-    );
+    const [result, err] = await safeCall(async () => {
+      const res = await fetch('/api/cart');
+      if (!res.ok) throw new Error(`Failed to load cart: ${res.status}`);
+      return res.json();
+    }, { silent: true });
     loading = false;
 
     if (result) {
-      items = (result as unknown as (CartItemsRecord & { expand?: { product?: ExpandedProduct } })[])
-        .filter((record) => record.user === userId)
+      items = (result as (CartItemsRecord & { expand?: { product?: ExpandedProduct } })[])
         .map((record) => ({
           id: record.id,
           product: record.expand?.product as ExpandedProduct,
           quantity: record.quantity,
         }));
+    } else if (err) {
+      showToast(err.message, 'error');
     }
 
     // Merge anonymous cart into server cart after successful load
@@ -134,27 +131,34 @@ function createCartStore() {
       for (const entry of local) {
         const existing = items.find((i) => i.product.id === entry.productId);
         if (existing) {
-          const [updated] = await safeCall(() =>
-            pb.collection('cart_items').update(existing.id, {
-              quantity: existing.quantity + entry.quantity,
-            })
-          );
+          const [updated, updateErr] = await safeCall(async () => {
+            const res = await fetch(`/api/cart/${existing.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ quantity: existing.quantity + entry.quantity }),
+            });
+            if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
+            return res.json();
+          });
           if (updated) {
-            const newQuantity = (updated as unknown as CartItemsRecord).quantity;
             items = items.map((i) =>
               i.id === existing.id
-                ? { ...i, quantity: newQuantity }
+                ? { ...i, quantity: (updated as unknown as CartItemsRecord).quantity }
                 : i
             );
+          } else if (updateErr) {
+            showToast(updateErr.message, 'error');
           }
         } else {
-          const [created] = await safeCall(() =>
-            pb.collection('cart_items').create({
-              user: userId,
-              product: entry.productId,
-              quantity: entry.quantity,
-            })
-          );
+          const [created, createErr] = await safeCall(async () => {
+            const res = await fetch('/api/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ product: entry.productId, quantity: entry.quantity }),
+            });
+            if (!res.ok) throw new Error(`Failed to add item: ${res.status}`);
+            return res.json();
+          });
           if (created) {
             items = [
               ...items,
@@ -164,6 +168,8 @@ function createCartStore() {
                 quantity: entry.quantity,
               },
             ];
+          } else if (createErr) {
+            showToast(createErr.message, 'error');
           }
         }
       }
@@ -222,17 +228,24 @@ function createCartStore() {
         return;
       }
 
-      const [result] = await safeCall(() =>
-        pb.collection('cart_items').create({
-          user: auth.user!.id,
-          product: productId,
-          quantity,
-        })
-      );
+      const [result, err] = await safeCall(async () => {
+        const res = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product: productId, quantity }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.message || `Failed to add item: ${res.status}`);
+        }
+        return res.json();
+      });
 
       if (result) {
         showToast('Added to bag', 'success');
         await load();
+      } else if (err) {
+        showToast(err.message, 'error');
       }
     } finally {
       adding = false;
@@ -254,12 +267,16 @@ function createCartStore() {
     }
     if (!items.some(i => i.id === cartItemId)) return;
 
-    const [, err] = await safeCall(() =>
-      pb.collection('cart_items').delete(cartItemId)
-    );
+    const [, err] = await safeCall(async () => {
+      const res = await fetch(`/api/cart/${cartItemId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Failed to remove item: ${res.status}`);
+      return res.json();
+    });
     if (!err) {
       items = items.filter(i => i.id !== cartItemId);
       showToast('Removed from bag', 'info');
+    } else {
+      showToast(err.message, 'error');
     }
   }
 
@@ -285,14 +302,22 @@ function createCartStore() {
     }
     if (!items.some(i => i.id === cartItemId)) return;
 
-    const [result] = await safeCall(() =>
-      pb.collection('cart_items').update(cartItemId, { quantity })
-    );
+    const [result, err] = await safeCall(async () => {
+      const res = await fetch(`/api/cart/${cartItemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+      if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
+      return res.json();
+    });
 
     if (result) {
       items = items.map(i =>
-        i.id === cartItemId ? { ...i, quantity } : i
+        i.id === cartItemId ? { ...i, quantity: (result as unknown as CartItemsRecord).quantity } : i
       );
+    } else if (err) {
+      showToast(err.message, 'error');
     }
   }
 
@@ -305,7 +330,11 @@ function createCartStore() {
     }
     const snapshot = [...items];
     const results = await Promise.allSettled(
-      snapshot.map(i => pb.collection('cart_items').delete(i.id))
+      snapshot.map(i =>
+        fetch(`/api/cart/${i.id}`, { method: 'DELETE' }).then(r => {
+          if (!r.ok) throw new Error(`Failed to delete ${i.id}: ${r.status}`);
+        })
+      )
     );
     const failed = results
       .map((r, idx) => (r.status === 'rejected' ? snapshot[idx] : null))
