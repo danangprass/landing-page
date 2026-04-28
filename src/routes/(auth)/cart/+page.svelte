@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-  <title>Your Bag | RuFlo</title>
+  <title>Your Bag | ElectraStore</title>
   <meta name="description" content="Review items in your shopping bag." />
 </svelte:head>
 
