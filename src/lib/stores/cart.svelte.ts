@@ -116,9 +116,10 @@ function createCartStore() {
       items = (result as (CartItemsRecord & { expand?: { product?: ExpandedProduct } })[])
         .map((record) => ({
           id: record.id,
-          product: record.expand?.product as ExpandedProduct,
+          product: record.expand?.product as ExpandedProduct | undefined,
           quantity: record.quantity,
-        }));
+        }))
+        .filter((item): item is CartItem => !!item.product);
     } else if (err) {
       showToast(err.message, 'error');
     }
@@ -129,7 +130,7 @@ function createCartStore() {
     if (local.length > 0) {
       merging = true;
       for (const entry of local) {
-        const existing = items.find((i) => i.product.id === entry.productId);
+        const existing = items.find((i) => i.product?.id === entry.productId);
         if (existing) {
           const [updated, updateErr] = await safeCall(async () => {
             const res = await fetch(`/api/cart/${existing.id}`, {
@@ -235,8 +236,13 @@ function createCartStore() {
           body: JSON.stringify({ product: productId, quantity }),
         });
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.message || `Failed to add item: ${res.status}`);
+          const text = await res.text().catch(() => '');
+          let message = text;
+          try {
+            const data = JSON.parse(text);
+            if (data.message) message = data.message;
+          } catch { /* use raw text */ }
+          throw new Error(message || `Failed to add item: ${res.status}`);
         }
         return res.json();
       });
@@ -328,22 +334,15 @@ function createCartStore() {
       items = [];
       return;
     }
-    const snapshot = [...items];
-    const results = await Promise.allSettled(
-      snapshot.map(i =>
-        fetch(`/api/cart/${i.id}`, { method: 'DELETE' }).then(r => {
-          if (!r.ok) throw new Error(`Failed to delete ${i.id}: ${r.status}`);
-        })
-      )
-    );
-    const failed = results
-      .map((r, idx) => (r.status === 'rejected' ? snapshot[idx] : null))
-      .filter((i): i is CartItem => i !== null);
-    if (failed.length > 0) {
-      items = failed;
-      showToast(`Failed to clear ${failed.length} item(s)`, 'error');
-    } else {
+    const [, err] = await safeCall(async () => {
+      const res = await fetch('/api/cart', { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Failed to clear cart: ${res.status}`);
+      return res.json();
+    });
+    if (!err) {
       items = [];
+    } else {
+      showToast(err.message, 'error');
     }
   }
 
