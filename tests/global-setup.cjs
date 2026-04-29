@@ -11,14 +11,20 @@ module.exports = async function globalSetup() {
 	const PB_URL = process.env.PUBLIC_PB_URL || 'http://localhost:8090';
 
 	// Log in as the E2E test user
-	const res = await fetch(`${PB_URL}/api/collections/users/auth-with-password`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			identity: 'danang@example.com',
-			password: 'password12',
-		}),
-	});
+	let res;
+	try {
+		res = await fetch(`${PB_URL}/api/collections/users/auth-with-password`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				identity: 'danang@example.com',
+				password: 'password12',
+			}),
+		});
+	} catch {
+		console.warn('[globalSetup] PocketBase unavailable — authenticated tests will be skipped');
+		return;
+	}
 
 	if (!res.ok) {
 		console.warn('[globalSetup] Could not authenticate E2E test user — authenticated tests will be skipped');
