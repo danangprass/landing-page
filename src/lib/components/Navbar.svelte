@@ -231,9 +231,9 @@
               class:suggestion-highlighted={highlightIndex === i}
               onclick={() => selectSuggestion(product)}
             >
-              <span class="suggestion-name">{product.name}</span>
+              <span class="suggestion-name">{product.name ?? ''}</span>
               <span class="suggestion-category">{product.expand?.category?.name ?? ''}</span>
-              <span class="suggestion-price">${product.price.toLocaleString('en-US')}</span>
+              <span class="suggestion-price">${(product.price ?? 0).toLocaleString('en-US')}</span>
             </button>
           </li>
         {/each}
