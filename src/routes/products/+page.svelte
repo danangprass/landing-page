@@ -118,8 +118,21 @@
   </div>
 
   <div class="flex gap-8 py-8">
-    <aside class="hidden md:block w-[280px] shrink-0 sticky top-24 self-start">
-      <FilterSidebar {selectedCategory} {sortBy} {priceRange} onCategoryChange={handleCategoryChange} onSortChange={handleSortChange} onPriceChange={handlePriceChange} onClearAll={handleClearAll} />
+    <!-- Single FilterSidebar: desktop sticky sidebar, mobile bottom-sheet drawer -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <aside
+      class="filter-aside w-[280px] shrink-0 sticky top-24 self-start"
+      class:filter-aside-open={mobileFilterOpen}
+      aria-label="Filters"
+    >
+      <FilterSidebar
+        {selectedCategory} {sortBy} {priceRange}
+        onCategoryChange={handleCategoryChange}
+        onSortChange={handleSortChange}
+        onPriceChange={handlePriceChange}
+        onClose={() => (mobileFilterOpen = false)}
+        onClearAll={handleClearAll}
+      />
     </aside>
     <div class="flex-1 min-w-0">
       {#if filteredProducts.length === 0 && !store.loading}
@@ -142,20 +155,55 @@
   </div>
 </div>
 
+<!-- Mobile backdrop overlay -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="drawer-overlay" class:drawer-overlay-visible={mobileFilterOpen} onclick={() => (mobileFilterOpen = false)} role="presentation"></div>
-<div class="drawer-sheet" class:drawer-sheet-open={mobileFilterOpen}>
-  <div class="p-6">
-    <FilterSidebar {selectedCategory} {sortBy} {priceRange} onCategoryChange={handleCategoryChange} onSortChange={handleSortChange} onPriceChange={handlePriceChange} onClose={() => (mobileFilterOpen = false)} onClearAll={() => { handleClearAll(); mobileFilterOpen = false; }} />
-  </div>
-</div>
 
 <style>
   .filter-toggle { transition: transform 160ms var(--ease-out); }
   .filter-toggle:active { transform: scale(0.97); }
+
+  /* Mobile backdrop overlay */
   .drawer-overlay { position: fixed; inset: 0; z-index: 40; background-color: rgba(0,0,0,0); pointer-events: none; transition: background-color 400ms var(--ease-out); }
   .drawer-overlay-visible { background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); pointer-events: auto; }
-  .drawer-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-height: 85vh; overflow-y: auto; border-radius: var(--radius-lg) var(--radius-lg) 0 0; border-top: 1px solid var(--color-border); background-color: var(--color-surface); transform: translateY(100%); opacity: 0; pointer-events: none; transition: transform 500ms var(--ease-drawer), opacity 400ms var(--ease-out); }
-  .drawer-sheet-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-  @media (prefers-reduced-motion: reduce) { .drawer-overlay, .drawer-sheet { transition-duration: 0.01ms !important; } }
+
+  /* Mobile: filter aside becomes a bottom-sheet drawer */
+  @media (max-width: 767px) {
+    .filter-aside {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      max-height: 85vh;
+      overflow-y: auto;
+      width: 100% !important;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 500ms var(--ease-drawer), opacity 400ms var(--ease-out);
+    }
+
+    .filter-aside-open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  /* Desktop: always visible sidebar */
+  @media (min-width: 768px) {
+    .filter-aside {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer-overlay, .filter-aside { transition-duration: 0.01ms !important; }
+  }
 </style>
