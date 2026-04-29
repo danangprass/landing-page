@@ -173,7 +173,7 @@ function createProductsStore() {
     );
     loading = false;
 
-    if (result && result.items.length > 0) {
+    if (result && result.items.length > 0 && !(opts?.category && !categoryId)) {
       let items = result.items as unknown as ExpandedProduct[];
       if (opts?.featured) {
         items = items.filter(p => p.featured);
@@ -182,6 +182,10 @@ function createProductsStore() {
       totalPages = result.totalPages;
       page = result.page;
     } else {
+      // Fallback to static filtering when:
+      // - PocketBase returned no results
+      // - Category lookup failed (so server-side filter was not applied)
+      // filterStatic handles pagination, slug+name matching, and search correctly.
       const fallback = filterStatic(opts);
       products = fallback.items;
       totalPages = fallback.totalPages;
