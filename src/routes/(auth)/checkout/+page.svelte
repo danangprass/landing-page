@@ -268,6 +268,11 @@
   );
 </script>
 
+<svelte:head>
+	<title>Checkout | ElectraStore</title>
+	<meta name="description" content="Complete your order securely." />
+</svelte:head>
+
 {#if orderPlaced && paymentResult === 'success'}
   <div class="section-padding min-h-[60vh] flex items-center justify-center">
     <div class="success-container">
