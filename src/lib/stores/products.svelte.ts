@@ -109,11 +109,10 @@ function createProductsStore() {
   }
 
   function safe(s: string): string {
-    // Escape double quotes for PocketBase string literals
-    s = s.replace(/"/g, '\\"');
-    // Escape regex metacharacters for PocketBase ~ (like) operator:
+    // Escape regex metacharacters first, then quotes to avoid double-escaping
     // * ? [ ] ( ) { } ^ $ . | \ + have special meaning in regex-like patterns
     s = s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    s = s.replace(/"/g, '\\"');
     return s;
   }
 
