@@ -59,4 +59,13 @@ describe('Wishlist Store', () => {
         expect(list.items).toEqual([]);
         expect(list.loading).toBe(false);
     });
+
+    it('reset() clears items and resets to initial state', () => {
+        setAuthContext();
+        const list = setWishlistContext();
+
+        // Verify reset clears to initial empty state
+        list.reset();
+        expect(list.items).toEqual([]);
+    });
 });

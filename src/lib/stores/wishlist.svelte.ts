@@ -101,6 +101,11 @@ function createWishlistStore() {
 		}
 	}
 
+	function reset() {
+		items = [];
+		loadedForAuth = false;
+	}
+
 	function subscribeRealtime() {
 		// Realtime via browser pb client is not auth-enabled (MemoryAuthStore has no token).
 		// wishlist state is refreshed on toggle and page load instead.
@@ -118,6 +123,7 @@ function createWishlistStore() {
 		toggle,
 		remove,
 		load,
+		reset,
 		subscribeRealtime,
 		unsubscribeRealtime,
 	};
