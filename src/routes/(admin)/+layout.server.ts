@@ -8,18 +8,22 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 	}
 
-	const role = (user as Record<string, unknown>).role;
+	// Fetch the full user record to get the role field.
+	// The auth cookie model may not include custom fields added after the user
+	// originally logged in (e.g. the `role` field).
+	const fullUser = await locals.pb.collection('users').getOne(user.id as string);
+	const role = (fullUser as Record<string, unknown>).role;
 	if (role !== 'admin') {
 		throw redirect(303, '/');
 	}
 
 	return {
 		user: {
-			id: user.id,
-			email: user.email,
-			name: user.name,
-			role: user.role,
-			avatar: user.avatar,
+			id: fullUser.id,
+			email: fullUser.email,
+			name: fullUser.name,
+			role: fullUser.role,
+			avatar: fullUser.avatar,
 		},
 	};
 };
