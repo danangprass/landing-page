@@ -13,6 +13,8 @@ export interface AuthUser {
 function createAuthStore() {
 	let user = $state<AuthUser | null>(null);
 	let loading = $state(false);
+	let pendingAuthSync = $state(false);
+	let pendingAuthSyncTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	// Initialize from server-side user data (httpOnly cookie is never exposed to JS)
 	function syncFromPageData() {
@@ -24,11 +26,20 @@ function createAuthStore() {
 				name: u.name as string,
 				avatar: u.avatar as string | undefined,
 			};
+			pendingAuthSync = false;
+			if (pendingAuthSyncTimeout) {
+				clearTimeout(pendingAuthSyncTimeout);
+				pendingAuthSyncTimeout = null;
+			}
+		} else if (!pendingAuthSync) {
+			// Only clear auth state if we are not expecting a post-login/register
+			// page-data sync. This prevents brief nulls during client-side
+			// navigation from wiping a user that was just set by login/register.
+			user = null;
 		}
-		// If page.data.user is null/undefined, keep current user state.
-		// Prevents a brief null during client-side navigation from clearing
-		// a user that was just set by login()/register() before the layout
-		// load has returned the server-side auth state.
+		// If pendingAuthSync is true and page.data.user is null, we keep the
+		// existing user state until the layout load returns the server-side
+		// auth state or the safety timeout expires.
 	}
 
 	syncFromPageData();
@@ -67,6 +78,11 @@ function createAuthStore() {
 						name: data.data.user.name,
 						avatar: data.data.user.avatar,
 					};
+					pendingAuthSync = true;
+					if (pendingAuthSyncTimeout) clearTimeout(pendingAuthSyncTimeout);
+					pendingAuthSyncTimeout = setTimeout(() => {
+						pendingAuthSync = false;
+					}, 3000);
 				}
 				return data;
 			})
@@ -101,6 +117,11 @@ function createAuthStore() {
 						name: json.data.user.name,
 						avatar: json.data.user.avatar,
 					};
+					pendingAuthSync = true;
+					if (pendingAuthSyncTimeout) clearTimeout(pendingAuthSyncTimeout);
+					pendingAuthSyncTimeout = setTimeout(() => {
+						pendingAuthSync = false;
+					}, 3000);
 				}
 				return json;
 			})
@@ -116,6 +137,11 @@ function createAuthStore() {
 			fetch('/logout', { method: 'POST' }).then((res) => res.json())
 		);
 		user = null;
+		pendingAuthSync = false;
+		if (pendingAuthSyncTimeout) {
+			clearTimeout(pendingAuthSyncTimeout);
+			pendingAuthSyncTimeout = null;
+		}
 		pb.authStore.clear();
 		showToast('Signed out', 'info');
 	}
