@@ -64,7 +64,11 @@
       <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16">
         <div class="reveal">
           <div class="aspect-square bg-surface rounded-lg flex items-center justify-center overflow-hidden">
-            <span class="text-8xl">{emoji()}</span>
+            {#if product.images && product.images.length > 0}
+              <img src={getImageUrl(product.images[0], '400x400')} alt={product.name} class="w-full h-full object-cover" />
+            {:else}
+              <span class="text-8xl">{emoji()}</span>
+            {/if}
           </div>
         </div>
 
@@ -89,6 +93,54 @@
         </div>
       </div>
     </div>
+
+    <!-- Specifications -->
+    <div class="section-padding pb-12">
+      <div class="reveal">
+        <h2 class="text-2xl font-semibold text-text-primary mb-6">Specifications</h2>
+        <div class="specs-table">
+          <div class="specs-row">
+            <span class="specs-label">Category</span>
+            <span class="specs-value">{category?.name ?? '-'}</span>
+          </div>
+          <div class="specs-row">
+            <span class="specs-label">Price</span>
+            <span class="specs-value">${product.price.toLocaleString('en-US')}</span>
+          </div>
+          {#if (product.compare_at_price ?? 0) > 0 && (product.compare_at_price ?? 0) > product.price}
+          <div class="specs-row">
+            <span class="specs-label">Original Price</span>
+            <span class="specs-value line-through">${(product.compare_at_price ?? 0).toLocaleString('en-US')}</span>
+          </div>
+          {/if}
+          <div class="specs-row">
+            <span class="specs-label">Availability</span>
+            <span class="specs-value">{(product.stock ?? 0) > 0 ? 'In Stock' + ' (' + product.stock + ' units)' : 'Out of Stock'}</span>
+          </div>
+          {#if product.featured}
+          <div class="specs-row">
+            <span class="specs-label">Featured</span>
+            <span class="specs-value text-accent">Featured Product</span>
+          </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="section-padding pb-16">
+      <div class="reveal">
+        <h2 class="text-2xl font-semibold text-text-primary mb-6">You Might Also Like</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {#each store.products.filter(p => p.id !== product.id).slice(0, 4) as related (related.id)}
+            <ProductCard product={related} category={related.expand?.category} />
+          {/each}
+        </div>
+        {#if store.products.filter(p => p.id !== product.id).length === 0}
+          <p class="text-text-secondary">Browse more products in <a href="/products" class="text-accent">All Products</a>.</p>
+        {/if}
+      </div>
+    </div>
   </div>
 {:else if !store.loading}
   <div class="min-h-screen bg-bg flex items-center justify-center">
@@ -108,5 +160,11 @@
   @media (hover: hover) and (pointer: fine) { .wishlist-toggle:hover { color: var(--color-text-primary); } }
   .wishlist-icon { width: 1.25rem; height: 1.25rem; transition: fill 200ms var(--ease-out), filter 200ms var(--ease-out); }
   .wishlist-toggle:active .wishlist-icon { filter: blur(2px); }
+  .specs-table { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+  .specs-row { display: flex; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent); }
+  .specs-row:last-child { border-bottom: none; }
+  .specs-label { width: 180px; flex-shrink: 0; font-size: 0.8125rem; font-weight: 500; color: var(--color-text-secondary); padding: 0.75rem 1rem; background-color: color-mix(in srgb, var(--color-text-primary) 3%, transparent); }
+  .specs-value { flex: 1; font-size: 0.8125rem; color: var(--color-text-primary); padding: 0.75rem 1rem; }
+  @media (max-width: 767px) { .specs-label { width: 120px; } }
   @media (prefers-reduced-motion: reduce) { .wishlist-toggle, .add-to-bag-btn { transition-duration: 0.01ms !important; } }
 </style>
