@@ -24,9 +24,11 @@ function createAuthStore() {
 				name: u.name as string,
 				avatar: u.avatar as string | undefined,
 			};
-		} else {
-			user = null;
 		}
+		// If page.data.user is null/undefined, keep current user state.
+		// Prevents a brief null during client-side navigation from clearing
+		// a user that was just set by login()/register() before the layout
+		// load has returned the server-side auth state.
 	}
 
 	syncFromPageData();
