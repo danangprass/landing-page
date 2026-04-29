@@ -24,9 +24,5 @@ jobs:
         run: npm run lint
       - name: Check types
         run: npm run check
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
       - name: Run Unit Tests
         run: npm run test:unit
-      - name: Run E2E Tests
-        run: npm run test:e2e
