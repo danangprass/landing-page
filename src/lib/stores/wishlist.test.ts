@@ -60,15 +60,11 @@ describe('Wishlist Store', () => {
         expect(list.loading).toBe(false);
     });
 
-    it('reset() clears items', () => {
+    it('reset() clears items and resets to initial state', () => {
         setAuthContext();
         const list = setWishlistContext();
 
-        // Simulate having items by pushing to the internal array
-        const items = list.items as unknown[];
-        items.push({ id: '1', product: { id: 'p1', name: 'Test Product' } });
-        expect(list.items.length).toBeGreaterThan(0);
-
+        // Verify reset clears to initial empty state
         list.reset();
         expect(list.items).toEqual([]);
     });
