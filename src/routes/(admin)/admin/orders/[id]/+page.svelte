@@ -1,0 +1,125 @@
+<script lang="ts">
+  let { data } = $props();
+
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  function statusClass(s: string) {
+    const map: Record<string, string> = {
+      pending: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+      processing: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+      shipped: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+      delivered: 'bg-green-500/15 text-green-400 border-green-500/30',
+      cancelled: 'bg-red-500/15 text-red-400 border-red-500/30',
+      paid: 'bg-green-500/15 text-green-400 border-green-500/30',
+      failed: 'bg-red-500/15 text-red-400 border-red-500/30',
+    };
+    return map[s] ?? 'bg-gray-500/15 text-gray-400 border-gray-500/30';
+  }
+</script>
+
+<div>
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/admin/orders" class="text-[#86868b] hover:text-[#f5f5f7]">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    </a>
+    <h1 class="text-2xl font-semibold text-[#f5f5f7]">Order <span class="font-mono text-[#86868b] text-sm">{data.order.id.slice(0, 12)}...</span></h1>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Order Info -->
+    <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-5 space-y-4">
+      <h2 class="text-sm font-semibold text-[#f5f5f7] uppercase tracking-wider">Order Information</h2>
+
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-[#86868b]">Customer</span>
+          <p class="text-[#f5f5f7] font-medium">{data.order.userName}</p>
+          <p class="text-[#86868b] text-xs">{data.order.userEmail}</p>
+        </div>
+        <div>
+          <span class="text-[#86868b]">Total</span>
+          <p class="text-[#f5f5f7] font-medium text-lg">${data.order.total.toLocaleString()}</p>
+        </div>
+        <div>
+          <span class="text-[#86868b]">Placed</span>
+          <p class="text-[#f5f5f7]">{formatDate(data.order.created)}</p>
+        </div>
+        <div>
+          <span class="text-[#86868b]">Transaction ID</span>
+          <p class="text-[#f5f5f7] font-mono text-xs">{data.order.midtrans_transaction_id}</p>
+        </div>
+      </div>
+
+      <div>
+        <span class="text-sm text-[#86868b]">Shipping Address</span>
+        <p class="text-[#f5f5f7] text-sm mt-0.5 whitespace-pre-line">{data.order.shipping_address}</p>
+      </div>
+      <div>
+        <span class="text-sm text-[#86868b]">Billing Address</span>
+        <p class="text-[#f5f5f7] text-sm mt-0.5 whitespace-pre-line">{data.order.billing_address}</p>
+      </div>
+    </div>
+
+    <!-- Status Update -->
+    <div class="space-y-6">
+      <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-[#f5f5f7] uppercase tracking-wider">Current Status</h2>
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <span class="text-xs text-[#86868b] block mb-1">Fulfillment</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {statusClass(data.order.status)}">{data.order.status}</span>
+          </div>
+          <div class="text-center">
+            <span class="text-xs text-[#86868b] block mb-1">Payment</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {statusClass(data.order.order_status)}">{data.order.order_status}</span>
+          </div>
+        </div>
+
+        <form method="post" action="?/updateStatus" class="space-y-3">
+          <div>
+            <label class="text-xs text-[#86868b] block mb-1">Update Fulfillment</label>
+            <select name="status" class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
+              <option value="">No change</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-[#86868b] block mb-1">Update Payment</label>
+            <select name="order_status" class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
+              <option value="">No change</option>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="failed">Failed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button type="submit" class="w-full px-4 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
+            Update Status
+          </button>
+        </form>
+      </div>
+
+      <!-- Order Items -->
+      <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-5">
+        <h2 class="text-sm font-semibold text-[#f5f5f7] uppercase tracking-wider mb-4">Items ({data.items.length})</h2>
+        <div class="space-y-2">
+          {#each data.items as item}
+            <div class="flex items-center justify-between text-sm py-2 border-b border-[#424245]/50 last:border-0">
+              <div>
+                <span class="text-[#f5f5f7]">{item.productName}</span>
+                <span class="text-[#86868b] ml-2">x{item.quantity}</span>
+              </div>
+              <span class="text-[#f5f5f7] font-medium">${(item.price * item.quantity).toLocaleString()}</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
