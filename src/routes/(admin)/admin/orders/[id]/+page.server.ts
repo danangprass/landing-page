@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		});
 
 		const items = await locals.pb.collection('order_items').getFullList({
-			filter: `order = "${params.id}"`,
+			filter: `order = "${params.id.replace(/"/g, '\\"')}"`,
 			expand: 'product',
 		});
 
@@ -44,9 +44,12 @@ export const actions: Actions = {
 		const status = data.get('status') as string;
 		const orderStatus = data.get('order_status') as string;
 
+		const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+		const validOrderStatuses = ['pending', 'paid', 'failed'];
+
 		const update: Record<string, string> = {};
-		if (status) update.status = status;
-		if (orderStatus) update.order_status = orderStatus;
+		if (status && validStatuses.includes(status)) update.status = status;
+		if (orderStatus && validOrderStatuses.includes(orderStatus)) update.order_status = orderStatus;
 
 		await locals.pb.collection('orders').update(params.id, update);
 		throw redirect(303, `/admin/orders/${params.id}`);

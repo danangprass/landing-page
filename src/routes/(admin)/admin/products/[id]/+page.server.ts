@@ -45,7 +45,7 @@ export const actions: Actions = {
 		const price = parseFloat(data.get('price') as string);
 		const category = data.get('category') as string;
 
-		if (!name || !slug || !price || !category) {
+		if (!name || !slug || isNaN(price) || !category) {
 			return fail(400, {
 				error: 'Name, slug, price, and category are required.',
 			});
@@ -56,6 +56,13 @@ export const actions: Actions = {
 			? parseFloat(data.get('compare_at_price') as string)
 			: undefined;
 		const stock = data.get('stock') ? parseInt(data.get('stock') as string) : undefined;
+
+		if (compareAtPrice !== undefined && isNaN(compareAtPrice)) {
+			return fail(400, { error: 'Invalid compare at price.' });
+		}
+		if (stock !== undefined && isNaN(stock)) {
+			return fail(400, { error: 'Invalid stock value.' });
+		}
 		const sku = (data.get('sku') as string)?.trim() || undefined;
 		const featured = data.get('featured') === 'on';
 		const active = data.get('active') === 'on';

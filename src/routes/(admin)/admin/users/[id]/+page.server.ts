@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 		const orders = await locals.pb.collection('orders').getList(1, 20, {
 			sort: '-created',
-			filter: `user = "${params.id}"`,
+			filter: `user = "${params.id.replace(/"/g, '\\"')}"`,
 		});
 
 		return {
@@ -37,6 +37,10 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 export const actions: Actions = {
 	toggleRole: async ({ request, params, locals }) => {
+		if (params.id === locals.user?.id) {
+			return fail(403, { error: 'Cannot modify your own role' });
+		}
+
 		const data = await request.formData();
 		const currentRole = data.get('role') as string;
 		const newRole = currentRole === 'admin' ? 'customer' : 'admin';

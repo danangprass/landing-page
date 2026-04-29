@@ -26,11 +26,18 @@ export const actions: Actions = {
 		const featured = data.get('featured') === 'on';
 		const active = data.get('active') === 'on';
 
-		if (!name || !slug || !price || !category) {
+		if (!name || !slug || isNaN(price) || !category) {
 			return fail(400, {
 				error: 'Name, slug, price, and category are required.',
 				values: { name, slug, price, category, description, compareAtPrice, stock, sku, featured, active },
 			});
+		}
+
+		if (compareAtPrice !== undefined && isNaN(compareAtPrice)) {
+			return fail(400, { error: 'Invalid compare at price.' });
+		}
+		if (stock !== undefined && isNaN(stock)) {
+			return fail(400, { error: 'Invalid stock value.' });
 		}
 
 		const images = data.getAll('images').filter((f) => f instanceof File && f.size > 0) as File[];

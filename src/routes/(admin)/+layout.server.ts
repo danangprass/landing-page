@@ -8,7 +8,8 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 	}
 
-	if (user.role !== 'admin') {
+	const role = (user as Record<string, unknown>).role;
+	if (role !== 'admin') {
 		throw redirect(303, '/');
 	}
 
