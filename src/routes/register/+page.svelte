@@ -159,7 +159,7 @@
         <label class="checkbox-label" class:checkbox-label--error={!!fieldErrors.terms}>
           <input type="checkbox" class="checkbox-input" bind:checked={agreeTerms} />
           <span class="checkbox-custom" class:checkbox-custom--error={!!fieldErrors.terms}></span>
-          <span class="checkbox-text">I agree to the <a href="/terms" class="auth-link">Terms of Service</a> and <a href="/privacy" class="auth-link">Privacy Policy</a></span>
+          <span class="checkbox-text">I agree to the <a href="/terms" class="auth-link" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" class="auth-link" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
         </label>
         {#if fieldErrors.terms}<span class="field-error">{fieldErrors.terms}</span>{/if}
       </div>
