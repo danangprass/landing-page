@@ -174,6 +174,12 @@ function createProductsStore() {
       if (opts?.featured) {
         items = items.filter(p => p.featured);
       }
+      // Apply category filter locally if PocketBase lookup failed silently
+      if (opts?.category && !categoryId) {
+        items = items.filter((p: ExpandedProduct) =>
+          p.expand?.category?.slug === opts!.category
+        );
+      }
       products = items;
       totalPages = result.totalPages;
       page = result.page;
