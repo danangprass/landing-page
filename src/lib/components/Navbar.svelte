@@ -3,6 +3,7 @@
   import { getAuthContext } from '$lib/stores/auth.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
+  import { getProductsContext } from '$lib/stores/products.svelte';
 
   let searchOpen = $state(false);
   let searchQuery = $state('');
@@ -12,6 +13,8 @@
   let auth = getAuthContext();
   let cart = getCartContext();
   let wishlist = getWishlistContext();
+  let productStore = getProductsContext();
+  let highlightIndex = $state(-1);
 
   let cartCount = $derived(cart?.count ?? 0);
   let wishlistCount = $derived(wishlist?.ids?.length ?? 0);
@@ -61,24 +64,74 @@
     searchQuery = '';
   }
 
+  let debouncedQuery = $state('');
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $effect(() => {
+    const q = searchQuery.trim();
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (q.length < 2) {
+      debouncedQuery = '';
+      highlightIndex = -1;
+      return;
+    }
+    debounceTimer = setTimeout(() => {
+      debouncedQuery = q.toLowerCase();
+      highlightIndex = -1;
+    }, 300);
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  });
+
+  let suggestions = $derived.by(() => {
+    if (!debouncedQuery || !productStore?.products) return [];
+    const q = debouncedQuery;
+    return productStore.products
+      .filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q)
+      )
+      .slice(0, 8);
+  });
+
+  function selectSuggestion(product: { slug: string }) {
+    closeSearch();
+    goto(`/products/${product.slug}`);
+  }
+
   function handleSearchSubmit(e: SubmitEvent) {
     e.preventDefault();
     const q = searchQuery.trim();
-    if (q) {
-      closeSearch();
-      goto(`/products?search=${encodeURIComponent(q)}`);
+    if (!q) return;
+    if (highlightIndex >= 0 && highlightIndex < suggestions.length) {
+      const selected = suggestions[highlightIndex];
+      if (selected) {
+        selectSuggestion(selected);
+        return;
+      }
     }
+    closeSearch();
+    goto(`/products?search=${encodeURIComponent(q)}`);
   }
 
-  // Close search on Escape key
-  function handleKeydown(e: KeyboardEvent) {
+  function handleSearchKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       if (searchOpen) closeSearch();
+      return;
+    }
+    if (suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightIndex = Math.min(highlightIndex + 1, suggestions.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightIndex = Math.max(highlightIndex - 1, -1);
     }
   }
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleSearchKeydown} />
 
 <nav
   class="nav-container"
@@ -153,6 +206,10 @@
         aria-label="Search products"
         autofocus={searchOpen}
         bind:value={searchQuery}
+        role="combobox"
+        aria-expanded={searchQuery.trim().length >= 2}
+        aria-controls="search-suggestions"
+        aria-activedescendant={highlightIndex >= 0 ? `suggestion-${highlightIndex}` : undefined}
       />
       <button class="search-close" type="button" onclick={closeSearch} aria-label="Close search">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -160,6 +217,28 @@
         </svg>
       </button>
     </form>
+    {#if suggestions.length > 0}
+      <ul class="suggestions-list section-padding" id="search-suggestions" role="listbox">
+        {#each suggestions as product, i (product.id)}
+          <li
+            role="option"
+            id="suggestion-{i}"
+            aria-selected={highlightIndex === i}
+          >
+            <button
+              type="button"
+              class="suggestion-item"
+              class:suggestion-highlighted={highlightIndex === i}
+              onclick={() => selectSuggestion(product)}
+            >
+              <span class="suggestion-name">{product.name}</span>
+              <span class="suggestion-category">{product.expand?.category?.name ?? ''}</span>
+              <span class="suggestion-price">${product.price.toLocaleString('en-US')}</span>
+            </button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </div>
 
 </nav>
@@ -450,6 +529,59 @@
     outline-offset: 2px;
   }
 
+  /* ─── Suggestions dropdown ─── */
+  .suggestions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+    background-color: var(--color-surface);
+  }
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.625rem 0;
+    background: none;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 120ms var(--ease-out);
+  }
+
+  .suggestion-highlighted,
+  .suggestion-item:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .suggestion-name {
+    flex: 1;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .suggestion-category {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+  }
+
+  .suggestion-price {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    flex-shrink: 0;
+    min-width: 4rem;
+    text-align: right;
+  }
+
   /* ─── Reduced motion ─── */
   @media (prefers-reduced-motion: reduce) {
     .nav-container::after,
@@ -460,7 +592,8 @@
     .search-bar,
     .auth-link,
     .auth-cta,
-    .search-close {
+    .search-close,
+    .suggestion-item {
       transition-duration: 0.01ms !important;
     }
   }
