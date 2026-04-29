@@ -105,8 +105,11 @@
     const q = searchQuery.trim();
     if (!q) return;
     if (highlightIndex >= 0 && highlightIndex < suggestions.length) {
-      selectSuggestion(suggestions[highlightIndex]);
-      return;
+      const selected = suggestions[highlightIndex];
+      if (selected) {
+        selectSuggestion(selected);
+        return;
+      }
     }
     closeSearch();
     goto(`/products?search=${encodeURIComponent(q)}`);
@@ -115,7 +118,10 @@
   function handleSearchKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       if (searchOpen) closeSearch();
-    } else if (e.key === 'ArrowDown') {
+      return;
+    }
+    if (suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
       highlightIndex = Math.min(highlightIndex + 1, suggestions.length - 1);
     } else if (e.key === 'ArrowUp') {
