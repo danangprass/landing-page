@@ -56,7 +56,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			total: o.total,
 			status: o.status,
 			created: '-',
-			userName: (o.expand?.user as { name?: string })?.name ?? 'Unknown',
+			userName: (((o as Record<string, unknown>).expand as Record<string, unknown> | undefined)?.user as { name?: string })?.name ?? 'Unknown',
 		})),
 	};
 };

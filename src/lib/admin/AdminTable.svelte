@@ -1,11 +1,11 @@
 <script lang="ts">
   let {
-    columns = [],
-    rows = [],
+    columns = [] as { key: string; label: string; sortable?: boolean }[],
+    rows = [] as Record<string, unknown>[],
     emptyMessage = 'No data found.',
     onRowClick = undefined as ((row: Record<string, unknown>) => void) | undefined,
   }: {
-    columns: { key: string; label: string; sortable?: boolean };
+    columns: { key: string; label: string; sortable?: boolean }[];
     rows: Record<string, unknown>[];
     emptyMessage?: string;
     onRowClick?: ((row: Record<string, unknown>) => void) | undefined;
