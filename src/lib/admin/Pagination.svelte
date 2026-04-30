@@ -5,7 +5,7 @@
     onPage?: (page: number) => void;
   } = $props();
 
-  let pages = $derived<number[]>(() => {
+  let pages = $derived.by<number[]>(() => {
     const result: number[] = [];
     const start = Math.max(1, page - 2);
     const end = Math.min(totalPages, page + 2);
