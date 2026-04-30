@@ -5,7 +5,6 @@
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import { getProductsContext } from '$lib/stores/products.svelte';
 
-  let searchOpen = $state(false);
   let searchQuery = $state('');
   let scrolled = $state(false);
   let badgeVisible = $state(false);
@@ -15,6 +14,7 @@
   let wishlist = getWishlistContext();
   let productStore = getProductsContext();
   let highlightIndex = $state(-1);
+  let showSuggestions = $state(false);
 
   let cartCount = $derived(cart?.count ?? 0);
   let wishlistCount = $derived(wishlist?.ids?.length ?? 0);
@@ -36,33 +36,11 @@
     return () => window.removeEventListener('scroll', onScroll);
   });
 
-  // Lock body scroll when search panel is open
-  $effect(() => {
-    if (searchOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  });
-
-  // Close search overlay on route changes so it doesn't persist across page navigations
+  // Clear search on route changes
   afterNavigate(() => {
-    searchOpen = false;
     searchQuery = '';
+    showSuggestions = false;
   });
-
-  function toggleSearch() {
-    searchOpen = !searchOpen;
-    if (!searchOpen) searchQuery = '';
-  }
-
-  function closeSearch() {
-    searchOpen = false;
-    searchQuery = '';
-  }
 
   let debouncedQuery = $state('');
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -95,8 +73,13 @@
       .slice(0, 8);
   });
 
+  $effect(() => {
+    showSuggestions = suggestions.length > 0;
+  });
+
   function selectSuggestion(product: { slug: string }) {
-    closeSearch();
+    searchQuery = '';
+    showSuggestions = false;
     goto(`/products/${product.slug}`);
   }
 
@@ -111,13 +94,16 @@
         return;
       }
     }
-    closeSearch();
+    searchQuery = '';
+    showSuggestions = false;
     goto(`/products?search=${encodeURIComponent(q)}`);
   }
 
   function handleSearchKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
-      if (searchOpen) closeSearch();
+      searchQuery = '';
+      showSuggestions = false;
+      (e.target as HTMLInputElement)?.blur();
       return;
     }
     if (suggestions.length === 0) return;
@@ -129,9 +115,20 @@
       highlightIndex = Math.max(highlightIndex - 1, -1);
     }
   }
-</script>
 
-<svelte:window onkeydown={handleSearchKeydown} />
+  function handleSearchFocus() {
+    if (searchQuery.trim().length >= 2 && suggestions.length > 0) {
+      showSuggestions = true;
+    }
+  }
+
+  function handleSearchBlur() {
+    // Delay hiding so click on suggestion registers
+    setTimeout(() => {
+      showSuggestions = false;
+    }, 150);
+  }
+</script>
 
 <nav
   class="nav-container"
@@ -143,15 +140,56 @@
       Electra<span class="logo-accent">Store</span>
     </a>
 
-    <!-- Nav actions (right) -->
-    <div class="nav-actions">
-      <!-- Search toggle -->
-      <button class="action-btn" onclick={toggleSearch} aria-label="Search products" aria-expanded={searchOpen}>
-        <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+    <!-- Search input (always visible, center) -->
+    <div class="search-wrapper">
+      <form class="search-form" onsubmit={handleSearchSubmit} role="search">
+        <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
-      </button>
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search products..."
+          aria-label="Search products"
+          bind:value={searchQuery}
+          onkeydown={handleSearchKeydown}
+          onfocus={handleSearchFocus}
+          onblur={handleSearchBlur}
+          role="combobox"
+          aria-expanded={showSuggestions}
+          aria-controls="search-suggestions"
+          aria-activedescendant={highlightIndex >= 0 ? `suggestion-${highlightIndex}` : undefined}
+        />
+      </form>
 
+      <!-- Suggestions dropdown -->
+      {#if showSuggestions}
+        <ul class="suggestions-list" id="search-suggestions" role="listbox">
+          {#each suggestions as product, i (product.id)}
+            <li
+              role="option"
+              id="suggestion-{i}"
+              aria-selected={highlightIndex === i}
+            >
+              <button
+                type="button"
+                class="suggestion-item"
+                class:suggestion-highlighted={highlightIndex === i}
+                onmousedown={(e: MouseEvent) => e.preventDefault()}
+                onclick={() => selectSuggestion(product)}
+              >
+                <span class="suggestion-name">{product.name}</span>
+                <span class="suggestion-category">{product.expand?.category?.name ?? ''}</span>
+                <span class="suggestion-price">${product.price.toLocaleString('en-US')}</span>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+
+    <!-- Nav actions (right) -->
+    <div class="nav-actions">
       <!-- Wishlist -->
       <a href="/wishlist" class="action-btn" aria-label="Wishlist">
         <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -184,63 +222,6 @@
       </div>
     </div>
   </div>
-
-  <!-- ─── Shared overlay (always mounted — CSS opacity enables exit animation) ─── -->
-  <div
-    class="nav-overlay"
-    class:overlay-visible={searchOpen}
-    onclick={() => { closeSearch(); }}
-    role="presentation"
-  ></div>
-
-  <!-- ─── Search bar ─── -->
-  <div class="search-bar" class:open={searchOpen}>
-    <form class="search-bar-inner section-padding" onsubmit={handleSearchSubmit}>
-      <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-      </svg>
-      <input
-        type="search"
-        class="search-input"
-        placeholder="Search products..."
-        aria-label="Search products"
-        autofocus={searchOpen}
-        bind:value={searchQuery}
-        role="combobox"
-        aria-expanded={searchQuery.trim().length >= 2}
-        aria-controls="search-suggestions"
-        aria-activedescendant={highlightIndex >= 0 ? `suggestion-${highlightIndex}` : undefined}
-      />
-      <button class="search-close" type="button" onclick={closeSearch} aria-label="Close search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </form>
-    {#if suggestions.length > 0}
-      <ul class="suggestions-list section-padding" id="search-suggestions" role="listbox">
-        {#each suggestions as product, i (product.id)}
-          <li
-            role="option"
-            id="suggestion-{i}"
-            aria-selected={highlightIndex === i}
-          >
-            <button
-              type="button"
-              class="suggestion-item"
-              class:suggestion-highlighted={highlightIndex === i}
-              onclick={() => selectSuggestion(product)}
-            >
-              <span class="suggestion-name">{product.name}</span>
-              <span class="suggestion-category">{product.expand?.category?.name ?? ''}</span>
-              <span class="suggestion-price">${product.price.toLocaleString('en-US')}</span>
-            </button>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </div>
-
 </nav>
 
 <style>
@@ -296,7 +277,7 @@
     text-decoration: none;
     transition: transform 160ms var(--ease-out);
     white-space: nowrap;
-    margin-right: auto;
+    flex-shrink: 0;
   }
   .logo:active {
     transform: scale(0.97);
@@ -306,11 +287,64 @@
     color: var(--color-accent);
   }
 
+  /* ─── Search wrapper ─── */
+  .search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.25rem 0.625rem;
+    transition:
+      border-color 200ms var(--ease-out),
+      background-color 200ms var(--ease-out);
+  }
+
+  .search-form:focus-within {
+    border-color: var(--color-accent);
+    background-color: color-mix(in srgb, var(--color-surface) 95%, #000);
+  }
+
+  .search-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 0.8125rem;
+    color: var(--color-text-primary);
+    font-family: inherit;
+    min-width: 0;
+  }
+  .search-input::placeholder {
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .search-input::-webkit-search-cancel-button {
+    display: none;
+  }
+
   /* ─── Nav actions ─── */
   .nav-actions {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex-shrink: 0;
   }
 
   /* ─── Action button (icon buttons) ─── */
@@ -436,118 +470,32 @@
     }
   }
 
-  /* ─── Shared overlay (always mounted — CSS opacity enables exit animation) ─── */
-  .nav-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    opacity: 0;
-    pointer-events: none;
-    /* CSS transition: interruptible — reverses mid-way on rapid open/close */
-    transition: opacity 200ms var(--ease-out);
-  }
-  .nav-overlay.overlay-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* ─── Search bar ─── */
-  .search-bar {
+  /* ─── Suggestions dropdown ─── */
+  .suggestions-list {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    background-color: var(--color-surface);
-    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
-    transform: translateY(-8px);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 51;
-    transition:
-      transform 300ms var(--ease-out),
-      opacity 200ms var(--ease-out);
-  }
-  .search-bar.open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .search-bar-inner {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    height: 3rem;
-  }
-
-  .search-icon {
-    width: 1.125rem;
-    height: 1.125rem;
-    color: var(--color-text-secondary);
-    flex-shrink: 0;
-  }
-
-  .search-input {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    color: var(--color-text-primary);
-    font-family: inherit;
-  }
-  .search-input::placeholder {
-    color: var(--color-text-secondary);
-  }
-
-  .search-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: var(--radius-full);
-    transition: color 160ms var(--ease-out), background-color 200ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .search-close:hover {
-      color: var(--color-text-primary);
-      background-color: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
-    }
-  }
-
-
-  /* ─── Focus-visible for a11y ─── */
-  :global(:focus-visible) {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* ─── Suggestions dropdown ─── */
-  .suggestions-list {
+    margin: 0.25rem 0 0 0;
+    padding: 0.375rem 0;
     list-style: none;
-    margin: 0;
-    padding: 0.5rem 0;
-    border-top: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
     background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 52;
   }
 
   .suggestion-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.625rem;
     width: 100%;
-    padding: 0.625rem 0;
+    padding: 0.5rem 0.75rem;
     background: none;
     border: none;
     color: var(--color-text-primary);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-family: inherit;
     cursor: pointer;
     text-align: left;
@@ -574,12 +522,25 @@
   }
 
   .suggestion-price {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--color-accent);
     flex-shrink: 0;
-    min-width: 4rem;
+    min-width: 3.5rem;
     text-align: right;
+  }
+
+  /* ─── Focus-visible for a11y ─── */
+  :global(:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Mobile responsive ─── */
+  @media (max-width: 639px) {
+    .search-wrapper {
+      max-width: 100%;
+    }
   }
 
   /* ─── Reduced motion ─── */
@@ -588,11 +549,9 @@
     .logo,
     .action-btn,
     .action-badge,
-    .nav-overlay,
-    .search-bar,
+    .search-form,
     .auth-link,
     .auth-cta,
-    .search-close,
     .suggestion-item {
       transition-duration: 0.01ms !important;
     }
