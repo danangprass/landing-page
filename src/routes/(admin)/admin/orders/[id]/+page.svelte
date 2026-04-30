@@ -1,7 +1,7 @@
 <script lang="ts">
   let { data } = $props();
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   function statusClass(s: string) {
     const map: Record<string, string> = {
@@ -46,10 +46,6 @@
           <span class="text-[#86868b]">Placed</span>
           <p class="text-[#f5f5f7]">{formatDate(data.order.created)}</p>
         </div>
-        <div>
-          <span class="text-[#86868b]">Transaction ID</span>
-          <p class="text-[#f5f5f7] font-mono text-xs">{data.order.midtrans_transaction_id}</p>
-        </div>
       </div>
 
       <div>
@@ -71,31 +67,17 @@
             <span class="text-xs text-[#86868b] block mb-1">Fulfillment</span>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {statusClass(data.order.status)}">{data.order.status}</span>
           </div>
-          <div class="text-center">
-            <span class="text-xs text-[#86868b] block mb-1">Payment</span>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {statusClass(data.order.order_status)}">{data.order.order_status}</span>
-          </div>
         </div>
 
         <form method="post" action="?/updateStatus" class="space-y-3">
           <div>
-            <label class="text-xs text-[#86868b] block mb-1">Update Fulfillment</label>
+            <label class="text-xs text-[#86868b] block mb-1">Update Status</label>
             <select name="status" class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
               <option value="">No change</option>
               <option value="pending">Pending</option>
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs text-[#86868b] block mb-1">Update Payment</label>
-            <select name="order_status" class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
-              <option value="">No change</option>
-              <option value="pending">Pending</option>
-              <option value="paid">Paid</option>
-              <option value="failed">Failed</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>

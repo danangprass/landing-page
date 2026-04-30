@@ -6,18 +6,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
 
 	const result = await pb.collection('products').getList(page, 10, {
-		sort: '-created',
+		sort: 'name',
 		expand: 'category',
-	});
+		$autoCancel: false,
+	}).catch(() => ({ items: [], totalPages: 0 }));
 
 	const categories = await pb.collection('categories').getFullList({
 		sort: 'name',
 		fields: 'id,name',
-	});
+		$autoCancel: false,
+	}).catch(() => []);
 
 	return {
 		products: result.items.map((p) => ({
 			id: p.id,
+			slug: p.slug,
 			name: p.name,
 			price: p.price,
 			stock: p.stock,

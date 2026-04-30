@@ -1,11 +1,11 @@
 <script lang="ts">
   let {
-    columns = [],
-    rows = [],
+    columns = [] as { key: string; label: string; sortable?: boolean }[],
+    rows = [] as Record<string, unknown>[],
     emptyMessage = 'No data found.',
     onRowClick = undefined as ((row: Record<string, unknown>) => void) | undefined,
   }: {
-    columns: { key: string; label: string; sortable?: boolean };
+    columns: { key: string; label: string; sortable?: boolean }[];
     rows: Record<string, unknown>[];
     emptyMessage?: string;
     onRowClick?: ((row: Record<string, unknown>) => void) | undefined;
@@ -24,7 +24,7 @@
     }
   }
 
-  let filtered = $derived(() => {
+  let filtered = $derived.by(() => {
     let result = rows;
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -84,15 +84,14 @@
             </td>
           </tr>
         {:else}
-          {#each filtered as row, i}
+          {#each filtered as row, i (row['id'] ?? i)}
             <tr
               class="border-b border-[#424245]/50 {i % 2 === 0 ? 'bg-transparent' : 'bg-[#1d1d1f]/50'} hover:bg-[#2d2d2f] transition-colors {onRowClick ? 'cursor-pointer' : ''}"
               onclick={() => onRowClick?.(row)}
             >
               {#each columns as col}
                 <td class="px-4 py-3 text-[#f5f5f7]">
-                  <!-- svelte-ignore a11y_no_static_element_interactions -->
-                  <slot name={col.key} {row}>{row[col.key]}</slot>
+                  {String(row[col.key] ?? '')}
                 </td>
               {/each}
             </tr>

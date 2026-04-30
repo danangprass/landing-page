@@ -176,7 +176,7 @@
       <div class="auth-links">
         {#if auth.isLoggedIn}
           <span class="auth-link auth-greeting">Hi, {auth.user?.name?.split(' ')[0] ?? 'User'}</span>
-          <button class="auth-link" onclick={() => auth.logout()}>Sign out</button>
+          <button class="auth-link" onclick={async () => { await auth.logout(); goto('/'); }}>Sign out</button>
         {:else}
           <a href="/login" class="auth-link">Sign in</a>
           <a href="/register" class="auth-cta">Create Account</a>

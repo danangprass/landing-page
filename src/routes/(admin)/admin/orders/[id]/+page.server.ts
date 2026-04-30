@@ -17,11 +17,9 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				id: order.id,
 				total: order.total,
 				status: order.status,
-				order_status: order.order_status,
 				shipping_address: order.shipping_address ?? '-',
 				billing_address: order.billing_address ?? '-',
-				midtrans_transaction_id: order.midtrans_transaction_id ?? '-',
-				created: order.created,
+				created: '-',
 				updated: order.updated,
 				userName: (order.expand?.user as { name?: string })?.name ?? 'Unknown',
 				userEmail: (order.expand?.user as { email?: string })?.email ?? 'Unknown',
@@ -42,14 +40,11 @@ export const actions: Actions = {
 	updateStatus: async ({ request, params, locals }) => {
 		const data = await request.formData();
 		const status = data.get('status') as string;
-		const orderStatus = data.get('order_status') as string;
 
 		const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-		const validOrderStatuses = ['pending', 'paid', 'failed'];
 
 		const update: Record<string, string> = {};
 		if (status && validStatuses.includes(status)) update.status = status;
-		if (orderStatus && validOrderStatuses.includes(orderStatus)) update.order_status = orderStatus;
 
 		await locals.pb.collection('orders').update(params.id, update);
 		throw redirect(303, `/admin/orders/${params.id}`);

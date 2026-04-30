@@ -2,7 +2,7 @@
   let { data } = $props();
 
   const statuses = ['', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const formatPrice = (c: number) => '$' + c.toLocaleString('en-US');
 
   function statusClass(s: string) {
@@ -47,8 +47,7 @@
               <th class="px-4 py-3 text-left text-xs font-medium text-[#86868b] uppercase">Order ID</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-[#86868b] uppercase">Customer</th>
               <th class="px-4 py-3 text-right text-xs font-medium text-[#86868b] uppercase">Total</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-[#86868b] uppercase">Fulfillment</th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-[#86868b] uppercase">Payment</th>
+              <th class="px-4 py-3 text-center text-xs font-medium text-[#86868b] uppercase">Status</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-[#86868b] uppercase">Date</th>
             </tr>
           </thead>
@@ -64,9 +63,6 @@
                 <td class="px-4 py-3 text-right text-[#f5f5f7] font-medium">{formatPrice(order.total)}</td>
                 <td class="px-4 py-3 text-center">
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {statusClass(order.status)}">{order.status}</span>
-                </td>
-                <td class="px-4 py-3 text-center">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {statusClass(order.order_status)}">{order.order_status}</span>
                 </td>
                 <td class="px-4 py-3 text-[#86868b] whitespace-nowrap">{formatDate(order.created)}</td>
               </tr>

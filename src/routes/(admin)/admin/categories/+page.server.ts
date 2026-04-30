@@ -26,7 +26,14 @@ export const actions: Actions = {
 		const id = data.get('id') as string;
 		const active = data.get('active') === 'true';
 
-		await locals.pb.collection('categories').update(id, { active: !active });
+		if (!id) return fail(400, { error: 'Missing category ID' });
+
+		try {
+			await locals.pb.collection('categories').update(id, { active: !active });
+		} catch (e) {
+			const message = e instanceof Error ? e.message : 'Failed to update category';
+			return fail(400, { error: message });
+		}
 		throw redirect(303, '/admin/categories');
 	},
 

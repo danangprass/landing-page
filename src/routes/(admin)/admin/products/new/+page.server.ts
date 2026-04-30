@@ -34,10 +34,16 @@ export const actions: Actions = {
 		}
 
 		if (compareAtPrice !== undefined && isNaN(compareAtPrice)) {
-			return fail(400, { error: 'Invalid compare at price.' });
+			return fail(400, {
+				error: 'Invalid compare at price.',
+				values: { name, slug, price, category, description, compareAtPrice, stock, sku, featured, active },
+			});
 		}
 		if (stock !== undefined && isNaN(stock)) {
-			return fail(400, { error: 'Invalid stock value.' });
+			return fail(400, {
+				error: 'Invalid stock value.',
+				values: { name, slug, price, category, description, compareAtPrice, stock, sku, featured, active },
+			});
 		}
 
 		const images = data.getAll('images').filter((f) => f instanceof File && f.size > 0) as File[];
