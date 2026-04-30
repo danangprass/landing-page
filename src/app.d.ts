@@ -6,6 +6,7 @@ declare global {
     interface Locals {
       pb: PocketBase;
       user: Record<string, unknown> | null;
+      isSuperuser: boolean;
     }
   }
 }

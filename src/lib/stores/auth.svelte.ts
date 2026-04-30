@@ -8,6 +8,7 @@ export interface AuthUser {
 	email: string;
 	name: string;
 	avatar?: string;
+	isSuperuser?: boolean;
 }
 
 function createAuthStore() {
@@ -25,6 +26,7 @@ function createAuthStore() {
 				email: u.email as string,
 				name: u.name as string,
 				avatar: u.avatar as string | undefined,
+				isSuperuser: (u.isSuperuser as boolean) ?? false,
 			};
 			pendingAuthSync = false;
 			if (pendingAuthSyncTimeout) {
@@ -155,6 +157,7 @@ function createAuthStore() {
 	return {
 		get user() { return user; },
 		get isLoggedIn() { return user !== null; },
+		get isSuperuser() { return user?.isSuperuser ?? false; },
 		get loading() { return loading; },
 		login,
 		register,
