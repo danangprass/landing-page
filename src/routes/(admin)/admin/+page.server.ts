@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		usersResult,
 		recentOrdersResult,
 	] = await Promise.all([
-		pb.collection('orders').getFullList<OrdersRecord>({ fields: 'total,status', $autoCancel: false }).catch(() => [] as OrdersRecord[]),
+		pb.collection('orders').getFullList<OrdersRecord>({ fields: 'total,status,created', $autoCancel: false }).catch(() => [] as OrdersRecord[]),
 		pb.collection('products').getList(1, 1, { fields: 'id', $autoCancel: false }).catch(() => ({ totalItems: 0, items: [] })),
 		pb.collection('users').getList(1, 1, { fields: 'id', $autoCancel: false }).catch(() => ({ totalItems: 0, items: [] })),
 		pb.collection('orders').getList(1, 5, {
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const now = new Date();
 	const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 	const monthlyOrders = ordersResult.filter(
-		(o) => o.status === 'delivered'
+		(o) => o.status === 'delivered' && ((o as Record<string, unknown>).created as string) >= startOfMonth
 	);
 	const monthlyRevenue = monthlyOrders.reduce((sum, o) => sum + o.total, 0);
 
