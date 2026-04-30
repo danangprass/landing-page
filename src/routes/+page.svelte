@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getProductsContext } from '$lib/stores/products.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
+  import HeroCarousel from '$lib/components/HeroCarousel.svelte';
   import { getImageUrl } from '$lib/pb';
 
   const store = getProductsContext();
@@ -12,7 +13,7 @@
     store.loadTestimonials();
   });
 
-  const heroProduct = $derived(store.products[0]);
+  const newArrivals = $derived(store.products.filter(p => p.featured).slice(0, 5));
   const featured = $derived(store.products.slice(0, 6));
   const categories = $derived(store.categories.slice(0, 6));
   const highlightProduct = $derived(store.products[1]);
@@ -32,17 +33,12 @@
   }
 
   /* ── Scroll-triggered reveal ── */
-  let heroEntered = $state(false);
 
   $effect(() => {
     store.products;
     store.categories;
     store.banners;
     store.testimonials;
-
-    const heroTimer = setTimeout(() => {
-      heroEntered = true;
-    }, 80);
 
     const els = document.querySelectorAll('.reveal:not(.visible)');
     const observer = new IntersectionObserver(
@@ -59,7 +55,6 @@
 
     for (const el of els) observer.observe(el);
     return () => {
-      clearTimeout(heroTimer);
       observer.disconnect();
     };
   });
@@ -108,50 +103,10 @@
 </svelte:head>
 
 <!-- ============================================================
-     HERO SECTION
-     Full viewport, animated mesh gradient, product image, text
+     HERO SECTION — New Arrival Carousel
      ============================================================ -->
-{#if heroProduct}
-  <section class="hero">
-    <div class="hero-mesh" aria-hidden="true"></div>
-    <div class="hero-glow" aria-hidden="true"></div>
-
-    <div class="hero-inner">
-      <div class="hero-text" class:hero-entered={heroEntered}>
-        <span class="hero-badge" style="animation-delay: 0.1s;">New Arrival</span>
-        <h1 class="hero-title" style="animation-delay: 0.25s;">{heroProduct.name}</h1>
-        <p class="hero-subtitle" style="animation-delay: 0.4s;">
-          {heroProduct.description ?? ''}
-        </p>
-        <p class="hero-price" style="animation-delay: 0.5s;">
-          From {formatPrice(heroProduct.price)}
-        </p>
-        <div class="hero-actions" style="animation-delay: 0.6s;">
-          <a href="/products/{heroProduct.slug}" class="btn-primary">Learn more</a>
-          <a href="/products/{heroProduct.slug}" class="btn-secondary">Buy</a>
-        </div>
-      </div>
-
-      {#if heroProduct.images?.[0]}
-        <div class="hero-visual" class:hero-entered={heroEntered}>
-          <div class="hero-image-glow" aria-hidden="true"></div>
-          <img
-            src={getImageUrl(heroProduct, heroProduct.images[0])}
-            alt={heroProduct.name}
-            class="hero-image"
-            loading="eager"
-          />
-        </div>
-      {/if}
-    </div>
-
-    <!-- Scroll hint -->
-    <div class="scroll-hint" aria-hidden="true">
-      <div class="scroll-mouse">
-        <div class="scroll-wheel"></div>
-      </div>
-    </div>
-  </section>
+{#if newArrivals.length > 0}
+  <HeroCarousel products={newArrivals} />
 {/if}
 
 <!-- ============================================================
@@ -343,234 +298,6 @@
 </section>
 
 <style>
-  /* ── HERO ── */
-  .hero {
-    position: relative;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background-color: var(--color-bg);
-  }
-
-  .hero-mesh {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 40%, rgba(41, 151, 255, 0.1) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 80% at 80% 60%, rgba(168, 85, 247, 0.08) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 50% at 50% 100%, rgba(41, 151, 255, 0.06) 0%, transparent 50%);
-    pointer-events: none;
-    animation: mesh-shift 12s ease-in-out infinite alternate;
-  }
-
-  .hero-glow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 50% 30%, rgba(41, 151, 255, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  @keyframes mesh-shift {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-2%, 2%) scale(1.05); }
-  }
-
-  .hero-inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3rem;
-    max-width: 72rem;
-    width: 100%;
-    padding: 6rem 1.5rem 4rem;
-    text-align: center;
-  }
-
-  @media (min-width: 1024px) {
-    .hero-inner {
-      flex-direction: row;
-      text-align: left;
-      gap: 4rem;
-      padding: 4rem 2rem;
-    }
-  }
-
-  .hero-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 36rem;
-  }
-
-  @media (min-width: 1024px) {
-    .hero-text {
-      align-items: flex-start;
-    }
-  }
-
-  .hero-text > * {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  .hero-text.hero-entered > * {
-    animation: hero-fade-up 0.8s var(--ease-out) forwards;
-  }
-
-  @keyframes hero-fade-up {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .hero-badge {
-    display: inline-block;
-    padding: 0.375rem 1rem;
-    border-radius: var(--radius-full);
-    background: rgba(41, 151, 255, 0.15);
-    border: 1px solid rgba(41, 151, 255, 0.25);
-    color: var(--color-accent);
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    backdrop-filter: blur(8px);
-  }
-
-  .hero-title {
-    font-size: clamp(2.75rem, 8vw, 5rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    text-wrap: balance;
-  }
-
-  .hero-subtitle {
-    margin-top: 1.25rem;
-    font-size: clamp(1.125rem, 2.5vw, 1.375rem);
-    color: var(--color-text-secondary);
-    max-width: 36rem;
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-
-  .hero-price {
-    margin-top: 1rem;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-  }
-
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2.5rem;
-  }
-
-  @media (min-width: 1024px) {
-    .hero-actions {
-      justify-content: flex-start;
-    }
-  }
-
-  /* Hero Visual */
-  .hero-visual {
-    position: relative;
-    flex-shrink: 0;
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-
-  .hero-visual.hero-entered {
-    animation: hero-visual-enter 1s var(--ease-out) 0.2s forwards;
-  }
-
-  @keyframes hero-visual-enter {
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .hero-image-glow {
-    position: absolute;
-    inset: -20%;
-    background: radial-gradient(circle at 50% 50%, rgba(41, 151, 255, 0.15) 0%, transparent 60%);
-    pointer-events: none;
-    animation: glow-pulse 4s ease-in-out infinite alternate;
-  }
-
-  @keyframes glow-pulse {
-    0% { opacity: 0.6; transform: scale(1); }
-    100% { opacity: 1; transform: scale(1.1); }
-  }
-
-  .hero-image {
-    position: relative;
-    width: 100%;
-    max-width: 28rem;
-    height: auto;
-    border-radius: var(--radius-lg);
-    object-fit: cover;
-    aspect-ratio: 4 / 3;
-    animation: hero-image-float 6s ease-in-out infinite;
-  }
-
-  @keyframes hero-image-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
-
-  /* Scroll hint */
-  .scroll-hint {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0.35;
-    animation: fade-in-up 1s var(--ease-out) 1.2s both;
-  }
-
-  .scroll-mouse {
-    width: 1.5rem;
-    height: 2.25rem;
-    border: 2px solid var(--color-text-secondary);
-    border-radius: 9999px;
-    position: relative;
-  }
-
-  .scroll-wheel {
-    width: 4px;
-    height: 6px;
-    background: var(--color-text-secondary);
-    border-radius: 2px;
-    position: absolute;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: scroll-wheel 1.5s ease-in-out infinite;
-  }
-
-  @keyframes scroll-wheel {
-    0%, 100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    50% { opacity: 0.3; transform: translateX(-50%) translateY(6px); }
-  }
-
-  @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 0.35; transform: translateY(0); }
-  }
-
   /* ── SECTION HEADER ── */
   .section-header {
     display: flex;
@@ -1124,20 +851,7 @@
 
   /* ── REDUCED MOTION ── */
   @media (prefers-reduced-motion: reduce) {
-    .hero-mesh,
-    .scroll-hint,
-    .scroll-wheel,
-    .hero-image-glow,
     .cta-mesh {
-      animation: none;
-    }
-    .hero-image {
-      animation: none;
-    }
-    .hero-text > *,
-    .hero-visual {
-      opacity: 1;
-      transform: none;
       animation: none;
     }
   }
