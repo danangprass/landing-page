@@ -8,6 +8,20 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 	}
 
+	// PocketBase _superusers are always considered admins
+	if (locals.isSuperuser) {
+		return {
+			user: {
+				id: user.id,
+				email: user.email,
+				name: (user as Record<string, unknown>).name ?? 'Superuser',
+				role: 'admin',
+				avatar: (user as Record<string, unknown>).avatar,
+				isSuperuser: true,
+			},
+		};
+	}
+
 	// Fetch the full user record to get the role field.
 	// The auth cookie model may not include custom fields added after the user
 	// originally logged in (e.g. the `role` field).

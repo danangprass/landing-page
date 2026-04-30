@@ -22,7 +22,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 			// Verify the token is still valid
 			if (pb.authStore.isValid) {
 				try {
-					await pb.collection('users').authRefresh();
+					if (pb.authStore.isSuperuser) {
+						await pb.collection('_superusers').authRefresh();
+					} else {
+						await pb.collection('users').authRefresh();
+					}
 					// Persist refreshed token back to cookie immediately
 					const payload = JSON.stringify({ token: pb.authStore.token, model: pb.authStore.record });
 					event.cookies.set('pb_auth', encodeURIComponent(payload), {
@@ -46,6 +50,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Expose PB instance and auth state to load functions
 	event.locals.pb = pb;
 	event.locals.user = pb.authStore.record ?? null;
+	event.locals.isSuperuser = pb.authStore.isSuperuser;
 
 	return await resolve(event);
 };
