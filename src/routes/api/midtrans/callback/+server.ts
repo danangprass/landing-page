@@ -2,10 +2,28 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import PocketBase from 'pocketbase';
 import { env } from '$env/dynamic/private';
+import crypto from 'crypto';
 
 const PB_URL = env.PB_URL ?? 'http://localhost:8090';
 
 const TERMINAL_STATUSES = new Set(['shipped', 'delivered', 'cancelled']);
+
+const ORDER_ID_RE = /^[a-z0-9]{15}$/;
+
+function verifySignature(
+	orderId: string,
+	statusCode: string,
+	grossAmount: string,
+	signatureKey: string,
+): boolean {
+	const serverKey = env.SERVER_KEY ?? env.MIDTRANS_SERVER_KEY;
+	if (!serverKey) return false;
+	const hash = crypto
+		.createHash('sha512')
+		.update(orderId + statusCode + grossAmount + serverKey)
+		.digest('hex');
+	return hash === signatureKey;
+}
 
 /**
  * Maps a Midtrans transaction_status (and optional fraud_status) to a target
@@ -87,6 +105,22 @@ export const POST: RequestHandler = async ({ request }) => {
 			{ success: false, message: 'Missing order_id or transaction_status' },
 			{ status: 400 },
 		);
+	}
+
+	if (!ORDER_ID_RE.test(orderId)) {
+		return json({ success: false, message: 'Invalid order_id format' }, { status: 400 });
+	}
+
+	// ── Verify Midtrans signature ───────────────────────────────────────
+	const statusCode = body.status_code as string | undefined;
+	const grossAmount = body.gross_amount as string | undefined;
+	const signatureKey = body.signature_key as string | undefined;
+
+	if (statusCode && grossAmount && signatureKey) {
+		if (!verifySignature(orderId, statusCode, grossAmount, signatureKey)) {
+			console.warn(`[Midtrans Callback] Order ${orderId}: signature verification failed`);
+			return json({ success: false, message: 'Invalid signature' }, { status: 401 });
+		}
 	}
 
 	// ── Determine target status ─────────────────────────────────────────
