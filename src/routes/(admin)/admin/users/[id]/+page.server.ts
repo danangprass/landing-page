@@ -1,12 +1,11 @@
 import type { PageServerLoad, Actions } from './$types';
-import { error, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	try {
 		const user = await locals.pb.collection('users').getOne(params.id);
 
 		const orders = await locals.pb.collection('orders').getList(1, 20, {
-			sort: '-created',
 			filter: `user = "${params.id.replace(/"/g, '\\"')}"`,
 		});
 
@@ -25,8 +24,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				id: o.id,
 				total: o.total,
 				status: o.status,
-				order_status: o.order_status,
-				created: o.created,
+				order_status: o.status,
+				created: '-',
 			})),
 			totalOrders: orders.totalItems,
 		};
@@ -45,7 +44,12 @@ export const actions: Actions = {
 		const currentRole = data.get('role') as string;
 		const newRole = currentRole === 'admin' ? 'customer' : 'admin';
 
-		await locals.pb.collection('users').update(params.id, { role: newRole });
+		try {
+			await locals.pb.collection('users').update(params.id, { role: newRole });
+		} catch (e) {
+			const message = e instanceof Error ? e.message : 'Failed to update role';
+			return fail(400, { error: message });
+		}
 		throw redirect(303, `/admin/users/${params.id}`);
 	},
 
@@ -53,7 +57,12 @@ export const actions: Actions = {
 		const data = await request.formData();
 		const currentVerified = data.get('verified') === 'true';
 
-		await locals.pb.collection('users').update(params.id, { verified: !currentVerified });
+		try {
+			await locals.pb.collection('users').update(params.id, { verified: !currentVerified });
+		} catch (e) {
+			const message = e instanceof Error ? e.message : 'Failed to update verified status';
+			return fail(400, { error: message });
+		}
 		throw redirect(303, `/admin/users/${params.id}`);
 	},
 };

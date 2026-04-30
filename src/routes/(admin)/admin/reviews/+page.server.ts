@@ -6,9 +6,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
 
 	const result = await pb.collection('reviews').getList(page, 15, {
-		sort: '-created',
 		expand: 'product,user',
-	});
+		$autoCancel: false,
+	}).catch(() => ({ items: [], totalPages: 0 }));
 
 	return {
 		reviews: result.items.map((r) => ({
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			body: r.body ?? '',
 			productName: (r.expand?.product as { name?: string })?.name ?? 'Unknown',
 			userName: (r.expand?.user as { name?: string })?.name ?? 'Unknown',
-			created: r.created,
+			created: '-',
 		})),
 		totalPages: result.totalPages,
 		page,

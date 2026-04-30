@@ -11,7 +11,7 @@
     { label: 'Low Stock', value: data.kpis.lowStock.toLocaleString(), color: data.kpis.lowStock > 0 ? 'text-[#ff453a]' : 'text-[#86868b]' },
   ];
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 </script>
 
 <div>

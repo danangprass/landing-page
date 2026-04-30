@@ -1,8 +1,8 @@
 <script lang="ts">
-  let { data } = $props();
+  let { data, form } = $props();
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const formatDateTime = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const formatDateTime = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   function statusClass(s: string) {
     const map: Record<string, string> = {
@@ -27,6 +27,12 @@
     </a>
     <h1 class="text-2xl font-semibold text-[#f5f5f7]">User Detail</h1>
   </div>
+
+  {#if form?.error}
+    <div class="mb-6 px-4 py-3 rounded-xl bg-[#ff453a]/15 border border-[#ff453a]/30 text-[#ff453a] text-sm">
+      {form.error}
+    </div>
+  {/if}
 
   <div class="grid gap-6 lg:grid-cols-2">
     <!-- User Info Card -->

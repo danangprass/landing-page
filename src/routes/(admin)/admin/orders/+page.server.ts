@@ -12,19 +12,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const filter = filterParts.length > 0 ? filterParts.join(' && ') : '';
 
 	const result = await pb.collection('orders').getList(page, 15, {
-		sort: '-created',
 		expand: 'user',
 		filter,
-		fields: 'id,total,status,order_status,created,user',
-	});
+		fields: 'id,total,status,user',
+		$autoCancel: false,
+	}).catch(() => ({ items: [], totalPages: 0 }));
 
 	return {
 		orders: result.items.map((o) => ({
 			id: o.id,
 			total: o.total,
 			status: o.status,
-			order_status: o.order_status,
-			created: o.created,
+			order_status: o.status,
+			created: '-',
 			userName: (o.expand?.user as { name?: string })?.name ?? 'Unknown',
 		})),
 		totalPages: result.totalPages,
