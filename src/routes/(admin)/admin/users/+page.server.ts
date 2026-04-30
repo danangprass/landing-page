@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const filter = filterParts.length > 0 ? filterParts.join(' && ') : '';
 
 	const result = await pb.collection('users').getList(page, 20, {
-		sort: '-created',
+		sort: 'name',
 		filter,
 	});
 

@@ -132,11 +132,11 @@
       <div class="reveal">
         <h2 class="text-2xl font-semibold text-text-primary mb-6">You Might Also Like</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {#each store.products.filter(p => p.id !== product.id).slice(0, 4) as related (related.id)}
+          {#each store.products.filter(p => p.id !== product!.id).slice(0, 4) as related (related.id)}
             <ProductCard product={related} category={related.expand?.category} />
           {/each}
         </div>
-        {#if store.products.filter(p => p.id !== product.id).length === 0}
+        {#if store.products.filter(p => p.id !== product!.id).length === 0}
           <p class="text-text-secondary">Browse more products in <a href="/products" class="text-accent">All Products</a>.</p>
         {/if}
       </div>

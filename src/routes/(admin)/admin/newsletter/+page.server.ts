@@ -3,8 +3,9 @@ import { fail, redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const subscribers = await locals.pb.collection('newsletter_subscribers').getFullList({
-		sort: '-created',
-	});
+		sort: 'email',
+		$autoCancel: false,
+	}).catch(() => []);
 
 	return {
 		subscribers: subscribers.map((s) => ({
