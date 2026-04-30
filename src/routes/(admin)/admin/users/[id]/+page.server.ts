@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				created: '-',
 			})),
 			totalOrders: orders.totalItems,
+			isSuperuser: locals.isSuperuser ?? false,
 		};
 	} catch {
 		throw error(404, 'User not found');
@@ -64,5 +65,25 @@ export const actions: Actions = {
 			return fail(400, { error: message });
 		}
 		throw redirect(303, `/admin/users/${params.id}`);
+	},
+
+	delete: async ({ request, params, locals }) => {
+		const data = await request.formData();
+		const role = data.get('role') as string;
+
+		// Only _superusers can delete admin users
+		if (role === 'admin') {
+			if (!locals.isSuperuser) {
+				return fail(403, { error: 'Only superusers can delete admin accounts. Admin users cannot delete other admins.' });
+			}
+		}
+
+		try {
+			await locals.pb.collection('users').delete(params.id);
+		} catch (e) {
+			const message = e instanceof Error ? e.message : 'Failed to delete user';
+			return fail(400, { error: message });
+		}
+		throw redirect(303, '/admin/users');
 	},
 };

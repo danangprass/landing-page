@@ -1,6 +1,8 @@
 <script lang="ts">
   let { data, form } = $props();
 
+  let showDeleteConfirm = $state(false);
+
   const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const formatDateTime = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -35,7 +37,6 @@
   {/if}
 
   <div class="grid gap-6 lg:grid-cols-2">
-    <!-- User Info Card -->
     <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-5">
       <div class="flex items-center gap-4 mb-6">
         {#if data.user.avatarUrl}
@@ -89,9 +90,17 @@
           <span class="text-sm text-[#f5f5f7]">{formatDate(data.user.created)}</span>
         </div>
       </div>
+
+      <div class="mt-6 pt-4 border-t border-[#424245]/50">
+        <button
+          class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
+          onclick={() => (showDeleteConfirm = true)}
+        >
+          Delete User
+        </button>
+      </div>
     </div>
 
-    <!-- User Orders -->
     <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-5">
       <h2 class="text-sm font-semibold text-[#f5f5f7] uppercase tracking-wider mb-4">Orders ({data.totalOrders})</h2>
 
@@ -118,3 +127,41 @@
     </div>
   </div>
 </div>
+
+{#if showDeleteConfirm}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    onclick={() => (showDeleteConfirm = false)}
+  >
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div
+      class="bg-[#1d1d1f] border border-[#424245] rounded-[18px] p-6 w-full max-w-md mx-4 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+    >
+      <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete User</h3>
+      <p class="text-[#86868b] text-sm mb-6">
+        Are you sure you want to delete <span class="text-[#f5f5f7]">{data.user.name}</span>? This cannot be undone.
+      </p>
+      <div class="flex justify-end gap-3">
+        <button
+          class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f] transition-colors"
+          onclick={() => (showDeleteConfirm = false)}
+        >
+          Cancel
+        </button>
+        <form method="post" action="?/delete">
+          <input type="hidden" name="role" value={data.user.role} />
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
+          >
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+{/if}

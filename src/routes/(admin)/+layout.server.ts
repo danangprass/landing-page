@@ -8,9 +8,19 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 	}
 
-	// Fetch the full user record to get the role field.
-	// The auth cookie model may not include custom fields added after the user
-	// originally logged in (e.g. the `role` field).
+	// Allow _superusers (PocketBase admin panel users) to access admin pages
+	if (locals.isSuperuser) {
+		return {
+			user: {
+				id: user.id as string,
+				email: user.email as string,
+				name: user.name as string,
+				role: 'superuser',
+				avatar: user.avatar,
+			},
+		};
+	}
+
 	const fullUser = await locals.pb.collection('users').getOne(user.id as string, { $autoCancel: false });
 	const role = (fullUser as Record<string, unknown>).role;
 	if (role !== 'admin') {
