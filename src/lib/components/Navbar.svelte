@@ -122,10 +122,20 @@
     }
   }
 
+  let blurTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $effect(() => {
+    return () => {
+      if (blurTimer) clearTimeout(blurTimer);
+    };
+  });
+
   function handleSearchBlur() {
+    if (blurTimer) clearTimeout(blurTimer);
     // Delay hiding so click on suggestion registers
-    setTimeout(() => {
+    blurTimer = setTimeout(() => {
       showSuggestions = false;
+      blurTimer = null;
     }, 150);
   }
 </script>
