@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import Button from '$lib/components/ui/button/button.svelte';
 </script>
 
 <svelte:head>
@@ -19,7 +20,7 @@
         An unexpected error occurred. Please try again later.
       {/if}
     </p>
-    <a href="/" class="btn-primary error-btn">Go Home</a>
+    <Button href="/">Go Home</Button>
   </div>
 </div>
 
@@ -55,9 +56,5 @@
     color: rgba(245, 245, 247, 0.6);
     margin: 0 0 2rem;
     line-height: 1.6;
-  }
-  .error-btn {
-    display: inline-block;
-    text-align: center;
   }
 </style>
