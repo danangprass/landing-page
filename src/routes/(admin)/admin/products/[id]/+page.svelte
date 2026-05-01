@@ -2,11 +2,18 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+  import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem } from '$lib/components/ui/select/index.js';
 
   let { data, form } = $props();
 
   let slug = $state(data.product.slug);
   let nameValue = $state(data.product.name);
+  let category = $state(data.product.category);
+  let featured = $state(data.product.featured);
+  let active = $state(data.product.active);
+
+  let categoryLabel = $derived(category ? (data.categories as unknown as {id: string; name: string}[]).find((c) => c.id === category)?.name ?? 'Select category...' : 'Select category...');
 
   function generateSlug(v: string) {
     nameValue = v;
@@ -103,16 +110,19 @@
       <Label class="text-sm font-medium text-[#f5f5f7]">
         Category <span class="text-[#ff453a]">*</span>
       </Label>
-      <select
-        name="category"
-        required
-        class="px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] transition-colors"
-      >
-        <option value="">Select category...</option>
-        {#each data.categories as cat}
-          <option value={cat.id} selected={data.product.category === cat.id}>{cat.name}</option>
-        {/each}
-      </select>
+      <input type="hidden" name="category" value={category} />
+      <Select type="single" bind:value={category} required>
+        <SelectTrigger class="px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] transition-colors w-full">
+          {categoryLabel}
+        </SelectTrigger>
+        <SelectContent class="bg-[#1d1d1f] border border-[#424245] rounded-xl text-sm text-[#f5f5f7]">
+          <SelectGroup>
+            {#each data.categories as cat}
+              <SelectItem value={cat.id}>{cat.name}</SelectItem>
+            {/each}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
     </div>
 
     <!-- Stock + SKU -->
@@ -165,13 +175,15 @@
     </div>
 
     <!-- Toggles -->
+    <input type="hidden" name="featured" value={String(featured)} />
+    <input type="hidden" name="active" value={String(active)} />
     <div class="flex items-center gap-8">
       <label class="flex items-center gap-2.5 cursor-pointer">
-        <input type="checkbox" name="featured" checked={data.product.featured} class="w-4 h-4 rounded accent-[#2997ff]" />
+        <Checkbox bind:checked={featured} />
         <span class="text-sm text-[#f5f5f7]">Featured</span>
       </label>
       <label class="flex items-center gap-2.5 cursor-pointer">
-        <input type="checkbox" name="active" checked={data.product.active} class="w-4 h-4 rounded accent-[#2997ff]" />
+        <Checkbox bind:checked={active} />
         <span class="text-sm text-[#f5f5f7]">Active</span>
       </label>
     </div>

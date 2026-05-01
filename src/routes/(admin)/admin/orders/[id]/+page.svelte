@@ -2,8 +2,11 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
+  import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem } from '$lib/components/ui/select/index.js';
 
   let { data } = $props();
+
+  let newStatus = $state('');
 
   const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -76,14 +79,21 @@
         <form method="post" action="?/updateStatus" class="space-y-3">
           <div>
             <Label class="text-xs text-[#86868b] block mb-1">Update Status</Label>
-            <select name="status" class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
-              <option value="">No change</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+            <input type="hidden" name="status" value={newStatus} />
+            <Select type="single" bind:value={newStatus}>
+              <SelectTrigger class="px-4 py-2 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-full">
+                {newStatus ? newStatus.charAt(0).toUpperCase() + newStatus.slice(1) : 'No change'}
+              </SelectTrigger>
+              <SelectContent class="bg-[#1d1d1f] border border-[#424245] rounded-xl text-sm text-[#f5f5f7]">
+                <SelectGroup>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="shipped">Shipped</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <Button type="submit" class="w-full px-4 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
             Update Status

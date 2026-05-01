@@ -3,6 +3,7 @@
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import Badge from '$lib/components/ui/badge/badge.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 
   let { data } = $props();
 
@@ -119,8 +120,9 @@
           <Input type="file" name="avatar" accept="image/*" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors" />
         </div>
 
+        <input type="hidden" name="active" value={String(eActive)} />
         <label class="flex items-center gap-2.5 cursor-pointer">
-          <input type="checkbox" name="active" checked={eActive} onchange={(e) => (eActive = (e.target as HTMLInputElement).checked)} class="w-4 h-4 rounded accent-[#2997ff]" />
+          <Checkbox bind:checked={eActive} />
           <span class="text-sm text-[#f5f5f7]">Active</span>
         </label>
 
