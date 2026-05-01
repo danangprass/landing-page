@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-[#000] flex">
+<div class="min-h-screen bg-[#000] flex dark">
   <!-- Sidebar overlay for mobile -->
   {#if mobileNavOpen}
     <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
