@@ -2,6 +2,12 @@
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
+  import Breadcrumb from '$lib/components/ui/breadcrumb/breadcrumb.svelte';
+  import BreadcrumbList from '$lib/components/ui/breadcrumb/breadcrumb-list.svelte';
+  import BreadcrumbItem from '$lib/components/ui/breadcrumb/breadcrumb-item.svelte';
+  import BreadcrumbLink from '$lib/components/ui/breadcrumb/breadcrumb-link.svelte';
+  import BreadcrumbPage from '$lib/components/ui/breadcrumb/breadcrumb-page.svelte';
+  import BreadcrumbSeparator from '$lib/components/ui/breadcrumb/breadcrumb-separator.svelte';
 
   const wishlist = getWishlistContext();
   const cart = getCartContext();
@@ -21,13 +27,19 @@
 </svelte:head>
 
 <div class="section-padding">
-  <nav class="py-4 text-sm text-text-secondary" aria-label="Breadcrumb">
-    <ol class="flex items-center gap-2">
-      <li><a href="/" class="breadcrumb-link">Home</a></li>
-      <li><span class="text-text-secondary/50">/</span></li>
-      <li class="text-text-primary">Wishlist</li>
-    </ol>
-  </nav>
+  <div class="py-4">
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Wishlist</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  </div>
 
   <div class="py-8 border-b border-border">
     <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-text-primary tracking-tight">
@@ -103,13 +115,5 @@
     justify-content: center;
     height: 10rem;
     background-color: color-mix(in srgb, var(--color-surface) 50%, var(--color-bg));
-  }
-  .breadcrumb-link {
-    color: var(--color-text-secondary);
-    text-decoration: none;
-    transition: color 160ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .breadcrumb-link:hover { color: var(--color-text-primary); }
   }
 </style>

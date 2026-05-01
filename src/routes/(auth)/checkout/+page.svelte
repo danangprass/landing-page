@@ -6,6 +6,7 @@
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
   import type { ExpandedProduct } from '$lib/pb-types-ext';
   import type { PageData } from './$types';
 
@@ -358,7 +359,8 @@
           <div class="space-y-8">
             <h2 class="text-2xl font-semibold text-text-primary">Shipping Information</h2>
 
-            <div class="form-card">
+            <Card.Root>
+              <Card.Content class="flex flex-col gap-5">
               <div>
                 <Label for="fullName" class="field-label">Full Name <span class="text-error">*</span></Label>
                 <Input
@@ -468,7 +470,8 @@
                   <p class="field-error">{errors.phone}</p>
                 {/if}
               </div>
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Shipping Method -->
             <div>
@@ -522,11 +525,12 @@
             <h2 class="text-2xl font-semibold text-text-primary">Review Your Order</h2>
 
             <!-- Order Items -->
-            <div class="review-card">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-text-primary">Order Summary</h3>
-                <a href="/cart" class="edit-link">Edit Cart</a>
-              </div>
+            <Card.Root>
+              <Card.Header class="flex-row items-center justify-between">
+                <Card.Title>Order Summary</Card.Title>
+                <Button variant="link" href="/cart" class="text-sm">Edit Cart</Button>
+              </Card.Header>
+              <Card.Content>
               <div class="divide-y divide-border">
                 {#each cart.items as item}
                   <div class="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
@@ -543,20 +547,16 @@
                   </div>
                 {/each}
               </div>
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Shipping Address -->
-            <div class="review-card">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-text-primary">Shipping Address</h3>
-                <button
-                  type="button"
-                  class="edit-link"
-                  onclick={() => goBack(1)}
-                >
-                  Edit
-                </button>
-              </div>
+            <Card.Root>
+              <Card.Header class="flex-row items-center justify-between">
+                <Card.Title>Shipping Address</Card.Title>
+                <Button variant="link" class="text-sm" onclick={() => goBack(1)}>Edit</Button>
+              </Card.Header>
+              <Card.Content>
               <p class="text-text-secondary">{fullName}</p>
               <p class="text-text-secondary">{address1}</p>
               {#if address2}
@@ -565,20 +565,16 @@
               <p class="text-text-secondary">{city}, {province} {zip}</p>
               <p class="text-text-secondary">{country}</p>
               <p class="text-text-secondary">{phone}</p>
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Shipping Method -->
-            <div class="review-card">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-text-primary">Shipping Method</h3>
-                <button
-                  type="button"
-                  class="edit-link"
-                  onclick={() => goBack(1)}
-                >
-                  Edit
-                </button>
-              </div>
+            <Card.Root>
+              <Card.Header class="flex-row items-center justify-between">
+                <Card.Title>Shipping Method</Card.Title>
+                <Button variant="link" class="text-sm" onclick={() => goBack(1)}>Edit</Button>
+              </Card.Header>
+              <Card.Content>
               {#each SHIPPING_METHODS as method}
                 {#if method.id === shippingMethod}
                   <p class="text-text-secondary">
@@ -588,16 +584,25 @@
                   </p>
                 {/if}
               {/each}
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Payment Method -->
-            <div class="review-card">
-              <h3 class="text-lg font-semibold text-text-primary mb-3">Payment</h3>
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Payment</Card.Title>
+              </Card.Header>
+              <Card.Content>
               <p class="text-text-secondary">You will be redirected to Midtrans Snap to complete your payment securely.</p>
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Totals -->
-            <div class="review-card">
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>Total</Card.Title>
+              </Card.Header>
+              <Card.Content>
               <div class="space-y-3">
                 <div class="flex justify-between text-text-secondary">
                   <span>Subtotal</span>
@@ -617,7 +622,8 @@
                   <span>{formatPrice(total)}</span>
                 </div>
               </div>
-            </div>
+              </Card.Content>
+            </Card.Root>
 
             <!-- Terms checkbox -->
             <div class="flex items-start gap-x-1">
@@ -652,13 +658,9 @@
             {/if}
 
             <div class="flex items-center justify-between">
-              <button
-                type="button"
-                class="back-link"
-                onclick={() => goBack(1)}
-              >
+              <Button variant="link" onclick={() => goBack(1)}>
                 &larr; Back to Shipping
-              </button>
+              </Button>
               <Button
                 disabled={!agreedToTerms || orderLoading}
                 onclick={handlePlaceOrder}
