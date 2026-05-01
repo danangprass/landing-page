@@ -1,4 +1,9 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data } = $props();
 
   let showForm = $state(false);
@@ -43,12 +48,12 @@
 <div>
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-semibold text-[#f5f5f7]">Banners</h1>
-    <button onclick={openCreate} class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors">
+    <Button onclick={openCreate} class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
       New Banner
-    </button>
+    </Button>
   </div>
 
   {#if data.banners.length === 0}
@@ -67,9 +72,9 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
               <span class="text-[#f5f5f7] font-medium text-sm truncate">{banner.title || 'Untitled'}</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {banner.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+              <Badge variant="outline" class={banner.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
                 {banner.active ? 'Active' : 'Inactive'}
-              </span>
+              </Badge>
             </div>
             {#if banner.subtitle}
               <p class="text-xs text-[#86868b] truncate mt-0.5">{banner.subtitle}</p>
@@ -77,8 +82,8 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0 text-xs">
-            <button onclick={() => openEdit(banner)} class="text-[#2997ff] hover:underline">Edit</button>
-            <button onclick={() => { deleteId = banner.id; showDelete = true; }} class="text-[#ff453a] hover:underline">Delete</button>
+            <Button variant="link" onclick={() => openEdit(banner)} class="text-[#2997ff] hover:underline">Edit</Button>
+            <Button variant="link" onclick={() => { deleteId = banner.id; showDelete = true; }} class="text-[#ff453a] hover:underline">Delete</Button>
           </div>
         </div>
       {/each}
@@ -100,28 +105,28 @@
         {/if}
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">Title</label>
-          <input type="text" name="title" value={editTitle} oninput={(e) => (editTitle = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" />
+          <Label class="text-sm text-[#86868b]">Title</Label>
+          <Input type="text" name="title" value={editTitle} oninput={(e) => (editTitle = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">Subtitle</label>
-          <input type="text" name="subtitle" value={editSubtitle} oninput={(e) => (editSubtitle = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" />
+          <Label class="text-sm text-[#86868b]">Subtitle</Label>
+          <Input type="text" name="subtitle" value={editSubtitle} oninput={(e) => (editSubtitle = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">Link URL</label>
-          <input type="text" name="link_url" value={editLinkUrl} oninput={(e) => (editLinkUrl = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] font-mono" placeholder="/products" />
+          <Label class="text-sm text-[#86868b]">Link URL</Label>
+          <Input type="text" name="link_url" value={editLinkUrl} oninput={(e) => (editLinkUrl = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] font-mono" placeholder="/products" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">Sort Order</label>
-          <input type="number" name="sort_order" min="0" value={editSortOrder} oninput={(e) => (editSortOrder = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
+          <Label class="text-sm text-[#86868b]">Sort Order</Label>
+          <Input type="number" name="sort_order" min="0" value={editSortOrder} oninput={(e) => (editSortOrder = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">{isEdit ? 'Replace Image' : 'Image'}</label>
-          <input type="file" name="image" accept="image/*" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors" />
+          <Label class="text-sm text-[#86868b]">{isEdit ? 'Replace Image' : 'Image'}</Label>
+          <Input type="file" name="image" accept="image/*" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors" />
         </div>
 
         <label class="flex items-center gap-2.5 cursor-pointer">
@@ -130,10 +135,10 @@
         </label>
 
         <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick={closeForm} class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#2997ff] hover:bg-[#0a84ff]">
+          <Button type="button" variant="outline" onclick={closeForm} class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]">Cancel</Button>
+          <Button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#2997ff] hover:bg-[#0a84ff]">
             {isEdit ? 'Save' : 'Create'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -146,10 +151,10 @@
       <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete Banner</h3>
       <p class="text-[#86868b] text-sm mb-6">Are you sure?</p>
       <div class="flex justify-end gap-3">
-        <button class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</button>
+        <Button variant="outline" class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="id" value={deleteId} />
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</button>
+          <Button type="submit" variant="destructive" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</Button>
         </form>
       </div>
     </div>

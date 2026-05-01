@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Badge from '$lib/components/ui/badge/badge.svelte';
+
 	let { data } = $props();
 
 	const statuses = ['', 'pending', 'settlement', 'shipped', 'cancelled'];
@@ -67,7 +69,7 @@
 								<td class="px-4 py-3 text-[#f5f5f7]">{tx.userName}</td>
 								<td class="px-4 py-3 text-right text-[#f5f5f7] font-medium">{formatPrice(tx.amount)}</td>
 								<td class="px-4 py-3 text-center">
-									<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {statusClass(tx.status)}">{tx.status}</span>
+									<Badge variant="outline" class={statusClass(tx.status)}>{tx.status}</Badge>
 								</td>
 								<td class="px-4 py-3 text-[#f5f5f7]">{tx.payment_method}</td>
 								<td class="px-4 py-3 text-[#86868b] whitespace-nowrap">{formatDate(tx.created)}</td>

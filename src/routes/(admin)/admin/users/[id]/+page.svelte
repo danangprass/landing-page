@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data, form } = $props();
 
   let showDeleteConfirm = $state(false);
@@ -58,14 +61,14 @@
         <div class="flex items-center justify-between py-2 border-b border-[#424245]/50">
           <span class="text-sm text-[#86868b]">Role</span>
           <div class="flex items-center gap-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {data.user.role === 'admin' ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' : 'bg-blue-500/15 text-blue-400 border-blue-500/30'}">
+            <Badge variant="outline" class={data.user.role === 'admin' ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' : 'bg-blue-500/15 text-blue-400 border-blue-500/30'}>
               {data.user.role}
-            </span>
+            </Badge>
             <form method="post" action="?/toggleRole" class="inline">
               <input type="hidden" name="role" value={data.user.role} />
-              <button type="submit" class="text-xs text-[#2997ff] hover:underline">
+              <Button type="submit" variant="link" class="text-xs text-[#2997ff] hover:underline">
                 {data.user.role === 'admin' ? 'Demote to customer' : 'Promote to admin'}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -73,14 +76,14 @@
         <div class="flex items-center justify-between py-2 border-b border-[#424245]/50">
           <span class="text-sm text-[#86868b]">Verified</span>
           <div class="flex items-center gap-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {data.user.verified ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+            <Badge variant="outline" class={data.user.verified ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
               {data.user.verified ? 'Yes' : 'No'}
-            </span>
+            </Badge>
             <form method="post" action="?/toggleVerified" class="inline">
               <input type="hidden" name="verified" value={String(data.user.verified)} />
-              <button type="submit" class="text-xs text-[#2997ff] hover:underline">
+              <Button type="submit" variant="link" class="text-xs text-[#2997ff] hover:underline">
                 {data.user.verified ? 'Unverify' : 'Verify'}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -92,12 +95,13 @@
       </div>
 
       <div class="mt-6 pt-4 border-t border-[#424245]/50">
-        <button
+        <Button
+          variant="destructive"
           class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
           onclick={() => (showDeleteConfirm = true)}
         >
           Delete User
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -118,7 +122,7 @@
               </div>
               <div class="flex items-center gap-3">
                 <span class="text-sm text-[#f5f5f7] font-medium">${order.total.toLocaleString()}</span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {statusClass(order.status)}">{order.status}</span>
+                <Badge variant="outline" class={statusClass(order.status)}>{order.status}</Badge>
               </div>
             </div>
           {/each}
@@ -146,20 +150,22 @@
         Are you sure you want to delete <span class="text-[#f5f5f7]">{data.user.name}</span>? This cannot be undone.
       </p>
       <div class="flex justify-end gap-3">
-        <button
+        <Button
+          variant="outline"
           class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f] transition-colors"
           onclick={() => (showDeleteConfirm = false)}
         >
           Cancel
-        </button>
+        </Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="role" value={data.user.role} />
-          <button
+          <Button
             type="submit"
+            variant="destructive"
             class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
           >
             Delete
-          </button>
+          </Button>
         </form>
       </div>
     </div>

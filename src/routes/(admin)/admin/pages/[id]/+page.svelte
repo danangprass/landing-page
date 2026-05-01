@@ -1,4 +1,8 @@
 <script lang="ts">
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+
 	let { data, form } = $props();
 
 	const isNew = data.page === null;
@@ -31,8 +35,8 @@
 		{/if}
 
 		<div class="flex flex-col gap-1.5">
-			<label class="text-sm font-medium text-[#f5f5f7]" for="title">Title <span class="text-[#ff453a]">*</span></label>
-			<input
+			<Label class="text-sm font-medium text-[#f5f5f7]" for="title">Title <span class="text-[#ff453a]">*</span></Label>
+			<Input
 				id="title"
 				type="text" name="title" required
 				value={titleValue}
@@ -42,8 +46,8 @@
 		</div>
 
 		<div class="flex flex-col gap-1.5">
-			<label class="text-sm font-medium text-[#f5f5f7]" for="slug">Slug <span class="text-[#ff453a]">*</span></label>
-			<input
+			<Label class="text-sm font-medium text-[#f5f5f7]" for="slug">Slug <span class="text-[#ff453a]">*</span></Label>
+			<Input
 				id="slug"
 				type="text" name="slug" required
 				value={slug}
@@ -54,7 +58,7 @@
 		</div>
 
 		<div class="flex flex-col gap-1.5">
-			<label class="text-sm font-medium text-[#f5f5f7]" for="content">Content</label>
+			<Label class="text-sm font-medium text-[#f5f5f7]" for="content">Content</Label>
 			<textarea
 				id="content"
 				name="content" rows="16"
@@ -64,12 +68,12 @@
 		</div>
 
 		<div class="flex items-center gap-3 pt-2">
-			<button type="submit" class="px-6 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
+			<Button type="submit" class="px-6 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
 				{isNew ? 'Create Page' : 'Save Changes'}
-			</button>
-			<a href="/admin/pages" class="px-4 py-2.5 rounded-xl text-sm font-medium text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors">
+			</Button>
+			<Button variant="outline" href="/admin/pages" class="px-4 py-2.5 rounded-xl text-sm font-medium text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors">
 				Cancel
-			</a>
+			</Button>
 		</div>
 	</form>
 </div>
