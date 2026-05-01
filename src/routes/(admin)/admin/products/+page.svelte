@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data, form } = $props();
 
   let deleteId = $state('');
@@ -10,7 +13,7 @@
 <div>
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-semibold text-[#f5f5f7]">Products</h1>
-    <a
+    <Button
       href="/admin/products/new"
       class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors"
     >
@@ -18,13 +21,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
       New Product
-    </a>
+    </Button>
   </div>
 
   {#if data.products.length === 0}
     <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl px-5 py-12 text-center">
       <p class="text-[#86868b] text-sm">No products yet.</p>
-      <a href="/admin/products/new" class="text-[#2997ff] text-sm hover:underline mt-1 inline-block">Create your first product</a>
+      <Button variant="link" href="/admin/products/new" class="text-[#2997ff] text-sm hover:underline mt-1 inline-block">Create your first product</Button>
     </div>
   {:else}
     <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl overflow-hidden">
@@ -53,24 +56,25 @@
                   <span class:stock-low={Number(product.stock) < 5}>{product.stock ?? '-'}</span>
                 </td>
                 <td class="px-4 py-3 text-center">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {product.featured ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+                  <Badge variant="outline" class={product.featured ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
                     {product.featured ? 'Yes' : 'No'}
-                  </span>
+                  </Badge>
                 </td>
                 <td class="px-4 py-3 text-center">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {product.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+                  <Badge variant="outline" class={product.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
                     {product.active ? 'Yes' : 'No'}
-                  </span>
+                  </Badge>
                 </td>
                 <td class="px-4 py-3 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <a href="/admin/products/{product.id}" class="text-[#2997ff] text-xs hover:underline">Edit</a>
-                    <button
+                    <Button
+                      variant="link"
                       class="text-[#ff453a] text-xs hover:underline"
                       onclick={() => { deleteId = product.id; showConfirm = true; }}
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -113,20 +117,22 @@
       <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete Product</h3>
       <p class="text-[#86868b] text-sm mb-6">Are you sure? This cannot be undone.</p>
       <div class="flex justify-end gap-3">
-        <button
+        <Button
+          variant="outline"
           class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f] transition-colors"
           onclick={() => (showConfirm = false)}
         >
           Cancel
-        </button>
+        </Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="id" value={deleteId} />
-          <button
+          <Button
             type="submit"
+            variant="destructive"
             class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
           >
             Delete
-          </button>
+          </Button>
         </form>
       </div>
     </div>

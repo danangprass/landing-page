@@ -1,4 +1,8 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+
   let { data, form } = $props();
 
   let slug = $state(data.category.slug);
@@ -32,8 +36,8 @@
     {/if}
 
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Name <span class="text-[#ff453a]">*</span></label>
-      <input
+      <Label class="text-sm font-medium text-[#f5f5f7]">Name <span class="text-[#ff453a]">*</span></Label>
+      <Input
         type="text" name="name" required
         value={nameValue}
         oninput={(e) => generateSlug((e.target as HTMLInputElement).value)}
@@ -42,8 +46,8 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Slug <span class="text-[#ff453a]">*</span></label>
-      <input
+      <Label class="text-sm font-medium text-[#f5f5f7]">Slug <span class="text-[#ff453a]">*</span></Label>
+      <Input
         type="text" name="slug" required
         value={slug}
         oninput={(e) => (slug = (e.target as HTMLInputElement).value)}
@@ -52,7 +56,7 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Description</label>
+      <Label class="text-sm font-medium text-[#f5f5f7]">Description</Label>
       <textarea
         name="description" rows="3"
         class="px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] resize-y"
@@ -60,8 +64,8 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Sort Order</label>
-      <input
+      <Label class="text-sm font-medium text-[#f5f5f7]">Sort Order</Label>
+      <Input
         type="number" name="sort_order" min="0"
         value={data.category.sort_order}
         class="px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24"
@@ -69,8 +73,8 @@
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Replace Image</label>
-      <input
+      <Label class="text-sm font-medium text-[#f5f5f7]">Replace Image</Label>
+      <Input
         type="file" name="image" accept="image/*"
         class="px-4 py-2.5 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors"
       />
@@ -82,12 +86,12 @@
     </label>
 
     <div class="flex items-center gap-3 pt-2">
-      <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
+      <Button type="submit" class="px-6 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors">
         Save Changes
-      </button>
-      <a href="/admin/categories" class="px-4 py-2.5 rounded-xl text-sm font-medium text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors">
+      </Button>
+      <Button variant="outline" href="/admin/categories" class="px-4 py-2.5 rounded-xl text-sm font-medium text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors">
         Cancel
-      </a>
+      </Button>
     </div>
   </form>
 </div>

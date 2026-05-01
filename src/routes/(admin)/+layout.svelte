@@ -2,6 +2,7 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import StatusBadge from '$lib/admin/StatusBadge.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
 
   let { children } = $props();
 
@@ -82,15 +83,17 @@
     <!-- Top bar -->
     <header class="sticky top-0 z-30 bg-[#000]/80 backdrop-blur-xl border-b border-[#424245]">
       <div class="flex items-center justify-between px-4 lg:px-8 h-14">
-        <button
-          class="lg:hidden p-2 rounded-lg text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors"
+        <Button
+          variant="ghost"
+          size="icon"
+          class="lg:hidden text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f]"
           onclick={() => (mobileNavOpen = true)}
           aria-label="Open sidebar"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-        </button>
+        </Button>
 
         <div class="flex items-center gap-4 ml-auto">
           {#if page.data?.user}

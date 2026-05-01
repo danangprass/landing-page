@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data } = $props();
 
   const statuses = ['', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
@@ -62,7 +64,7 @@
                 <td class="px-4 py-3 text-[#f5f5f7]">{order.userName}</td>
                 <td class="px-4 py-3 text-right text-[#f5f5f7] font-medium">{formatPrice(order.total)}</td>
                 <td class="px-4 py-3 text-center">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {statusClass(order.status)}">{order.status}</span>
+                  <Badge variant="outline" class={statusClass(order.status)}>{order.status}</Badge>
                 </td>
                 <td class="px-4 py-3 text-[#86868b] whitespace-nowrap">{formatDate(order.created)}</td>
               </tr>

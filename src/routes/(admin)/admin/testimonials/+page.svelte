@@ -1,4 +1,9 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data } = $props();
 
   let showForm = $state(false);
@@ -26,12 +31,12 @@
 <div>
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-semibold text-[#f5f5f7]">Testimonials</h1>
-    <button onclick={openCreate} class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors">
+    <Button onclick={openCreate} class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
       New Testimonial
-    </button>
+    </Button>
   </div>
 
   {#if data.testimonials.length === 0}
@@ -53,9 +58,9 @@
               {#if t.role}
                 <span class="text-xs text-[#86868b]">{t.role}</span>
               {/if}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {t.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+              <Badge variant="outline" class={t.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
                 {t.active ? 'Active' : 'Inactive'}
-              </span>
+              </Badge>
             </div>
             <p class="text-sm text-[#86868b] mt-1 line-clamp-2">"{t.body}"</p>
             {#if t.rating > 0}
@@ -63,8 +68,8 @@
             {/if}
           </div>
           <div class="flex items-center gap-2 shrink-0 text-xs">
-            <button onclick={() => openEdit(t)} class="text-[#2997ff] hover:underline">Edit</button>
-            <button onclick={() => { deleteId = t.id; showDelete = true; }} class="text-[#ff453a] hover:underline">Delete</button>
+            <Button variant="link" onclick={() => openEdit(t)} class="text-[#2997ff] hover:underline">Edit</Button>
+            <Button variant="link" onclick={() => { deleteId = t.id; showDelete = true; }} class="text-[#ff453a] hover:underline">Delete</Button>
           </div>
         </div>
       {/each}
@@ -84,34 +89,34 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm text-[#86868b]">Name <span class="text-[#ff453a]">*</span></label>
-            <input type="text" name="name" value={eName} oninput={(e) => (eName = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" required />
+            <Label class="text-sm text-[#86868b]">Name <span class="text-[#ff453a]">*</span></Label>
+            <Input type="text" name="name" value={eName} oninput={(e) => (eName = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" required />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm text-[#86868b]">Role</label>
-            <input type="text" name="role" value={eRole} oninput={(e) => (eRole = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" placeholder="CEO" />
+            <Label class="text-sm text-[#86868b]">Role</Label>
+            <Input type="text" name="role" value={eRole} oninput={(e) => (eRole = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff]" placeholder="CEO" />
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">Body <span class="text-[#ff453a]">*</span></label>
+          <Label class="text-sm text-[#86868b]">Body <span class="text-[#ff453a]">*</span></Label>
           <textarea name="body" rows="3" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] resize-y" required>{eBody}</textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm text-[#86868b]">Rating</label>
-            <input type="number" name="rating" min="1" max="5" step="1" value={eRating} oninput={(e) => (eRating = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
+            <Label class="text-sm text-[#86868b]">Rating</Label>
+            <Input type="number" name="rating" min="1" max="5" step="1" value={eRating} oninput={(e) => (eRating = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-sm text-[#86868b]">Sort Order</label>
-            <input type="number" name="sort_order" min="0" value={eSortOrder} oninput={(e) => (eSortOrder = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
+            <Label class="text-sm text-[#86868b]">Sort Order</Label>
+            <Input type="number" name="sort_order" min="0" value={eSortOrder} oninput={(e) => (eSortOrder = (e.target as HTMLInputElement).value)} class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#f5f5f7] focus:outline-none focus:border-[#2997ff] w-24" />
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="text-sm text-[#86868b]">{isEdit ? 'Replace Avatar' : 'Avatar'}</label>
-          <input type="file" name="avatar" accept="image/*" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors" />
+          <Label class="text-sm text-[#86868b]">{isEdit ? 'Replace Avatar' : 'Avatar'}</Label>
+          <Input type="file" name="avatar" accept="image/*" class="px-4 py-2.5 rounded-xl bg-[#000] border border-[#424245] text-sm text-[#86868b] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-xs file:font-medium file:bg-[#2997ff]/15 file:text-[#2997ff] file:border-0 hover:file:bg-[#2997ff]/25 file:transition-colors" />
         </div>
 
         <label class="flex items-center gap-2.5 cursor-pointer">
@@ -120,8 +125,8 @@
         </label>
 
         <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick={() => (showForm = false)} class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#2997ff] hover:bg-[#0a84ff]">{isEdit ? 'Save' : 'Create'}</button>
+          <Button type="button" variant="outline" onclick={() => (showForm = false)} class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]">Cancel</Button>
+          <Button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#2997ff] hover:bg-[#0a84ff]">{isEdit ? 'Save' : 'Create'}</Button>
         </div>
       </form>
     </div>
@@ -134,10 +139,10 @@
       <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete Testimonial</h3>
       <p class="text-[#86868b] text-sm mb-6">Are you sure?</p>
       <div class="flex justify-end gap-3">
-        <button class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</button>
+        <Button variant="outline" class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="id" value={deleteId} />
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</button>
+          <Button type="submit" variant="destructive" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</Button>
         </form>
       </div>
     </div>

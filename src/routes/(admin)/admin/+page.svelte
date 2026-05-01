@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data } = $props();
 
   const kpis = [
@@ -12,6 +14,16 @@
   ];
 
   const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  function statusClass(s: string) {
+    const map: Record<string, string> = {
+      pending: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30',
+      processing: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+      shipped: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+      delivered: 'bg-green-500/15 text-green-400 border-green-500/30',
+    };
+    return map[s] ?? 'bg-red-500/15 text-red-400 border-red-500/30';
+  }
 </script>
 
 <div>
@@ -58,14 +70,9 @@
                 <td class="px-4 py-3 text-[#f5f5f7]">{order.userName}</td>
                 <td class="px-4 py-3 text-[#f5f5f7]">${order.total.toLocaleString()}</td>
                 <td class="px-4 py-3">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border
-                    {order.status === 'pending' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/30' :
-                     order.status === 'processing' ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' :
-                     order.status === 'shipped' ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' :
-                     order.status === 'delivered' ? 'bg-green-500/15 text-green-400 border-green-500/30' :
-                     'bg-red-500/15 text-red-400 border-red-500/30'}">
+                  <Badge variant="outline" class={statusClass(order.status)}>
                     {order.status}
-                  </span>
+                  </Badge>
                 </td>
                 <td class="px-4 py-3 text-[#86868b] whitespace-nowrap">{formatDate(order.created)}</td>
               </tr>
