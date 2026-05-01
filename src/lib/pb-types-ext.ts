@@ -4,4 +4,6 @@ export type ExpandedProduct = ProductsRecord & {
   expand?: {
     category?: CategoriesRecord;
   };
+  rating?: number;
+  reviewCount?: number;
 };
