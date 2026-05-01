@@ -49,7 +49,7 @@
 				</h1>
 				<p class="mt-1 text-text-secondary">{formatDate(String(data.order.created))}</p>
 			</div>
-			<span class="status-badge {statusClass(data.order.status)}">{data.order.status}</span>
+			<span class="status-badge {statusClass(String(data.order.status ?? ''))}">{String(data.order.status ?? '')}</span>
 		</div>
 	</div>
 
