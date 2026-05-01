@@ -1,5 +1,6 @@
 import { ClientResponseError } from 'pocketbase';
 import { page } from '$app/state';
+import { toast } from 'svelte-sonner';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -66,32 +67,14 @@ export function parseError(err: unknown): ParsedError {
 }
 
 /**
- * Toast notification store — components subscribe to show notifications.
+ * Toast notification — delegates to svelte-sonner.
  */
-interface ToastEntry {
-	id: number;
-	message: string;
-	type: ToastType;
-	duration: number;
+export function showToast(message: string, type: ToastType = 'info', duration = 4000) {
+	toast[type === 'info' ? 'info' : type === 'error' ? 'error' : 'success'](message, { duration });
 }
 
-let toasts = $state<ToastEntry[]>([]);
-let nextId = 0;
-
-export function getToasts(): ToastEntry[] {
-	return toasts;
-}
-
-export function showToast(message: string, type: ToastType = 'info', duration = 3000) {
-	const id = nextId++;
-	toasts = [...toasts, { id, message, type, duration }];
-	setTimeout(() => {
-		toasts = toasts.filter(t => t.id !== id);
-	}, duration + 300);
-}
-
-export function dismissToast(id: number) {
-	toasts = toasts.filter(t => t.id !== id);
+export function dismissToast(_id: unknown) {
+	// svelte-sonner manages dismissal automatically
 }
 
 /**

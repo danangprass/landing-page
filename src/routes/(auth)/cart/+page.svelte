@@ -3,14 +3,19 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import QuantityStepper from '$lib/components/QuantityStepper.svelte';
+  import Breadcrumb from '$lib/components/ui/breadcrumb/breadcrumb.svelte';
+  import BreadcrumbList from '$lib/components/ui/breadcrumb/breadcrumb-list.svelte';
+  import BreadcrumbItem from '$lib/components/ui/breadcrumb/breadcrumb-item.svelte';
+  import BreadcrumbLink from '$lib/components/ui/breadcrumb/breadcrumb-link.svelte';
+  import BreadcrumbPage from '$lib/components/ui/breadcrumb/breadcrumb-page.svelte';
+  import BreadcrumbSeparator from '$lib/components/ui/breadcrumb/breadcrumb-separator.svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import * as Accordion from '$lib/components/ui/accordion/index.js';
+  import { toast } from 'svelte-sonner';
 
   const cart = getCartContext();
 
-  let promoOpen = $state(false);
   let promoCode = $state('');
-  let toastMessage = $state('');
-  let toastVisible = $state(false);
-  let toastTimer: ReturnType<typeof setTimeout>;
 
   const categoryEmojis: Record<string, string> = {
     phones: '\u{1F4F1}',
@@ -31,18 +36,9 @@
   let tax = $derived(Math.round(cart.subtotal * 0.08));
   let total = $derived(cart.subtotal + tax);
 
-  function showToast(message: string) {
-    toastMessage = message;
-    toastVisible = true;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toastVisible = false;
-    }, 2400);
-  }
-
   function handleRemove(cartItemId: string, name: string) {
     cart.remove(cartItemId);
-    showToast(`${name} removed from bag`);
+    toast(`${name} removed from bag`);
   }
 
   function handleQuantityChange(cartItemId: string, quantity: number) {
@@ -57,13 +53,19 @@
 
 <div class="section-padding">
   <!-- Breadcrumb -->
-  <nav class="py-4 text-sm text-text-secondary" aria-label="Breadcrumb">
-    <ol class="flex items-center gap-2">
-      <li><a href="/" class="breadcrumb-link">Home</a></li>
-      <li><span class="text-text-secondary/50">/</span></li>
-      <li class="text-text-primary">Bag</li>
-    </ol>
-  </nav>
+  <div class="py-4">
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Bag</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  </div>
 
   <!-- Title -->
   <div class="py-8 border-b border-border">
@@ -172,95 +174,57 @@
 
       <!-- Right: Order Summary -->
       <div class="lg:w-[40%]">
-        <div class="summary-card">
-          <h2 class="text-lg font-semibold text-text-primary mb-6">Order Summary</h2>
-
-          <div class="space-y-3 text-sm">
-            <div class="flex justify-between">
-              <span class="text-text-secondary">Subtotal</span>
-              <span class="text-text-primary">{formatPrice(cart.subtotal)}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-text-secondary">Shipping</span>
-              <span class="text-success font-medium">Free</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-text-secondary">Estimated Tax (8%)</span>
-              <span class="text-text-primary">{formatPrice(tax)}</span>
-            </div>
-          </div>
-
-          <div class="border-t border-border my-4"></div>
-
-          <div class="flex justify-between items-baseline">
-            <span class="text-text-primary font-semibold text-base">Total</span>
-            <span class="text-text-primary font-bold text-xl">{formatPrice(total)}</span>
-          </div>
-
-          <Button href="/checkout" class="block text-center mt-6 w-full">
-            Checkout
-          </Button>
-
-          <!-- Promo code collapsible -->
-          <div class="mt-6 border-t border-border pt-4">
-            <button
-              class="promo-toggle"
-              onclick={() => (promoOpen = !promoOpen)}
-              aria-expanded={promoOpen}
-            >
-              <span>Have a promo code?</span>
-              <svg
-                class="chevron-icon"
-                class:rotated={promoOpen}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-                aria-hidden="true"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            </button>
-
-            <div class="promo-body" class:open={promoOpen}>
-              <div class="promo-inner">
-                <Input
-                  type="text"
-                  bind:value={promoCode}
-                  placeholder="Enter promo code"
-                  class="promo-input"
-                />
-                <button class="promo-apply-btn">
-                  Apply
-                </button>
+        <div class="sticky top-24">
+          <Card.Root>
+            <Card.Header>
+              <Card.Title>Order Summary</Card.Title>
+            </Card.Header>
+            <Card.Content>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-text-secondary">Subtotal</span>
+                  <span class="text-text-primary">{formatPrice(cart.subtotal)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-text-secondary">Shipping</span>
+                  <span class="text-success font-medium">Free</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-text-secondary">Estimated Tax (8%)</span>
+                  <span class="text-text-primary">{formatPrice(tax)}</span>
+                </div>
               </div>
-            </div>
-          </div>
+
+              <div class="border-t border-border my-4"></div>
+
+              <div class="flex justify-between items-baseline">
+                <span class="text-text-primary font-semibold text-base">Total</span>
+                <span class="text-text-primary font-bold text-xl">{formatPrice(total)}</span>
+              </div>
+
+              <Button href="/checkout" class="w-full mt-6">Checkout</Button>
+            </Card.Content>
+            <Card.Content class="pt-0">
+              <Accordion.Root type="single">
+                <Accordion.Item value="promo">
+                  <Accordion.Trigger>Have a promo code?</Accordion.Trigger>
+                  <Accordion.Content>
+                    <div class="flex gap-2 pt-2">
+                      <Input type="text" bind:value={promoCode} placeholder="Enter promo code" />
+                      <Button variant="outline">Apply</Button>
+                    </div>
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion.Root>
+            </Card.Content>
+          </Card.Root>
         </div>
       </div>
     </div>
   {/if}
 </div>
 
-<!-- Toast notification -->
-<div class="toast-container" class:visible={toastVisible}>
-  <div class="toast">
-    {toastMessage}
-  </div>
-</div>
-
 <style>
-  /* Breadcrumb link */
-  .breadcrumb-link {
-    transition: color 160ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .breadcrumb-link:hover {
-      color: var(--color-text-primary);
-    }
-  }
-
-  /* Empty state: scale(0.95) + opacity, not scale(0) */
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -277,27 +241,19 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Cart item row */
   .cart-item {
     display: flex;
     gap: 1rem;
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--color-border);
-    transition:
-      opacity 250ms var(--ease-out),
-      transform 250ms var(--ease-out);
+    transition: opacity 250ms var(--ease-out), transform 250ms var(--ease-out);
   }
   @media (min-width: 768px) {
-    .cart-item {
-      gap: 1.5rem;
-    }
+    .cart-item { gap: 1.5rem; }
   }
-  .cart-item:first-child {
-    padding-top: 0;
-  }
+  .cart-item:first-child { padding-top: 0; }
 
-  /* Item emoji */
   .item-emoji {
     width: 5rem;
     height: 5rem;
@@ -310,26 +266,18 @@
     font-size: 1.75rem;
   }
   @media (min-width: 768px) {
-    .item-emoji {
-      width: 7rem;
-      height: 7rem;
-      font-size: 2.25rem;
-    }
+    .item-emoji { width: 7rem; height: 7rem; font-size: 2.25rem; }
   }
 
-  /* Item link */
   .item-link {
     color: var(--color-text-primary);
     text-decoration: none;
     transition: color 160ms var(--ease-out);
   }
   @media (hover: hover) and (pointer: fine) {
-    .item-link:hover {
-      color: var(--color-accent);
-    }
+    .item-link:hover { color: var(--color-accent); }
   }
 
-  /* Remove button: press feedback */
   .remove-btn {
     color: var(--color-error);
     font-size: 0.875rem;
@@ -338,180 +286,22 @@
     border: none;
     cursor: pointer;
     padding: 0.25rem 0;
-    transition:
-      transform 160ms var(--ease-out),
-      color 200ms var(--ease-out),
-      opacity 200ms var(--ease-out);
+    transition: transform 160ms var(--ease-out), color 200ms var(--ease-out), opacity 200ms var(--ease-out);
   }
-  .remove-btn:active {
-    transform: scale(0.97);
-  }
+  .remove-btn:active { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) {
-    .remove-btn:hover {
-      color: var(--color-accent-hover);
-    }
+    .remove-btn:hover { color: var(--color-accent-hover); }
   }
 
-  /* Back link */
   .back-link {
     color: var(--color-accent);
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: none;
-    transition:
-      color 160ms var(--ease-out),
-      transform 160ms var(--ease-out);
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
   }
-  .back-link:active {
-    transform: scale(0.97);
-  }
+  .back-link:active { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) {
-    .back-link:hover {
-      color: var(--color-accent-hover);
-    }
-  }
-
-  /* Summary card: sticky, with shadow on hover for pointer */
-  .summary-card {
-    position: sticky;
-    top: 6rem;
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    transition:
-      box-shadow 250ms var(--ease-out),
-      transform 250ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .summary-card:hover {
-      box-shadow: var(--shadow-elevated);
-      transform: translateY(-1px);
-    }
-  }
-
-  /* Promo toggle button: press feedback */
-  .promo-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    transition:
-      color 200ms var(--ease-out),
-      transform 160ms var(--ease-out);
-  }
-  .promo-toggle:active {
-    transform: scale(0.97);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .promo-toggle:hover {
-      color: var(--color-text-primary);
-    }
-  }
-
-  /* Chevron rotation with proper easing for on-screen movement */
-  .chevron-icon {
-    width: 1rem;
-    height: 1rem;
-    transition: transform 200ms var(--ease-in-out);
-  }
-  .chevron-icon.rotated {
-    transform: rotate(180deg);
-  }
-
-  /* Promo body: CSS transition, not keyframes — interruptible */
-  .promo-body {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition:
-      grid-template-rows 250ms var(--ease-in-out),
-      opacity 250ms var(--ease-out);
-    opacity: 0;
-  }
-  .promo-body.open {
-    grid-template-rows: 1fr;
-    opacity: 1;
-  }
-  .promo-inner {
-    overflow: hidden;
-    padding-top: 0.75rem;
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  /* Promo input: design engineering form input spec */
-  .promo-input {
-    flex: 1;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: var(--color-text-primary);
-    transition: border-color 160ms var(--ease-out);
-  }
-  .promo-input::placeholder {
-    color: color-mix(in srgb, var(--color-text-secondary) 50%, transparent);
-  }
-  .promo-input:focus {
-    border-color: var(--color-accent);
-    outline: none;
-  }
-
-  /* Promo apply button: press feedback */
-  .promo-apply-btn {
-    flex-shrink: 0;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border: 1px solid var(--color-accent);
-    color: var(--color-accent);
-    background: transparent;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition:
-      background-color 200ms var(--ease-out),
-      color 200ms var(--ease-out),
-      transform 160ms var(--ease-out);
-  }
-  .promo-apply-btn:active {
-    transform: scale(0.97);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .promo-apply-btn:hover {
-      background: var(--color-accent);
-      color: var(--color-bg);
-    }
-  }
-
-  /* Toast: enters from bottom with ease-out, 400ms */
-  .toast-container {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(100%);
-    z-index: 100;
-    transition: transform 400ms var(--ease-out);
-    pointer-events: none;
-  }
-  .toast-container.visible {
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-  }
-  .toast {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-    font-weight: 500;
-    box-shadow: var(--shadow-elevated);
-    white-space: nowrap;
+    .back-link:hover { color: var(--color-accent-hover); }
   }
 </style>

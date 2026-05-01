@@ -7,8 +7,7 @@
   import { setCartContext } from '$lib/stores/cart.svelte';
   import { setWishlistContext } from '$lib/stores/wishlist.svelte';
   import { setProductsContext } from '$lib/stores/products.svelte';
-  import Toast from '$lib/components/Toast.svelte';
-  import { getToasts, dismissToast } from '$lib/pb-error-handler.svelte';
+  import { Toaster } from 'svelte-sonner';
 
   let { children } = $props();
 
@@ -52,14 +51,4 @@
   {/if}
 </div>
 
-<!-- Global toast notifications -->
-<div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
-  {#each getToasts() as toast (toast.id)}
-    <Toast
-      message={toast.message}
-      type={toast.type}
-      duration={toast.duration}
-      onDismiss={() => dismissToast(toast.id)}
-    />
-  {/each}
-</div>
+<Toaster theme="dark" position="bottom-center" richColors />
