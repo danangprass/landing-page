@@ -41,12 +41,14 @@
     }
 
     // Fetch review stats from PocketBase
+    const productId = p.id;
     safeCall(() =>
       pb.collection('reviews').getList(1, 1000, {
-        filter: `product = "${p.id}"`,
+        filter: `product = "${productId}"`,
         fields: 'rating',
       })
     ).then(([result]) => {
+      if (product?.id !== productId) return;
       if (result && result.items.length > 0) {
         const items = result.items as unknown as { rating: number }[];
         const total = items.reduce((sum, r) => sum + r.rating, 0);
