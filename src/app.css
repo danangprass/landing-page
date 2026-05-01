@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 @theme {
   --color-bg: #f5f5f7;
@@ -30,9 +31,78 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ─── shadcn-svelte CSS variables ─── */
+/* Public: Apple-inspired light */
+:root {
+  --background: oklch(0.97 0.003 270);
+  --foreground: oklch(0.18 0.006 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.006 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.006 270);
+  --primary: oklch(0.55 0.18 265);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.94 0.004 270);
+  --secondary-foreground: oklch(0.18 0.006 270);
+  --muted: oklch(0.94 0.004 270);
+  --muted-foreground: oklch(0.48 0.008 270);
+  --accent: oklch(0.94 0.004 270);
+  --accent-foreground: oklch(0.18 0.006 270);
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.87 0.007 270);
+  --input: oklch(0.87 0.007 270);
+  --ring: oklch(0.55 0.18 265);
+  --radius: 0.5rem;
+  --sidebar-background: oklch(0.97 0.003 270);
+  --sidebar-foreground: oklch(0.48 0.008 270);
+  --sidebar-primary: oklch(0.55 0.18 265);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.94 0.004 270);
+  --sidebar-accent-foreground: oklch(0.18 0.006 270);
+  --sidebar-border: oklch(0.87 0.007 270);
+  --sidebar-ring: oklch(0.55 0.18 265);
+}
+
+/* Admin: dark */
+.dark {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.97 0.003 270);
+  --card: oklch(0.18 0.006 270);
+  --card-foreground: oklch(0.97 0.003 270);
+  --popover: oklch(0.18 0.006 270);
+  --popover-foreground: oklch(0.97 0.003 270);
+  --primary: oklch(0.63 0.18 255);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.18 0.006 270);
+  --secondary-foreground: oklch(0.97 0.003 270);
+  --muted: oklch(0.18 0.006 270);
+  --muted-foreground: oklch(0.59 0.009 270);
+  --accent: oklch(0.18 0.006 270);
+  --accent-foreground: oklch(0.97 0.003 270);
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.31 0.01 270);
+  --input: oklch(0.31 0.01 270);
+  --ring: oklch(0.63 0.18 255);
+  --sidebar-background: oklch(0 0 0);
+  --sidebar-foreground: oklch(0.59 0.009 270);
+  --sidebar-primary: oklch(0.63 0.18 255);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.18 0.006 270);
+  --sidebar-accent-foreground: oklch(0.97 0.003 270);
+  --sidebar-border: oklch(0.31 0.01 270);
+  --sidebar-ring: oklch(0.63 0.18 255);
+}
+
 @layer base {
+  * {
+    border-color: var(--border);
+  }
   body {
     @apply bg-bg text-text-primary font-sans antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   a {
