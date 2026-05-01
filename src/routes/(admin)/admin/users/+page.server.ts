@@ -37,14 +37,15 @@ export const actions: Actions = {
 	delete: async ({ request, locals }) => {
 		const data = await request.formData();
 		const id = data.get('id') as string;
-		const role = data.get('role') as string;
 		if (!id) return fail(400, { error: 'Missing user ID' });
 
-		// Only _superusers can delete admin users
-		if (role === 'admin') {
-			if (!locals.isSuperuser) {
-				return fail(403, { error: 'Only superusers can delete admin accounts. Admin users cannot delete other admins.' });
-			}
+		// Fetch the user from DB to get the server-authoritative role.
+		// Using form-data role would allow attackers to bypass the check.
+		const target = await locals.pb.collection('users').getOne(id);
+		const actualRole = (target as Record<string, unknown>).role ?? 'customer';
+
+		if (actualRole === 'admin' && !locals.isSuperuser) {
+			return fail(403, { error: 'Only superusers can delete admin accounts.' });
 		}
 
 		await locals.pb.collection('users').delete(id);

@@ -41,9 +41,10 @@ export const actions: Actions = {
 			return fail(403, { error: 'Cannot modify your own role' });
 		}
 
-		const data = await request.formData();
-		const currentRole = data.get('role') as string;
-		const newRole = currentRole === 'admin' ? 'customer' : 'admin';
+		// Fetch the actual role from DB, not from form data
+		const targetUser = await locals.pb.collection('users').getOne(params.id);
+		const actualRole = (targetUser as Record<string, unknown>).role ?? 'customer';
+		const newRole = actualRole === 'admin' ? 'customer' : 'admin';
 
 		try {
 			await locals.pb.collection('users').update(params.id, { role: newRole });
@@ -68,14 +69,13 @@ export const actions: Actions = {
 	},
 
 	delete: async ({ request, params, locals }) => {
-		const data = await request.formData();
-		const role = data.get('role') as string;
+		// Fetch the user from DB to get the server-authoritative role.
+		// Using form-data role would allow attackers to bypass the check.
+		const targetUser = await locals.pb.collection('users').getOne(params.id);
+		const actualRole = (targetUser as Record<string, unknown>).role ?? 'customer';
 
-		// Only _superusers can delete admin users
-		if (role === 'admin') {
-			if (!locals.isSuperuser) {
-				return fail(403, { error: 'Only superusers can delete admin accounts. Admin users cannot delete other admins.' });
-			}
+		if (actualRole === 'admin' && !locals.isSuperuser) {
+			return fail(403, { error: 'Only superusers can delete admin accounts.' });
 		}
 
 		try {
