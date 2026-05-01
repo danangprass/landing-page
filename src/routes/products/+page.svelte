@@ -3,8 +3,16 @@
   import { afterNavigate } from '$app/navigation';
   import { untrack } from 'svelte';
   import { getProductsContext } from '$lib/stores/products.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import FilterSidebar from '$lib/components/FilterSidebar.svelte';
+  import Breadcrumb from '$lib/components/ui/breadcrumb/breadcrumb.svelte';
+  import BreadcrumbList from '$lib/components/ui/breadcrumb/breadcrumb-list.svelte';
+  import BreadcrumbItem from '$lib/components/ui/breadcrumb/breadcrumb-item.svelte';
+  import BreadcrumbLink from '$lib/components/ui/breadcrumb/breadcrumb-link.svelte';
+  import BreadcrumbPage from '$lib/components/ui/breadcrumb/breadcrumb-page.svelte';
+  import BreadcrumbSeparator from '$lib/components/ui/breadcrumb/breadcrumb-separator.svelte';
+  import ListFilterIcon from '@lucide/svelte/icons/list-filter';
 
   const store = getProductsContext();
 
@@ -98,23 +106,29 @@
 </svelte:head>
 
 <div class="section-padding">
-  <nav class="py-4 text-sm text-text-secondary" aria-label="Breadcrumb">
-    <ol class="flex items-center gap-2">
-      <li><a href="/" class="hover:text-text-primary">Home</a></li>
-      <li><span class="text-text-secondary/50">/</span></li>
-      <li class="text-text-primary">Products</li>
-    </ol>
-  </nav>
+  <div class="py-4">
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/">Home</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage>Products</BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+  </div>
 
   <div class="flex items-end justify-between py-8 border-b border-border">
     <div>
       <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-text-primary tracking-tight">All Products</h1>
       <p class="mt-2 text-text-secondary text-sm">{filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}</p>
     </div>
-    <button class="md:hidden filter-toggle btn-primary !px-4 !py-2 text-sm flex items-center gap-2" onclick={() => (mobileFilterOpen = true)}>
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+    <Button class="md:hidden flex items-center gap-2" onclick={() => (mobileFilterOpen = true)}>
+      <ListFilterIcon class="size-4" />
       Filter
-    </button>
+    </Button>
   </div>
 
   <div class="flex gap-8 py-8">

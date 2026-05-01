@@ -6,6 +6,19 @@
   import PriceDisplay from '$lib/components/PriceDisplay.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import RatingStars from '$lib/components/RatingStars.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Breadcrumb from '$lib/components/ui/breadcrumb/breadcrumb.svelte';
+  import BreadcrumbList from '$lib/components/ui/breadcrumb/breadcrumb-list.svelte';
+  import BreadcrumbItem from '$lib/components/ui/breadcrumb/breadcrumb-item.svelte';
+  import BreadcrumbLink from '$lib/components/ui/breadcrumb/breadcrumb-link.svelte';
+  import BreadcrumbPage from '$lib/components/ui/breadcrumb/breadcrumb-page.svelte';
+  import BreadcrumbSeparator from '$lib/components/ui/breadcrumb/breadcrumb-separator.svelte';
+  import * as Table from '$lib/components/ui/table/index.js';
+  import TableHeader from '$lib/components/ui/table/table-header.svelte';
+  import TableRow from '$lib/components/ui/table/table-row.svelte';
+  import TableHead from '$lib/components/ui/table/table-head.svelte';
+  import TableBody from '$lib/components/ui/table/table-body.svelte';
+  import TableCell from '$lib/components/ui/table/table-cell.svelte';
   import type { CategoriesRecord } from '$lib/pb-types';
   import type { ExpandedProduct } from '$lib/pb-types-ext';
   import { getImageUrl, pb } from '$lib/pb';
@@ -81,17 +94,27 @@
 
 {#if product}
   <div class="min-h-screen bg-bg">
-    <nav class="section-padding pt-6 pb-2" aria-label="Breadcrumb">
-      <ol class="flex items-center gap-1.5 text-sm text-text-secondary flex-wrap">
-        <li><a href="/" class="hover:text-text-primary">Home</a></li>
-        <li class="text-text-secondary/40">/</li>
-        <li><a href="/products" class="hover:text-text-primary">Products</a></li>
-        <li class="text-text-secondary/40">/</li>
-        <li><a href="/products?category={category?.slug ?? ''}" class="hover:text-text-primary">{category?.name ?? ''}</a></li>
-        <li class="text-text-secondary/40">/</li>
-        <li class="text-text-primary font-medium">{product.name}</li>
-      </ol>
-    </nav>
+    <div class="section-padding pt-6 pb-2">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/products">Products</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/products?category={category?.slug ?? ''}">{category?.name ?? ''}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
 
     <div class="section-padding pb-12">
       <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-10 lg:gap-16">
@@ -113,9 +136,9 @@
           {/if}
           <PriceDisplay price={product.price} originalPrice={(product.compare_at_price ?? 0) > 0 && (product.compare_at_price ?? 0) > product.price ? product.compare_at_price : undefined} />
           <p class="text-text-secondary text-base leading-relaxed">{product.description}</p>
-          <button class="add-to-bag-btn btn-primary w-full text-center py-3 text-base font-semibold mt-2" onclick={handleAddToBag} disabled={(product.stock ?? 0) <= 0}>
+          <Button class="w-full mt-2" onclick={handleAddToBag} disabled={(product.stock ?? 0) <= 0}>
             {(product.stock ?? 0) > 0 ? 'Add to Bag' : 'Out of Stock'}
-          </button>
+          </Button>
           <button class="wishlist-toggle" onclick={handleWishlistToggle} aria-label={wishlist.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}>
             <svg xmlns="http://www.w3.org/2000/svg" class="wishlist-icon" viewBox="0 0 24 24" fill={wishlist.has(product.id) ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -134,32 +157,40 @@
     <div class="section-padding pb-12">
       <div class="reveal">
         <h2 class="text-2xl font-semibold text-text-primary mb-6">Specifications</h2>
-        <div class="specs-table">
-          <div class="specs-row">
-            <span class="specs-label">Category</span>
-            <span class="specs-value">{category?.name ?? '-'}</span>
-          </div>
-          <div class="specs-row">
-            <span class="specs-label">Price</span>
-            <span class="specs-value">${product.price.toLocaleString('en-US')}</span>
-          </div>
-          {#if (product.compare_at_price ?? 0) > 0 && (product.compare_at_price ?? 0) > product.price}
-          <div class="specs-row">
-            <span class="specs-label">Original Price</span>
-            <span class="specs-value line-through">${(product.compare_at_price ?? 0).toLocaleString('en-US')}</span>
-          </div>
-          {/if}
-          <div class="specs-row">
-            <span class="specs-label">Availability</span>
-            <span class="specs-value">{(product.stock ?? 0) > 0 ? 'In Stock' + ' (' + product.stock + ' units)' : 'Out of Stock'}</span>
-          </div>
-          {#if product.featured}
-          <div class="specs-row">
-            <span class="specs-label">Featured</span>
-            <span class="specs-value text-accent">Featured Product</span>
-          </div>
-          {/if}
-        </div>
+        <Table.Root>
+          <TableHeader>
+            <TableRow>
+              <TableHead class="w-[180px]">Specification</TableHead>
+              <TableHead>Value</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell class="font-medium">Category</TableCell>
+              <TableCell>{category?.name ?? '-'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell class="font-medium">Price</TableCell>
+              <TableCell>${product.price.toLocaleString('en-US')}</TableCell>
+            </TableRow>
+            {#if (product.compare_at_price ?? 0) > 0 && (product.compare_at_price ?? 0) > product.price}
+            <TableRow>
+              <TableCell class="font-medium">Original Price</TableCell>
+              <TableCell class="line-through">${(product.compare_at_price ?? 0).toLocaleString('en-US')}</TableCell>
+            </TableRow>
+            {/if}
+            <TableRow>
+              <TableCell class="font-medium">Availability</TableCell>
+              <TableCell>{(product.stock ?? 0) > 0 ? 'In Stock' + ' (' + product.stock + ' units)' : 'Out of Stock'}</TableCell>
+            </TableRow>
+            {#if product.featured}
+            <TableRow>
+              <TableCell class="font-medium">Featured</TableCell>
+              <TableCell class="text-accent">Featured Product</TableCell>
+            </TableRow>
+            {/if}
+          </TableBody>
+        </Table.Root>
       </div>
     </div>
 
@@ -184,23 +215,16 @@
       <p class="text-6xl mb-4">🔍</p>
       <h1 class="text-3xl font-bold text-text-primary mb-2">Product Not Found</h1>
       <p class="text-text-secondary mb-6">The product you are looking for does not exist or has been removed.</p>
-      <a href="/products" class="btn-primary inline-block px-6 py-3 text-base font-semibold">Browse Products</a>
+      <Button href="/products">Browse Products</Button>
     </div>
   </div>
 {/if}
 
 <style>
-  .add-to-bag-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .wishlist-toggle { display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 0.875rem; padding: 0.25rem 0; transition: color 160ms var(--ease-out), transform 160ms var(--ease-out); }
   .wishlist-toggle:active { transform: scale(0.97); }
   @media (hover: hover) and (pointer: fine) { .wishlist-toggle:hover { color: var(--color-text-primary); } }
   .wishlist-icon { width: 1.25rem; height: 1.25rem; transition: fill 200ms var(--ease-out), filter 200ms var(--ease-out); }
   .wishlist-toggle:active .wishlist-icon { filter: blur(2px); }
-  .specs-table { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
-  .specs-row { display: flex; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent); }
-  .specs-row:last-child { border-bottom: none; }
-  .specs-label { width: 180px; flex-shrink: 0; font-size: 0.8125rem; font-weight: 500; color: var(--color-text-secondary); padding: 0.75rem 1rem; background-color: color-mix(in srgb, var(--color-text-primary) 3%, transparent); }
-  .specs-value { flex: 1; font-size: 0.8125rem; color: var(--color-text-primary); padding: 0.75rem 1rem; }
-  @media (max-width: 767px) { .specs-label { width: 120px; } }
-  @media (prefers-reduced-motion: reduce) { .wishlist-toggle, .add-to-bag-btn { transition-duration: 0.01ms !important; } }
+  @media (prefers-reduced-motion: reduce) { .wishlist-toggle { transition-duration: 0.01ms !important; } }
 </style>
