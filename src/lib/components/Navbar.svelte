@@ -4,6 +4,8 @@
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import { getProductsContext } from '$lib/stores/products.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
 
   let searchQuery = $state('');
   let scrolled = $state(false);
@@ -156,7 +158,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
-        <input
+        <Input
           type="search"
           class="search-input"
           placeholder="Search products..."
@@ -181,17 +183,17 @@
               id="suggestion-{i}"
               aria-selected={highlightIndex === i}
             >
-              <button
+              <Button
                 type="button"
-                class="suggestion-item"
-                class:suggestion-highlighted={highlightIndex === i}
+                variant="ghost"
+                class={highlightIndex === i ? 'suggestion-item suggestion-highlighted' : 'suggestion-item'}
                 onmousedown={(e: MouseEvent) => e.preventDefault()}
                 onclick={() => selectSuggestion(product)}
               >
                 <span class="suggestion-name">{product.name}</span>
                 <span class="suggestion-category">{product.expand?.category?.name ?? ''}</span>
                 <span class="suggestion-price">${product.price.toLocaleString('en-US')}</span>
-              </button>
+              </Button>
             </li>
           {/each}
         </ul>
@@ -201,34 +203,34 @@
     <!-- Nav actions (right) -->
     <div class="nav-actions">
       <!-- Wishlist -->
-      <a href="/wishlist" class="action-btn" aria-label="Wishlist">
+      <Button href="/wishlist" variant="ghost" size="icon" class="action-btn" aria-label="Wishlist">
         <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
         </svg>
         <span class="action-badge" class:visible={wishlistBadgeVisible}>
           {wishlistCount}
         </span>
-      </a>
+      </Button>
 
       <!-- Cart -->
-      <a href="/cart" class="action-btn" aria-label="Shopping bag, {cartCount} items">
+      <Button href="/cart" variant="ghost" size="icon" class="action-btn" aria-label="Shopping bag, {cartCount} items">
         <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m7.5 0h7.5l-1.5 10.5H5.25L3.75 10.5h7.5z" />
         </svg>
         <span class="action-badge" class:visible={badgeVisible}>
           {cartCount}
         </span>
-      </a>
+      </Button>
 
       <!-- Auth links (desktop) -->
       <div class="auth-links">
         {#if auth.isLoggedIn}
           <span class="auth-link auth-greeting">Hi, {auth.user?.name?.split(' ')[0] ?? 'User'}</span>
-          <a href="/profile" class="auth-link">Profile</a>
-          <button class="auth-link" onclick={async () => { await auth.logout(); goto('/'); }}>Sign out</button>
+          <Button href="/profile" variant="ghost" class="auth-link">Profile</Button>
+          <Button variant="ghost" class="auth-link" onclick={async () => { await auth.logout(); goto('/'); }}>Sign out</Button>
         {:else}
-          <a href="/login" class="auth-link">Sign in</a>
-          <a href="/register" class="auth-cta">Create Account</a>
+          <Button href="/login" variant="ghost" class="auth-link">Sign in</Button>
+          <Button href="/register" class="auth-cta">Create Account</Button>
         {/if}
       </div>
     </div>
@@ -331,7 +333,7 @@
     flex-shrink: 0;
   }
 
-  .search-input {
+  :global(.search-input) {
     flex: 1;
     background: none;
     border: none;
@@ -341,12 +343,12 @@
     font-family: inherit;
     min-width: 0;
   }
-  .search-input::placeholder {
+  :global(.search-input)::placeholder {
     color: var(--color-text-secondary);
     font-size: 0.8125rem;
   }
 
-  .search-input::-webkit-search-cancel-button {
+  :global(.search-input)::-webkit-search-cancel-button {
     display: none;
   }
 
@@ -359,7 +361,7 @@
   }
 
   /* ─── Action button (icon buttons) ─── */
-  .action-btn {
+  :global(.action-btn) {
     position: relative;
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -377,11 +379,11 @@
       background-color 200ms var(--ease-out),
       transform 160ms var(--ease-out);
   }
-  .action-btn:active {
+  :global(.action-btn):active {
     transform: scale(0.93);
   }
   @media (hover: hover) and (pointer: fine) {
-    .action-btn:hover {
+    :global(.action-btn):hover {
       color: var(--color-text-primary);
       background-color: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
     }
@@ -435,7 +437,7 @@
     }
   }
 
-  .auth-link {
+  :global(.auth-link) {
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -452,17 +454,17 @@
     color: var(--color-text-primary);
     cursor: default;
   }
-  .auth-link:active {
+  :global(.auth-link):active {
     transform: scale(0.97);
   }
   @media (hover: hover) and (pointer: fine) {
-    .auth-link:hover {
+    :global(.auth-link):hover {
       color: var(--color-text-primary);
       background-color: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
     }
   }
 
-  .auth-cta {
+  :global(.auth-cta) {
     font-size: 0.8125rem;
     font-weight: 600;
     color: #ffffff;
@@ -472,11 +474,11 @@
     border-radius: var(--radius-full);
     transition: background-color 200ms var(--ease-out), transform 160ms var(--ease-out);
   }
-  .auth-cta:active {
+  :global(.auth-cta):active {
     transform: scale(0.97);
   }
   @media (hover: hover) and (pointer: fine) {
-    .auth-cta:hover {
+    :global(.auth-cta):hover {
       background-color: var(--color-accent-hover);
     }
   }
@@ -497,7 +499,7 @@
     z-index: 52;
   }
 
-  .suggestion-item {
+  :global(.suggestion-item) {
     display: flex;
     align-items: center;
     gap: 0.625rem;
@@ -513,8 +515,8 @@
     transition: background-color 120ms var(--ease-out);
   }
 
-  .suggestion-highlighted,
-  .suggestion-item:hover {
+  :global(.suggestion-highlighted),
+  :global(.suggestion-item):hover {
     background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
   }
 
@@ -558,12 +560,12 @@
   @media (prefers-reduced-motion: reduce) {
     .nav-container::after,
     .logo,
-    .action-btn,
+    :global(.action-btn),
     .action-badge,
     .search-form,
-    .auth-link,
-    .auth-cta,
-    .suggestion-item {
+    :global(.auth-link),
+    :global(.auth-cta),
+    :global(.suggestion-item) {
       transition-duration: 0.01ms !important;
     }
   }
