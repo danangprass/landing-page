@@ -1,5 +1,9 @@
 <script lang="ts">
   import Badge from '$lib/components/ui/badge/badge.svelte';
+  import Card from '$lib/components/ui/card/card.svelte';
+  import CardHeader from '$lib/components/ui/card/card-header.svelte';
+  import CardTitle from '$lib/components/ui/card/card-title.svelte';
+  import CardContent from '$lib/components/ui/card/card-content.svelte';
 
   let { data } = $props();
 
@@ -32,10 +36,14 @@
   <!-- KPI Grid -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
     {#each kpis as kpi}
-      <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl p-4">
-        <p class="text-xs text-[#86868b] uppercase tracking-wider mb-1">{kpi.label}</p>
-        <p class="text-xl font-semibold {kpi.color}">{kpi.value}</p>
-      </div>
+      <Card class="border-[#424245]">
+        <CardHeader>
+          <CardTitle class="text-xs text-[#86868b] uppercase tracking-wider">{kpi.label}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p class="text-xl font-semibold {kpi.color}">{kpi.value}</p>
+        </CardContent>
+      </Card>
     {/each}
   </div>
 

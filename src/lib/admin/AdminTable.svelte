@@ -1,4 +1,12 @@
 <script lang="ts">
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Table from '$lib/components/ui/table/table.svelte';
+  import TableHeader from '$lib/components/ui/table/table-header.svelte';
+  import TableBody from '$lib/components/ui/table/table-body.svelte';
+  import TableRow from '$lib/components/ui/table/table-row.svelte';
+  import TableHead from '$lib/components/ui/table/table-head.svelte';
+  import TableCell from '$lib/components/ui/table/table-cell.svelte';
+
   let {
     columns = [] as { key: string; label: string; sortable?: boolean }[],
     rows = [] as Record<string, unknown>[],
@@ -45,20 +53,20 @@
 
 {#if columns.length > 0}
   <div class="mb-4">
-    <input
+    <Input
       type="text"
       placeholder="Search..."
       bind:value={search}
-      class="w-full max-w-xs px-4 py-2 rounded-xl bg-[#1d1d1f] border border-[#424245] text-sm text-[#f5f5f7] placeholder-[#86868b] focus:outline-none focus:border-[#2997ff] transition-colors"
+      class="w-full max-w-xs"
     />
   </div>
 
   <div class="overflow-x-auto rounded-xl border border-[#424245]">
-    <table class="w-full text-sm">
-      <thead>
-        <tr class="border-b border-[#424245] bg-[#1d1d1f]">
+    <Table class="w-full">
+      <TableHeader>
+        <TableRow class="border-b border-[#424245] bg-[#1d1d1f] hover:bg-transparent">
           {#each columns as col}
-            <th class="px-4 py-3 text-left text-xs font-medium text-[#86868b] uppercase tracking-wider">
+            <TableHead class="text-[#86868b]">
               {#if col.sortable !== false}
                 <button
                   class="flex items-center gap-1 hover:text-[#f5f5f7] transition-colors"
@@ -72,33 +80,33 @@
               {:else}
                 {col.label}
               {/if}
-            </th>
+            </TableHead>
           {/each}
-        </tr>
-      </thead>
-      <tbody>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {#if filtered.length === 0}
-          <tr>
-            <td colspan={columns.length} class="px-4 py-12 text-center text-[#86868b]">
+          <TableRow>
+            <TableCell colspan={columns.length} class="py-12 text-center text-[#86868b]">
               {search.trim() ? 'No results for "' + search + '"' : emptyMessage}
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         {:else}
           {#each filtered as row, i (row['id'] ?? i)}
-            <tr
-              class="border-b border-[#424245]/50 {i % 2 === 0 ? 'bg-transparent' : 'bg-[#1d1d1f]/50'} hover:bg-[#2d2d2f] transition-colors {onRowClick ? 'cursor-pointer' : ''}"
+            <TableRow
+              class="border-b border-[#424245]/50 {i % 2 === 0 ? 'bg-transparent' : 'bg-[#1d1d1f]/50'} hover:bg-[#2d2d2f] {onRowClick ? 'cursor-pointer' : ''}"
               onclick={() => onRowClick?.(row)}
             >
               {#each columns as col}
-                <td class="px-4 py-3 text-[#f5f5f7]">
+                <TableCell class="text-[#f5f5f7]">
                   {String(row[col.key] ?? '')}
-                </td>
+                </TableCell>
               {/each}
-            </tr>
+            </TableRow>
           {/each}
         {/if}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   </div>
 {:else}
   <p class="text-sm text-[#86868b] text-center py-8">{emptyMessage}</p>
