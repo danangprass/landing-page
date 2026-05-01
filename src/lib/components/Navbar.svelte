@@ -6,6 +6,10 @@
   import { getProductsContext } from '$lib/stores/products.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+  import SearchIcon from '@lucide/svelte/icons/search';
+  import HeartIcon from '@lucide/svelte/icons/heart';
+  import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 
   let searchQuery = $state('');
   let scrolled = $state(false);
@@ -155,9 +159,7 @@
     <!-- Search input (always visible, center) -->
     <div class="search-wrapper">
       <form class="search-form" onsubmit={handleSearchSubmit} role="search">
-        <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
+        <SearchIcon class="search-icon" />
         <Input
           type="search"
           class="search-input"
@@ -204,22 +206,18 @@
     <div class="nav-actions">
       <!-- Wishlist -->
       <Button href="/wishlist" variant="ghost" size="icon" class="action-btn" aria-label="Wishlist">
-        <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-        </svg>
-        <span class="action-badge" class:visible={wishlistBadgeVisible}>
-          {wishlistCount}
-        </span>
+        <HeartIcon class="action-icon" />
+        {#if wishlistBadgeVisible}
+          <Badge class="action-badge absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] px-0.5 text-[0.5625rem] font-bold bg-[var(--color-accent)] text-white rounded-full flex items-center justify-center leading-none">{wishlistCount}</Badge>
+        {/if}
       </Button>
 
       <!-- Cart -->
       <Button href="/cart" variant="ghost" size="icon" class="action-btn" aria-label="Shopping bag, {cartCount} items">
-        <svg xmlns="http://www.w3.org/2000/svg" class="action-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m7.5 0h7.5l-1.5 10.5H5.25L3.75 10.5h7.5z" />
-        </svg>
-        <span class="action-badge" class:visible={badgeVisible}>
-          {cartCount}
-        </span>
+        <ShoppingBagIcon class="action-icon" />
+        {#if badgeVisible}
+          <Badge class="action-badge absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] px-0.5 text-[0.5625rem] font-bold bg-[var(--color-accent)] text-white rounded-full flex items-center justify-center leading-none">{cartCount}</Badge>
+        {/if}
       </Button>
 
       <!-- Auth links (desktop) -->
@@ -394,34 +392,6 @@
     height: 1.125rem;
   }
 
-  /* Badge */
-  .action-badge {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background-color: var(--color-accent);
-    color: #ffffff;
-    font-size: 0.5625rem;
-    font-weight: 700;
-    line-height: 1;
-    min-width: 0.875rem;
-    height: 0.875rem;
-    padding: 0 2px;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: scale(0.7);
-    opacity: 0;
-    transition:
-      transform 200ms var(--ease-spring),
-      opacity 160ms var(--ease-out);
-  }
-  .action-badge.visible {
-    transform: scale(1);
-    opacity: 1;
-  }
-
   /* ─── Auth links (desktop) ─── */
   .auth-links {
     display: none;
@@ -561,7 +531,6 @@
     .nav-container::after,
     .logo,
     :global(.action-btn),
-    .action-badge,
     .search-form,
     :global(.auth-link),
     :global(.auth-cta),

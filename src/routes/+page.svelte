@@ -2,7 +2,18 @@
   import { getProductsContext } from '$lib/stores/products.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
   import HeroCarousel from '$lib/components/HeroCarousel.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
   import { getImageUrl } from '$lib/pb';
+  import SmartphoneIcon from '@lucide/svelte/icons/smartphone';
+  import LaptopIcon from '@lucide/svelte/icons/laptop';
+  import HeadphonesIcon from '@lucide/svelte/icons/headphones';
+  import WatchIcon from '@lucide/svelte/icons/watch';
+  import GamepadIcon from '@lucide/svelte/icons/gamepad';
+  import CableIcon from '@lucide/svelte/icons/cable';
+  import SparklesIcon from '@lucide/svelte/icons/sparkles';
+  import TruckIcon from '@lucide/svelte/icons/truck';
+  import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 
   const store = getProductsContext();
 
@@ -59,39 +70,6 @@
     };
   });
 
-  /* ── Category icons (SVG) ── */
-  const categoryIcons: Record<string, string> = {
-    smartphones:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
-    laptops:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>',
-    audio:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v3a2 2 0 0 0 2 2h7v-5H3Z"/><path d="M3 14V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v4"/><circle cx="18.5" cy="17.5" r="2.5"/><path d="M21 20v-2"/></svg>',
-    wearables:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a6 6 0 0 0-6 6c0 2.2-.7 4.2-2 6"/><path d="M12 2a6 6 0 0 1 6 6c0 2.2.7 4.2 2 6"/><path d="M12 14a4 4 0 0 0-4 4v2h8v-2a4 4 0 0 0-4-4Z"/><path d="M10 20v3"/><path d="M14 20v3"/></svg>',
-    gaming:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>',
-    accessories:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>',
-  };
-
-  const valueProps = [
-    {
-      title: 'Premium Selection',
-      desc: "Curated electronics from the world's leading brands, hand-picked for quality and performance.",
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
-    },
-    {
-      title: 'Fast Delivery',
-      desc: 'Free express shipping on orders over $99. Track your package in real-time from checkout to doorstep.',
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
-    },
-    {
-      title: '2-Year Warranty',
-      desc: "Every device is covered. If anything goes wrong, we'll repair or replace it — no questions asked.",
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
-    },
-  ];
 </script>
 
 <svelte:head>
@@ -119,7 +97,7 @@
         <h2 class="section-heading">Featured</h2>
         <p class="section-subtitle">Hand-picked premium devices, curated just for you.</p>
       </div>
-      <a href="/products" class="section-link">View all</a>
+      <Button variant="link" href="/products">View all</Button>
     </div>
 
     <div class="bento-grid">
@@ -146,14 +124,19 @@
         <h2 class="section-heading">Browse by Category</h2>
         <p class="section-subtitle">Find exactly what you're looking for.</p>
       </div>
-      <a href="/products" class="section-link">See all</a>
+      <Button variant="link" href="/products">See all</Button>
     </div>
 
     <div class="category-scroll reveal" style="--stagger-index: 1;">
       {#each categories as category (category.id)}
         <a href="/products?category={category.slug}" class="category-tile">
           <div class="category-icon-wrap">
-            {@html categoryIcons[category.slug] ?? categoryIcons['accessories']}
+            {#if category.slug === 'smartphones'}<SmartphoneIcon class="size-8" />
+            {:else if category.slug === 'laptops'}<LaptopIcon class="size-8" />
+            {:else if category.slug === 'audio'}<HeadphonesIcon class="size-8" />
+            {:else if category.slug === 'wearables'}<WatchIcon class="size-8" />
+            {:else if category.slug === 'gaming'}<GamepadIcon class="size-8" />
+            {:else}<CableIcon class="size-8" />{/if}
           </div>
           <span class="category-name">{category.name}</span>
         </a>
@@ -188,11 +171,11 @@
       </div>
 
       <div class="reveal feature-content" style="--stagger-index: 1;">
-        <span class="feature-label">Spotlight</span>
+        <Badge variant="secondary">Spotlight</Badge>
         <h2 class="feature-title">{highlightProduct.name}</h2>
         <p class="feature-desc">{highlightProduct.description ?? ''}</p>
         <div class="feature-actions">
-          <a href="/products/{highlightProduct.slug}" class="btn-primary">Learn more</a>
+          <Button href="/products/{highlightProduct.slug}">Learn more</Button>
           <span class="feature-price">{formatPrice(highlightProduct.price)}</span>
         </div>
       </div>
@@ -276,15 +259,27 @@
   </div>
 
   <div class="value-grid">
-    {#each valueProps as prop, i}
-      <div class="reveal value-card" style="--stagger-index: {i};">
-        <div class="value-icon">
-          {@html prop.icon}
-        </div>
-        <h3 class="value-title">{prop.title}</h3>
-        <p class="value-desc">{prop.desc}</p>
+    <div class="reveal value-card" style="--stagger-index: 0;">
+      <div class="value-icon">
+        <SparklesIcon class="size-7" />
       </div>
-    {/each}
+      <h3 class="value-title">Premium Selection</h3>
+      <p class="value-desc">Curated top-tier products hand-picked for quality and performance.</p>
+    </div>
+    <div class="reveal value-card" style="--stagger-index: 1;">
+      <div class="value-icon">
+        <TruckIcon class="size-7" />
+      </div>
+      <h3 class="value-title">Fast Delivery</h3>
+      <p class="value-desc">Free 2-day shipping on all orders. Straight to your doorstep.</p>
+    </div>
+    <div class="reveal value-card" style="--stagger-index: 2;">
+      <div class="value-icon">
+        <ShieldCheckIcon class="size-7" />
+      </div>
+      <h3 class="value-title">2-Year Warranty</h3>
+      <p class="value-desc">Every purchase includes our comprehensive warranty for peace of mind.</p>
+    </div>
   </div>
 </section>
 
@@ -299,7 +294,7 @@
     <p class="cta-subtitle">
       Discover the full collection of premium devices, hand-picked for quality and performance.
     </p>
-    <a href="/products" class="btn-primary cta-btn">Explore all products</a>
+    <Button href="/products" class="mt-8">Explore all products</Button>
   </div>
 </section>
 
@@ -319,18 +314,6 @@
     color: var(--color-text-secondary);
     line-height: 1.5;
     max-width: 32rem;
-  }
-
-  .section-link {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--color-accent);
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color 160ms var(--ease-out);
-  }
-  .section-link:hover {
-    color: var(--color-accent-hover);
   }
 
   .section-vertical {
@@ -518,20 +501,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .feature-label {
-    display: inline-block;
-    padding: 0.25rem 0.875rem;
-    border-radius: var(--radius-full);
-    background: rgba(41, 151, 255, 0.12);
-    border: 1px solid rgba(41, 151, 255, 0.2);
-    color: var(--color-accent);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
   .feature-title {
@@ -849,11 +818,6 @@
     color: var(--color-text-secondary);
     max-width: 30rem;
     line-height: 1.5;
-  }
-
-  .cta-banner .btn-primary {
-    position: relative;
-    margin-top: 2rem;
   }
 
   /* ── REDUCED MOTION ── */
