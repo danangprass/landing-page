@@ -3,6 +3,8 @@
 	import type { ExpandedProduct } from '$lib/pb-types-ext';
 	import { browser } from '$app/environment';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 
 	interface Props {
 		products: ExpandedProduct[];
@@ -145,7 +147,7 @@
 				onclick={goPrev}
 				aria-label="Previous slide"
 			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+				<ChevronLeftIcon class="size-6" />
 			</Button>
 			<Button
 				variant="ghost"
@@ -154,7 +156,7 @@
 				onclick={goNext}
 				aria-label="Next slide"
 			>
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+				<ChevronRightIcon class="size-6" />
 			</Button>
 		{/if}
 
