@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+
   let { open = false, title = 'Confirm', message = '', confirmLabel = 'Confirm', danger = false, onConfirm = () => {}, onCancel = () => {} }: {
     open?: boolean;
     title?: string;
@@ -33,18 +35,19 @@
       <p class="text-[#86868b] text-sm leading-relaxed mb-6">{message}</p>
 
       <div class="flex justify-end gap-3">
-        <button
+        <Button
+          variant="outline"
           class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f] transition-colors"
           onclick={onCancel}
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           class="px-4 py-2 rounded-xl text-sm font-medium text-white transition-colors {danger ? 'bg-[#ff453a] hover:bg-[#ff5f56]' : 'bg-[#2997ff] hover:bg-[#0a84ff]'}"
           onclick={onConfirm}
         >
           {confirmLabel}
-        </button>
+        </Button>
       </div>
     </div>
   </div>
