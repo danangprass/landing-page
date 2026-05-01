@@ -77,7 +77,7 @@
                     <a href="/admin/users/{user.id}" class="text-[#2997ff] text-xs hover:underline">View</a>
                     <button
                       class="text-[#ff453a] text-xs hover:underline"
-                      onclick={() => { deleteId = user.id; deleteRole = user.role; deleteName = user.name; showConfirm = true; }}
+                      onclick={() => { deleteId = user.id; deleteRole = String(user.role || ''); deleteName = String(user.name || ''); showConfirm = true; }}
                     >
                       Delete
                     </button>

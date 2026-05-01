@@ -28,7 +28,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 					expand: 'product',
 					$autoCancel: false,
 				})
-				.catch(() => ({ items: [] }));
+				.catch(() => ({ items: [], totalItems: 0 }));
 
 			const previewItems = items.items.slice(0, 3).map((i) => ({
 				name: (i.expand?.product as { name?: string })?.name ?? 'Unknown',
