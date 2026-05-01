@@ -1,5 +1,9 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
   import { getAuthContext } from '$lib/stores/auth.svelte';
 
   let name = $state('');
@@ -101,21 +105,21 @@
 
     <form onsubmit={handleSubmit} class="auth-form">
       <div class="field-group">
-        <label for="name" class="field-label">Full Name</label>
-        <input id="name" type="text" bind:value={name} class="field-input" class:field-input--error={!!fieldErrors.name} placeholder="Your full name" autocomplete="name" />
+        <Label for="name" class="field-label">Full Name</Label>
+        <Input id="name" type="text" bind:value={name} class={`field-input ${!!fieldErrors.name ? ' field-input--error' : ''}`} placeholder="Your full name" autocomplete="name" />
         {#if fieldErrors.name}<span class="field-error">{fieldErrors.name}</span>{/if}
       </div>
 
       <div class="field-group">
-        <label for="email" class="field-label">Email</label>
-        <input id="email" type="email" bind:value={email} class="field-input" class:field-input--error={!!fieldErrors.email} placeholder="you@example.com" autocomplete="email" />
+        <Label for="email" class="field-label">Email</Label>
+        <Input id="email" type="email" bind:value={email} class={`field-input ${!!fieldErrors.email ? ' field-input--error' : ''}`} placeholder="you@example.com" autocomplete="email" />
         {#if fieldErrors.email}<span class="field-error">{fieldErrors.email}</span>{/if}
       </div>
 
       <div class="field-group">
-        <label for="password" class="field-label">Password</label>
+        <Label for="password" class="field-label">Password</Label>
         <div class="field-input-wrap">
-          <input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} class="field-input field-input--has-toggle" class:field-input--error={!!fieldErrors.password} placeholder="Create a password" autocomplete="new-password" />
+          <Input id="password" type={showPassword ? 'text' : 'password'} bind:value={password} class={`field-input field-input--has-toggle ${!!fieldErrors.password ? ' field-input--error' : ''}`} placeholder="Create a password" autocomplete="new-password" />
           <button type="button" class="password-toggle" onclick={() => (showPassword = !showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
             {#if showPassword}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23" /></svg>
@@ -138,13 +142,12 @@
       </div>
 
       <div class="field-group">
-        <label for="confirm-password" class="field-label">Confirm Password</label>
-        <input
+        <Label for="confirm-password" class="field-label">Confirm Password</Label>
+        <Input
           id="confirm-password"
           type={showPassword ? 'text' : 'password'}
           bind:value={confirmPassword}
-          class="field-input"
-          class:field-input--error={!!fieldErrors.confirmPassword || (!passwordsMatch && confirmPassword !== '')}
+          class={`field-input ${!!fieldErrors.confirmPassword || (!passwordsMatch && confirmPassword !== '') ? ' field-input--error' : ''}`}
           placeholder="Confirm your password"
           autocomplete="new-password"
         />
@@ -157,21 +160,20 @@
 
       <div>
         <label class="checkbox-label" class:checkbox-label--error={!!fieldErrors.terms}>
-          <input type="checkbox" class="checkbox-input" bind:checked={agreeTerms} />
-          <span class="checkbox-custom" class:checkbox-custom--error={!!fieldErrors.terms}></span>
+          <Checkbox bind:checked={agreeTerms} />
           <span class="checkbox-text">I agree to the <a href="/terms" class="auth-link" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="/privacy" class="auth-link" target="_blank" rel="noopener noreferrer">Privacy Policy</a></span>
         </label>
         {#if fieldErrors.terms}<span class="field-error">{fieldErrors.terms}</span>{/if}
       </div>
 
-      <button type="submit" class="btn-primary auth-submit" disabled={loading}>
+      <Button type="submit" class="auth-submit" disabled={loading}>
         {#if loading}
           <span class="spinner"></span>
           Creating account…
         {:else}
           Create Account
         {/if}
-      </button>
+      </Button>
     </form>
 
     <div class="auth-divider">

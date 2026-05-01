@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
   import { getProductsContext } from '$lib/stores/products.svelte';
 
   let {
@@ -197,28 +200,28 @@
         </div>
         <div class="price-inputs">
           <div class="price-field">
-            <label class="price-label" for="min-price">Min ($)</label>
-            <input
+            <Label class="price-label text-[0.6875rem] text-[var(--color-text-secondary)] mb-1.5 tracking-[0.02em]" for="min-price">Min ($)</Label>
+            <Input
               id="min-price"
               type="number"
               bind:value={minPrice}
               min="0"
               max={maxPrice}
-              class="price-input"
+              class="price-input w-full bg-[color-mix(in_srgb,var(--color-text-primary)_5%,transparent)] border border-[color-mix(in_srgb,var(--color-border)_60%,transparent)] rounded-[var(--radius-sm)] py-2 px-3 text-[0.8125rem] text-[var(--color-text-primary)] focus:border-[var(--color-accent)] focus:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] [font-variant-numeric:tabular-nums]"
             />
           </div>
           <div class="price-field">
-            <label class="price-label" for="max-price">Max ($)</label>
-            <input
+            <Label class="price-label text-[0.6875rem] text-[var(--color-text-secondary)] mb-1.5 tracking-[0.02em]" for="max-price">Max ($)</Label>
+            <Input
               id="max-price"
               type="number"
               bind:value={maxPrice}
               min={minPrice}
-              class="price-input"
+              class="price-input w-full bg-[color-mix(in_srgb,var(--color-text-primary)_5%,transparent)] border border-[color-mix(in_srgb,var(--color-border)_60%,transparent)] rounded-[var(--radius-sm)] py-2 px-3 text-[0.8125rem] text-[var(--color-text-primary)] focus:border-[var(--color-accent)] focus:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] [font-variant-numeric:tabular-nums]"
             />
           </div>
         </div>
-        <button class="apply-btn" onclick={applyPrice}>Apply Price</button>
+        <Button class="apply-btn mt-3.5 w-full text-[0.8125rem] font-semibold text-[var(--color-bg)] bg-[var(--color-accent)] border-none rounded-[var(--radius-sm)] py-2 px-4 cursor-pointer hover:bg-[var(--color-accent-hover)] active:scale-[0.97] transition-all duration-200" onclick={applyPrice}>Apply Price</Button>
       </div>
     {/if}
   </section>

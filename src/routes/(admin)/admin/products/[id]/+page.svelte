@@ -1,4 +1,8 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+
   let { data, form } = $props();
 
   let slug = $state(data.product.slug);
@@ -27,10 +31,10 @@
 
     <!-- Name -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">
+      <Label class="text-sm font-medium text-[#f5f5f7]">
         Name <span class="text-[#ff453a]">*</span>
-      </label>
-      <input
+      </Label>
+      <Input
         type="text"
         name="name"
         required
@@ -42,10 +46,10 @@
 
     <!-- Slug -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">
+      <Label class="text-sm font-medium text-[#f5f5f7]">
         Slug <span class="text-[#ff453a]">*</span>
-      </label>
-      <input
+      </Label>
+      <Input
         type="text"
         name="slug"
         required
@@ -57,7 +61,7 @@
 
     <!-- Description -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Description</label>
+      <Label class="text-sm font-medium text-[#f5f5f7]">Description</Label>
       <textarea
         name="description"
         rows="4"
@@ -68,10 +72,10 @@
     <!-- Price + Compare-at -->
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-[#f5f5f7]">
+        <Label class="text-sm font-medium text-[#f5f5f7]">
           Price <span class="text-[#ff453a]">*</span>
-        </label>
-        <input
+        </Label>
+        <Input
           type="number"
           name="price"
           required
@@ -82,8 +86,8 @@
         />
       </div>
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-[#f5f5f7]">Compare-at Price</label>
-        <input
+        <Label class="text-sm font-medium text-[#f5f5f7]">Compare-at Price</Label>
+        <Input
           type="number"
           name="compare_at_price"
           step="0.01"
@@ -96,9 +100,9 @@
 
     <!-- Category -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">
+      <Label class="text-sm font-medium text-[#f5f5f7]">
         Category <span class="text-[#ff453a]">*</span>
-      </label>
+      </Label>
       <select
         name="category"
         required
@@ -114,8 +118,8 @@
     <!-- Stock + SKU -->
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-[#f5f5f7]">Stock</label>
-        <input
+        <Label class="text-sm font-medium text-[#f5f5f7]">Stock</Label>
+        <Input
           type="number"
           name="stock"
           min="0"
@@ -124,8 +128,8 @@
         />
       </div>
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-[#f5f5f7]">SKU</label>
-        <input
+        <Label class="text-sm font-medium text-[#f5f5f7]">SKU</Label>
+        <Input
           type="text"
           name="sku"
           value={data.product.sku ?? ''}
@@ -137,7 +141,7 @@
     <!-- Current images -->
     {#if data.product.imageUrls.length > 0}
       <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium text-[#f5f5f7]">Current Images</label>
+        <Label class="text-sm font-medium text-[#f5f5f7]">Current Images</Label>
         <div class="flex flex-wrap gap-2">
           {#each data.product.imageUrls as url}
             <div class="w-20 h-20 rounded-lg overflow-hidden bg-[#2d2d2f] border border-[#424245]">
@@ -150,8 +154,8 @@
 
     <!-- New Images -->
     <div class="flex flex-col gap-1.5">
-      <label class="text-sm font-medium text-[#f5f5f7]">Add Images (replaces existing)</label>
-      <input
+      <Label class="text-sm font-medium text-[#f5f5f7]">Add Images (replaces existing)</Label>
+      <Input
         type="file"
         name="images"
         multiple
@@ -174,18 +178,19 @@
 
     <!-- Submit -->
     <div class="flex items-center gap-3 pt-2">
-      <button
+      <Button
         type="submit"
         class="px-6 py-2.5 rounded-xl bg-[#2997ff] text-white text-sm font-medium hover:bg-[#0a84ff] transition-colors"
       >
         Save Changes
-      </button>
-      <a
+      </Button>
+      <Button
+        variant="outline"
         href="/admin/products"
         class="px-4 py-2.5 rounded-xl text-sm font-medium text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] transition-colors"
       >
         Cancel
-      </a>
+      </Button>
     </div>
   </form>
 </div>

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Button from '$lib/components/ui/button/button.svelte';
+
 	let { data } = $props();
 
 	function statusClass(status: string) {
@@ -52,7 +54,7 @@
 			</svg>
 			<p class="text-xl font-medium text-text-primary">No orders yet.</p>
 			<p class="text-text-secondary">Your past purchases will appear here.</p>
-			<a href="/products" class="btn-primary mt-2">Browse Products</a>
+			<Button href="/products" class="mt-2">Browse Products</Button>
 		</div>
 	{:else}
 		<div class="py-8 space-y-4">

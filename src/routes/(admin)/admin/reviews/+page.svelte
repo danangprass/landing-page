@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+
   let { data } = $props();
 
   let deleteId = $state('');
@@ -32,12 +34,13 @@
                 <span class="text-xs text-[#86868b]">{formatDate(review.created)}</span>
               </div>
             </div>
-            <button
+            <Button
+              variant="link"
               class="text-xs text-[#ff453a] hover:underline shrink-0"
               onclick={() => { deleteId = review.id; showDelete = true; }}
             >
               Remove
-            </button>
+            </Button>
           </div>
         </div>
       {/each}
@@ -66,10 +69,10 @@
       <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Remove Review</h3>
       <p class="text-[#86868b] text-sm mb-6">This review will be permanently deleted.</p>
       <div class="flex justify-end gap-3">
-        <button class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</button>
+        <Button variant="outline" class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]" onclick={() => (showDelete = false)}>Cancel</Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="id" value={deleteId} />
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</button>
+          <Button type="submit" variant="destructive" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">Delete</Button>
         </form>
       </div>
     </div>

@@ -3,6 +3,8 @@
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getImageUrl } from '$lib/pb';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
 
   let { product, category }: { product: ProductsRecord; category?: CategoriesRecord } = $props();
 
@@ -46,10 +48,12 @@
 <a href="/products/{product.slug}" class="card product-card block">
   <div class="product-image-area">
     {#if badgeLabel}
-      <span class="product-badge {badgeClass}">{badgeLabel}</span>
+      <Badge class="product-badge {badgeClass}">{badgeLabel}</Badge>
     {/if}
 
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       class="wishlist-btn"
       onclick={handleWishlistToggle}
       aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
@@ -68,7 +72,7 @@
           d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
         />
       </svg>
-    </button>
+    </Button>
 
     <div class="product-emoji-wrap">
       <span class="product-emoji">{emoji}</span>
@@ -89,9 +93,9 @@
         {/if}
       </div>
 
-      <button class="add-to-bag-btn" onclick={handleAddToBag} aria-label="Add {product.name} to bag">
+      <Button class="add-to-bag-btn" onclick={handleAddToBag} aria-label="Add {product.name} to bag">
         Add to Bag
-      </button>
+      </Button>
     </div>
   </div>
 </a>
@@ -113,7 +117,7 @@
     flex-shrink: 0;
   }
 
-  .product-emoji-wrap {
+  :global(.product-emoji-wrap) {
     width: 100%;
     height: 100%;
     display: flex;
@@ -123,7 +127,7 @@
     transition: transform 400ms var(--ease-spring);
   }
 
-  .product-emoji {
+  :global(.product-emoji) {
     font-size: 4.5rem;
     line-height: 1;
     filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
@@ -142,7 +146,7 @@
   }
 
   /* ── Badge ── */
-  .product-badge {
+  :global(.product-badge) {
     position: absolute;
     top: 0.75rem;
     left: 0.75rem;
@@ -160,11 +164,11 @@
     to   { opacity: 1; transform: scale(1); }
   }
 
-  .badge-new  { background-color: var(--color-accent);   color: #fff; }
-  .badge-sale { background-color: var(--color-warning);  color: #fff; }
+  :global(.badge-new)  { background-color: var(--color-accent);   color: #fff; }
+  :global(.badge-sale) { background-color: var(--color-warning);  color: #fff; }
 
   /* ── Wishlist button ── */
-  .wishlist-btn {
+  :global(.wishlist-btn) {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
@@ -185,10 +189,10 @@
       background-color 200ms var(--ease-out);
   }
 
-  .wishlist-btn:active { transform: scale(0.94); }
+  :global(.wishlist-btn):active { transform: scale(0.94); }
 
   @media (hover: hover) and (pointer: fine) {
-    .wishlist-btn:hover {
+    :global(.wishlist-btn):hover {
       transform: scale(1.1);
       background-color: rgba(255, 255, 255, 1);
     }
@@ -201,7 +205,7 @@
     transition: fill 200ms var(--ease-out), filter 200ms var(--ease-out);
   }
 
-  .wishlist-btn:active .wishlist-icon {
+  :global(.wishlist-btn):active .wishlist-icon {
     filter: blur(2px);
     transition: fill 100ms var(--ease-out), filter 100ms var(--ease-out);
   }
@@ -281,7 +285,7 @@
   }
 
   /* ── Full-width CTA (touch + non-hover fallback) ── */
-  .add-to-bag-btn {
+  :global(.add-to-bag-btn) {
     width: 100%;
     display: flex;
     align-items: center;
@@ -300,14 +304,14 @@
       opacity 200ms var(--ease-out);
   }
 
-  .add-to-bag-btn:hover { background-color: var(--color-accent-hover); }
-  .add-to-bag-btn:active { transform: scale(0.97); }
+  :global(.add-to-bag-btn):hover { background-color: var(--color-accent-hover); }
+  :global(.add-to-bag-btn):active { transform: scale(0.97); }
 
   /* Reduced motion: keep opacity, no transforms */
   @media (prefers-reduced-motion: reduce) {
-    .product-emoji-wrap,
-    .add-to-bag-btn,
-    .wishlist-btn {
+    :global(.product-emoji-wrap),
+    :global(.add-to-bag-btn),
+    :global(.wishlist-btn) {
       transition: none;
     }
   }

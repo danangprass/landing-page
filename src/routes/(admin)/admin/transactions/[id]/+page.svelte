@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+
 	let { data } = $props();
 
 	const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -84,7 +87,7 @@
 				<div class="flex items-center gap-4">
 					<div class="text-center">
 						<span class="text-xs text-[#86868b] block mb-1">Payment</span>
-						<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {statusClass(data.transaction.status)}">{data.transaction.status}</span>
+						<Badge variant="outline" class={statusClass(data.transaction.status)}>{data.transaction.status}</Badge>
 					</div>
 				</div>
 			</div>
@@ -93,7 +96,8 @@
 
 	<!-- Transaction Details JSON -->
 	<div class="mt-6 bg-[#1d1d1f] border border-[#424245] rounded-xl p-5">
-		<button
+		<Button
+			variant="ghost"
 			class="w-full flex items-center justify-between text-sm font-semibold text-[#f5f5f7] uppercase tracking-wider"
 			onclick={() => (transactionDetailsExpanded = !transactionDetailsExpanded)}
 			aria-expanded={transactionDetailsExpanded}
@@ -108,7 +112,7 @@
 			>
 				<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
 			</svg>
-		</button>
+		</Button>
 
 		{#if transactionDetailsExpanded}
 			<div class="mt-4">

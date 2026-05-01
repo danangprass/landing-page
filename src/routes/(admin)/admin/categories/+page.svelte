@@ -1,4 +1,7 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
+
   let { data, form } = $props();
 
   let deleteId = $state('');
@@ -8,7 +11,7 @@
 <div>
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-semibold text-[#f5f5f7]">Categories</h1>
-    <a
+    <Button
       href="/admin/categories/new"
       class="inline-flex items-center gap-1.5 bg-[#2997ff] text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#0a84ff] transition-colors"
     >
@@ -16,7 +19,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
       New Category
-    </a>
+    </Button>
   </div>
 
   {#if data.categories.length === 0}
@@ -38,9 +41,9 @@
               <a href="/admin/categories/{cat.id}" class="text-[#f5f5f7] font-medium text-sm hover:text-[#2997ff] transition-colors truncate">
                 {cat.name}
               </a>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border {cat.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}">
+              <Badge variant="outline" class={cat.active ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-gray-500/15 text-gray-400 border-gray-500/30'}>
                 {cat.active ? 'Active' : 'Inactive'}
-              </span>
+              </Badge>
             </div>
             <p class="text-xs text-[#86868b] mt-0.5 truncate">{cat.slug} {cat.description ? '- ' + cat.description : ''}</p>
           </div>
@@ -49,17 +52,18 @@
             <form method="post" action="?/toggleActive" class="inline">
               <input type="hidden" name="id" value={cat.id} />
               <input type="hidden" name="active" value={String(cat.active)} />
-              <button type="submit" class="text-xs text-[#86868b] hover:text-[#f5f5f7] transition-colors">
+              <Button type="submit" variant="link" class="text-xs text-[#86868b] hover:text-[#f5f5f7] transition-colors">
                 {cat.active ? 'Deactivate' : 'Activate'}
-              </button>
+              </Button>
             </form>
             <a href="/admin/categories/{cat.id}" class="text-xs text-[#2997ff] hover:underline">Edit</a>
-            <button
+            <Button
+              variant="link"
               class="text-xs text-[#ff453a] hover:underline"
               onclick={() => { deleteId = cat.id; showDeleteConfirm = true; }}
             >
               Delete
-            </button>
+            </Button>
           </div>
         </div>
       {/each}
@@ -83,15 +87,16 @@
       <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete Category</h3>
       <p class="text-[#86868b] text-sm mb-6">Are you sure? This cannot be undone.</p>
       <div class="flex justify-end gap-3">
-        <button
+        <Button
+          variant="outline"
           class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f]"
           onclick={() => (showDeleteConfirm = false)}
-        >Cancel</button>
+        >Cancel</Button>
         <form method="post" action="?/delete">
           <input type="hidden" name="id" value={deleteId} />
-          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">
+          <Button type="submit" variant="destructive" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56]">
             Delete
-          </button>
+          </Button>
         </form>
       </div>
     </div>
