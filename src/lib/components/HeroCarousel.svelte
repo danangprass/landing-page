@@ -2,6 +2,7 @@
 	import { getImageUrl } from '$lib/pb';
 	import type { ExpandedProduct } from '$lib/pb-types-ext';
 	import { browser } from '$app/environment';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	interface Props {
 		products: ExpandedProduct[];
@@ -116,7 +117,7 @@
 							<p class="slide-subtitle">{desc}</p>
 							<p class="slide-price">From {priceStr}</p>
 							<div class="slide-actions">
-								<a href="/products/{product.slug}" class="btn-shop">Shop Now</a>
+								<Button href="/products/{product.slug}" class="btn-shop">Shop Now</Button>
 							</div>
 						</div>
 
@@ -137,20 +138,24 @@
 		</div>
 
 		{#if slideCount > 1}
-			<button
+			<Button
+				variant="ghost"
+				size="icon"
 				class="carousel-arrow carousel-arrow-prev"
 				onclick={goPrev}
 				aria-label="Previous slide"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-			</button>
-			<button
+			</Button>
+			<Button
+				variant="ghost"
+				size="icon"
 				class="carousel-arrow carousel-arrow-next"
 				onclick={goNext}
 				aria-label="Next slide"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-			</button>
+			</Button>
 		{/if}
 
 		{#if slideCount > 1}
@@ -302,7 +307,7 @@
 		margin-top: 2.5rem;
 	}
 
-	.btn-shop {
+	:global(.btn-shop) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -317,12 +322,12 @@
 			box-shadow 300ms ease-out;
 	}
 
-	.btn-shop:hover {
+	:global(.btn-shop):hover {
 		background: var(--color-accent-hover);
 		box-shadow: 0 0 24px rgba(41, 151, 255, 0.3);
 	}
 
-	.btn-shop:active {
+	:global(.btn-shop):active {
 		transform: scale(0.97);
 	}
 
@@ -362,7 +367,7 @@
 	}
 
 	/* Navigation arrows */
-	.carousel-arrow {
+	:global(.carousel-arrow) {
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
@@ -382,21 +387,21 @@
 			transform 200ms ease-out;
 	}
 
-	.carousel-arrow:hover {
+	:global(.carousel-arrow):hover {
 		background: rgba(41, 151, 255, 0.15);
 		border-color: rgba(41, 151, 255, 0.4);
 		color: var(--color-accent);
 	}
 
-	.carousel-arrow:active {
+	:global(.carousel-arrow):active {
 		transform: translateY(-50%) scale(0.93);
 	}
 
-	.carousel-arrow-prev {
+	:global(.carousel-arrow-prev) {
 		left: 1rem;
 	}
 
-	.carousel-arrow-next {
+	:global(.carousel-arrow-next) {
 		right: 1rem;
 	}
 
@@ -480,11 +485,11 @@
 			align-items: flex-start;
 		}
 
-		.carousel-arrow-prev {
+		:global(.carousel-arrow-prev) {
 			left: 1.5rem;
 		}
 
-		.carousel-arrow-next {
+		:global(.carousel-arrow-next) {
 			right: 1.5rem;
 		}
 
@@ -499,16 +504,16 @@
 
 	/* Mobile adjustments */
 	@media (max-width: 640px) {
-		.carousel-arrow {
+		:global(.carousel-arrow) {
 			width: 2.5rem;
 			height: 2.5rem;
 		}
 
-		.carousel-arrow-prev {
+		:global(.carousel-arrow-prev) {
 			left: 0.5rem;
 		}
 
-		.carousel-arrow-next {
+		:global(.carousel-arrow-next) {
 			right: 0.5rem;
 		}
 
