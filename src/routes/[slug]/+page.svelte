@@ -17,7 +17,7 @@
 
 		{#if data.page.content}
 			<div class="info-content">
-				{@html data.page.content}
+				{data.page.content}
 			</div>
 		{:else}
 			<div class="info-empty">

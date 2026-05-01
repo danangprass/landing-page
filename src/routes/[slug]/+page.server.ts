@@ -2,18 +2,11 @@ import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
-	const slug = params.slug;
-
 	try {
-		const records = await locals.pb.collection('pages').getFullList({
-			filter: locals.pb.filter('slug = {:slug}', { slug }),
-		});
+		const page = await locals.pb.collection('pages').getFirstListItem(
+			locals.pb.filter('slug = {:slug}', { slug: params.slug }),
+		);
 
-		if (records.length === 0) {
-			throw error(404, 'Page not found');
-		}
-
-		const page = records[0];
 		return {
 			page: {
 				id: page.id,
@@ -22,8 +15,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				content: (page as Record<string, unknown>).content as string ?? '',
 			},
 		};
-	} catch (e) {
-		if ((e as { status?: number }).status === 404) throw e;
+	} catch {
 		throw error(404, 'Page not found');
 	}
 };

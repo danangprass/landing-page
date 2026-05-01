@@ -33,6 +33,10 @@ export const actions: Actions = {
 			return fail(400, { error: 'Title and slug are required.' });
 		}
 
+		if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+			return fail(400, { error: 'Slug can only contain lowercase letters, numbers, and hyphens.' });
+		}
+
 		const recordData: Record<string, unknown> = { title, slug, content };
 
 		try {
