@@ -5,8 +5,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
 	const statusFilter = url.searchParams.get('status') ?? '';
 
+	const ALLOWED_STATUSES = new Set(['pending', 'settlement', 'shipped', 'cancelled', 'expire', 'deny', 'failure']);
+
 	const filterParts: string[] = [];
-	if (statusFilter) {
+	if (statusFilter && ALLOWED_STATUSES.has(statusFilter)) {
 		filterParts.push(`status = "${statusFilter}"`);
 	}
 	const filter = filterParts.length > 0 ? filterParts.join(' && ') : '';
