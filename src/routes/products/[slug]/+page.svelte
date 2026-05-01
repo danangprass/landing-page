@@ -5,9 +5,11 @@
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
   import PriceDisplay from '$lib/components/PriceDisplay.svelte';
   import ProductCard from '$lib/components/ProductCard.svelte';
+  import RatingStars from '$lib/components/RatingStars.svelte';
   import type { CategoriesRecord } from '$lib/pb-types';
   import type { ExpandedProduct } from '$lib/pb-types-ext';
-  import { getImageUrl } from '$lib/pb';
+  import { getImageUrl, pb } from '$lib/pb';
+  import { safeCall } from '$lib/pb-error-handler.svelte';
 
   const store = getProductsContext();
   let cart = getCartContext();
@@ -15,6 +17,8 @@
 
   let product = $state<ExpandedProduct | null>(null);
   let category = $state<CategoriesRecord | null>(null);
+  let rating = $state(0);
+  let reviewCount = $state(0);
 
   $effect(() => {
     const slug = page.params.slug;
@@ -22,6 +26,35 @@
     store.loadProductBySlug(slug).then(p => {
       product = p ?? null;
       category = p?.expand?.category ?? null;
+    });
+  });
+
+  $effect(() => {
+    const p = product;
+    if (!p) return;
+
+    // Static data already has rating/reviewCount baked in
+    if (p.rating !== undefined && p.reviewCount !== undefined) {
+      rating = p.rating;
+      reviewCount = p.reviewCount;
+      return;
+    }
+
+    // Fetch review stats from PocketBase
+    const productId = p.id;
+    safeCall(() =>
+      pb.collection('reviews').getList(1, 1000, {
+        filter: `product = "${productId}"`,
+        fields: 'rating',
+      })
+    ).then(([result]) => {
+      if (product?.id !== productId) return;
+      if (result && result.items.length > 0) {
+        const items = result.items as unknown as { rating: number }[];
+        const total = items.reduce((sum, r) => sum + r.rating, 0);
+        rating = Math.round((total / items.length) * 10) / 10;
+        reviewCount = items.length;
+      }
     });
   });
 
@@ -75,6 +108,9 @@
         <div class="flex flex-col gap-6 reveal" style="--stagger-index: 1">
           <span class="text-text-secondary uppercase text-xs tracking-widest font-medium">{category?.name ?? ''}</span>
           <h1 class="text-3xl font-bold text-text-primary">{product.name}</h1>
+          {#if rating > 0}
+            <RatingStars {rating} count={reviewCount} />
+          {/if}
           <PriceDisplay price={product.price} originalPrice={(product.compare_at_price ?? 0) > 0 && (product.compare_at_price ?? 0) > product.price ? product.compare_at_price : undefined} />
           <p class="text-text-secondary text-base leading-relaxed">{product.description}</p>
           <button class="add-to-bag-btn btn-primary w-full text-center py-3 text-base font-semibold mt-2" onclick={handleAddToBag} disabled={(product.stock ?? 0) <= 0}>

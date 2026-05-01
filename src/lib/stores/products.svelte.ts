@@ -27,6 +27,8 @@ function mapStaticProduct(p: Product): ExpandedProduct {
         active: true,
       } as unknown as CategoriesRecord,
     },
+    rating: p.rating,
+    reviewCount: p.reviewCount,
   } as ExpandedProduct;
 }
 
