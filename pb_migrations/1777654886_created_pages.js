@@ -1,8 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 migrate((app) => {
   const collection = new Collection({
-    "createRule": "",
-    "deleteRule": "",
+    "createRule": "@request.auth.id != \"\"",
+    "deleteRule": "@request.auth.id != \"\"",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -62,7 +62,7 @@ migrate((app) => {
         "max": 0,
         "min": 1,
         "name": "slug",
-        "pattern": "",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
         "presentable": false,
         "primaryKey": false,
         "required": true,
@@ -83,12 +83,14 @@ migrate((app) => {
       }
     ],
     "id": "pbc_3945946014",
-    "indexes": [],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_slug` ON `pages` (`slug`)"
+    ],
     "listRule": "",
     "name": "pages",
     "system": false,
     "type": "base",
-    "updateRule": "",
+    "updateRule": "@request.auth.id != \"\"",
     "viewRule": ""
   });
 
