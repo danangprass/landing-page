@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import { page } from '$app/state';
 	import { getAuthContext } from '$lib/stores/auth.svelte';
 	import type { ActionData } from './$types';
@@ -103,8 +106,8 @@
 
 		<form onsubmit={handleSubmit} class="auth-form">
 			<div class="field-group">
-				<label for="email" class="field-label">Email</label>
-				<input
+				<Label for="email" class="field-label">Email</Label>
+				<Input
 					id="email"
 					name="email"
 					type="email"
@@ -117,9 +120,9 @@
 			</div>
 
 			<div class="field-group">
-				<label for="password" class="field-label">Password</label>
+				<Label for="password" class="field-label">Password</Label>
 				<div class="field-input-wrap">
-					<input
+					<Input
 						id="password"
 						name="password"
 						type={showPassword ? 'text' : 'password'}
@@ -148,14 +151,14 @@
 				<a href="/forgot-password" class="auth-link">Forgot password?</a>
 			</div>
 
-			<button type="submit" class="btn-primary auth-submit" disabled={loading}>
+			<Button type="submit" class="auth-submit" disabled={loading}>
 				{#if loading}
 					<span class="spinner"></span>
 					Signing in…
 				{:else}
 					Sign In
 				{/if}
-			</button>
+			</Button>
 		</form>
 
 		<p class="auth-footer">

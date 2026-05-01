@@ -1,5 +1,6 @@
 <script lang="ts">
   import { getWishlistContext } from '$lib/stores/wishlist.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
   import { getCartContext } from '$lib/stores/cart.svelte';
 
   const wishlist = getWishlistContext();
@@ -46,7 +47,7 @@
       </svg>
       <p class="text-xl font-medium text-text-primary">Your wishlist is empty.</p>
       <p class="text-text-secondary">Save items you love to come back to them later.</p>
-      <a href="/products" class="btn-primary mt-2">Browse Products</a>
+      <Button href="/products" class="mt-2">Browse Products</Button>
     </div>
   {:else}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-8">
@@ -62,19 +63,20 @@
             </div>
           </a>
           <div class="px-4 pb-4 flex gap-2">
-            <button
-              class="btn-primary flex-1 text-sm py-2"
+            <Button
+              class="flex-1 text-sm py-2"
               onclick={() => handleMoveToCart(item.product.id, item.id)}
             >
               Add to Bag
-            </button>
-            <button
-              class="btn-secondary text-sm py-2 px-3"
+            </Button>
+            <Button
+              variant="outline"
+              class="text-sm py-2 px-3"
               onclick={() => wishlist.remove(item.id)}
               aria-label="Remove from wishlist"
             >
               ✕
-            </button>
+            </Button>
           </div>
         </div>
       {/each}

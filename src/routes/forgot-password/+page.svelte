@@ -1,5 +1,8 @@
 <script lang="ts">
   import { pb } from '$lib/pb';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
 
   let email = $state('');
   let loading = $state(false);
@@ -60,18 +63,18 @@
 
       <form onsubmit={handleSubmit} class="auth-form">
         <div class="field-group">
-          <label for="email" class="field-label">Email</label>
-          <input id="email" type="email" bind:value={email} class="field-input" placeholder="you@example.com" autocomplete="email" required />
+          <Label for="email" class="field-label">Email</Label>
+          <Input id="email" type="email" bind:value={email} class="field-input" placeholder="you@example.com" autocomplete="email" required />
         </div>
 
-        <button type="submit" class="btn-primary auth-submit" disabled={loading}>
+        <Button type="submit" class="auth-submit" disabled={loading}>
           {#if loading}
             <span class="spinner"></span>
             Sending…
           {:else}
             Send Reset Link
           {/if}
-        </button>
+        </Button>
       </form>
 
       <p class="auth-footer">
@@ -85,7 +88,7 @@
         <h1 class="auth-title">Check your email</h1>
         <p class="auth-subtitle">We sent a password reset link to <strong class="text-text-primary">{email}</strong></p>
         <p class="auth-subtitle" style="margin-top: 0.5rem;">Didn't receive the email? Check your spam folder or <button class="auth-link-inline" onclick={() => (submitted = false)}>try again</button>.</p>
-        <a href="/login" class="btn-secondary auth-back-btn">Back to Sign In</a>
+        <Button href="/login" variant="outline" class="auth-back-btn">Back to Sign In</Button>
       </div>
     {/if}
   </div>

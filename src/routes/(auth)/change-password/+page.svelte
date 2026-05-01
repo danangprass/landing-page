@@ -1,5 +1,9 @@
 <script lang="ts">
   import { pb } from '$lib/pb';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
   import { getAuthContext } from '$lib/stores/auth.svelte';
 
   const auth = getAuthContext();
@@ -105,13 +109,13 @@
 
       <form onsubmit={handleSubmit} class="auth-form">
         <div class="field-group">
-          <label for="current-password" class="field-label">Current Password</label>
-          <input id="current-password" type={showPassword ? 'text' : 'password'} bind:value={currentPassword} class="field-input" placeholder="Enter current password" autocomplete="current-password" required />
+          <Label for="current-password" class="field-label">Current Password</Label>
+          <Input id="current-password" type={showPassword ? 'text' : 'password'} bind:value={currentPassword} class="field-input" placeholder="Enter current password" autocomplete="current-password" required />
         </div>
 
         <div class="field-group">
-          <label for="new-password" class="field-label">New Password</label>
-          <input id="new-password" type={showPassword ? 'text' : 'password'} bind:value={newPassword} class="field-input" placeholder="Enter new password" autocomplete="new-password" required />
+          <Label for="new-password" class="field-label">New Password</Label>
+          <Input id="new-password" type={showPassword ? 'text' : 'password'} bind:value={newPassword} class="field-input" placeholder="Enter new password" autocomplete="new-password" required />
           {#if newPassword}
             <div class="password-strength">
               <div class="strength-bar"><div class="strength-fill strength-fill-{passwordStrength}"></div></div>
@@ -123,13 +127,12 @@
         </div>
 
         <div class="field-group">
-          <label for="confirm-password" class="field-label">Confirm New Password</label>
-          <input
+          <Label for="confirm-password" class="field-label">Confirm New Password</Label>
+          <Input
             id="confirm-password"
             type={showPassword ? 'text' : 'password'}
             bind:value={confirmPassword}
-            class="field-input"
-            class:field-input--error={!passwordsMatch && confirmPassword !== ''}
+            class={`field-input ${!passwordsMatch && confirmPassword !== '' ? ' field-input--error' : ''}`}
             placeholder="Confirm new password"
             autocomplete="new-password"
             required
@@ -140,19 +143,18 @@
         </div>
 
         <label class="checkbox-label">
-          <input type="checkbox" class="checkbox-input" bind:checked={showPassword} />
-          <span class="checkbox-custom"></span>
+          <Checkbox bind:checked={showPassword} />
           <span class="checkbox-text">Show passwords</span>
         </label>
 
-        <button type="submit" class="btn-primary auth-submit" disabled={loading}>
+        <Button type="submit" class="auth-submit" disabled={loading}>
           {#if loading}
             <span class="spinner"></span>
             Updating…
           {:else}
             Update Password
           {/if}
-        </button>
+        </Button>
       </form>
     {:else}
       <div class="success-state">
@@ -161,7 +163,7 @@
         </div>
         <h1 class="auth-title">Password updated</h1>
         <p class="auth-subtitle">Your password has been changed successfully.</p>
-        <a href="/" class="btn-primary auth-back-btn">Back to Home</a>
+        <Button href="/" class="auth-back-btn">Back to Home</Button>
       </div>
     {/if}
   </div>

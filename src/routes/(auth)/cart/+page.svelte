@@ -1,5 +1,7 @@
 <script lang="ts">
   import { getCartContext } from '$lib/stores/cart.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
   import QuantityStepper from '$lib/components/QuantityStepper.svelte';
 
   const cart = getCartContext();
@@ -90,7 +92,7 @@
       </svg>
       <p class="text-xl text-text-primary font-medium">Your bag is empty.</p>
       <p class="text-text-secondary">Looks like you haven't added anything yet.</p>
-      <a href="/products" class="btn-primary">Continue Shopping</a>
+      <Button href="/products">Continue Shopping</Button>
     </div>
   {:else}
     <!-- Two-column layout -->
@@ -140,14 +142,15 @@
                   </p>
 
                   <!-- Remove button -->
-                  <button
+                  <Button
+                    variant="ghost"
                     class="remove-btn"
                     onclick={() => handleRemove(item.id, item.product.name)}
                     aria-label="Remove {item.product.name} from bag"
                   >
                     <span class="hidden md:inline">Remove</span>
                     <span class="md:hidden text-lg">&times;</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -194,9 +197,9 @@
             <span class="text-text-primary font-bold text-xl">{formatPrice(total)}</span>
           </div>
 
-          <a href="/checkout" class="btn-primary block text-center mt-6 w-full">
+          <Button href="/checkout" class="block text-center mt-6 w-full">
             Checkout
-          </a>
+          </Button>
 
           <!-- Promo code collapsible -->
           <div class="mt-6 border-t border-border pt-4">
@@ -221,7 +224,7 @@
 
             <div class="promo-body" class:open={promoOpen}>
               <div class="promo-inner">
-                <input
+                <Input
                   type="text"
                   bind:value={promoCode}
                   placeholder="Enter promo code"

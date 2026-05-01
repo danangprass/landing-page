@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	interface Props {
@@ -93,13 +96,12 @@
 		>
 			<!-- Name -->
 			<div class="field-group">
-				<label for="name" class="field-label">Full Name</label>
-				<input
+				<Label for="name" class="field-label">Full Name</Label>
+				<Input
 					id="name"
 					name="name"
 					type="text"
-					class="field-input"
-					class:field-input--error={!!nameError}
+					class={`field-input ${!!nameError ? ' field-input--error' : ''}`}
 					value={form?.values?.name ?? data.user.name}
 					placeholder="Your full name"
 					autocomplete="name"
@@ -112,8 +114,8 @@
 
 			<!-- Email (read-only) -->
 			<div class="field-group">
-				<label for="email" class="field-label">Email</label>
-				<input
+				<Label for="email" class="field-label">Email</Label>
+				<Input
 					id="email"
 					type="email"
 					class="field-input field-input--readonly"
@@ -126,13 +128,12 @@
 
 			<!-- Phone -->
 			<div class="field-group">
-				<label for="phone" class="field-label">Phone</label>
-				<input
+				<Label for="phone" class="field-label">Phone</Label>
+				<Input
 					id="phone"
 					name="phone"
 					type="tel"
-					class="field-input"
-					class:field-input--error={!!phoneError}
+					class={`field-input ${!!phoneError ? ' field-input--error' : ''}`}
 					value={form?.values?.phone ?? data.user.phone}
 					placeholder="+1 (555) 000-0000"
 					autocomplete="tel"
@@ -144,7 +145,7 @@
 
 			<!-- Address -->
 			<div class="field-group">
-				<label for="address" class="field-label">Address</label>
+				<Label for="address" class="field-label">Address</Label>
 				<textarea
 					id="address"
 					name="address"
@@ -155,14 +156,14 @@
 				>{form?.values?.address ?? data.user.address}</textarea>
 			</div>
 
-			<button type="submit" class="btn-primary profile-submit" disabled={submitting}>
+			<Button type="submit" class="profile-submit" disabled={submitting}>
 				{#if submitting}
 					<span class="spinner"></span>
 					Saving…
 				{:else}
 					Save Changes
 				{/if}
-			</button>
+			</Button>
 		</form>
 	</div>
 </div>

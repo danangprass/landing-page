@@ -2,6 +2,10 @@
   import { goto } from '$app/navigation';
   import { getCartContext } from '$lib/stores/cart.svelte';
   import { getAuthContext } from '$lib/stores/auth.svelte';
+  import Button from '$lib/components/ui/button/button.svelte';
+  import Input from '$lib/components/ui/input/input.svelte';
+  import Label from '$lib/components/ui/label/label.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
   import type { ExpandedProduct } from '$lib/pb-types-ext';
   import type { PageData } from './$types';
 
@@ -284,7 +288,7 @@
       <h1 class="text-3xl font-semibold text-text-primary mb-3">Order Confirmed</h1>
       <p class="text-text-secondary mb-2">Thank you for your purchase! Your order has been placed successfully.</p>
       <p class="text-text-secondary mb-8">You will receive a confirmation email shortly.</p>
-      <a href="/" class="btn-primary inline-block">Continue Shopping</a>
+      <Button href="/" class="inline-block">Continue Shopping</Button>
     </div>
   </div>
 {:else if orderPlaced && paymentResult === 'pending'}
@@ -298,7 +302,7 @@
       <h1 class="text-3xl font-semibold text-text-primary mb-3">Awaiting Payment</h1>
       <p class="text-text-secondary mb-2">Your order has been created. Please complete your payment.</p>
       <p class="text-text-secondary mb-8">Check your email for payment instructions.</p>
-      <a href="/" class="btn-primary inline-block">Return to Home</a>
+      <Button href="/" class="inline-block">Return to Home</Button>
     </div>
   </div>
 {:else}
@@ -356,8 +360,8 @@
 
             <div class="form-card">
               <div>
-                <label for="fullName" class="field-label">Full Name <span class="text-error">*</span></label>
-                <input
+                <Label for="fullName" class="field-label">Full Name <span class="text-error">*</span></Label>
+                <Input
                   id="fullName"
                   type="text"
                   bind:value={fullName}
@@ -370,8 +374,8 @@
               </div>
 
               <div>
-                <label for="address1" class="field-label">Address Line 1 <span class="text-error">*</span></label>
-                <input
+                <Label for="address1" class="field-label">Address Line 1 <span class="text-error">*</span></Label>
+                <Input
                   id="address1"
                   type="text"
                   bind:value={address1}
@@ -384,8 +388,8 @@
               </div>
 
               <div>
-                <label for="address2" class="field-label">Address Line 2</label>
-                <input
+                <Label for="address2" class="field-label">Address Line 2</Label>
+                <Input
                   id="address2"
                   type="text"
                   bind:value={address2}
@@ -396,8 +400,8 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label for="city" class="field-label">City <span class="text-error">*</span></label>
-                  <input
+                  <Label for="city" class="field-label">City <span class="text-error">*</span></Label>
+                  <Input
                     id="city"
                     type="text"
                     bind:value={city}
@@ -409,8 +413,8 @@
                   {/if}
                 </div>
                 <div>
-                  <label for="state" class="field-label">State/Province <span class="text-error">*</span></label>
-                  <input
+                  <Label for="state" class="field-label">State/Province <span class="text-error">*</span></Label>
+                  <Input
                     id="state"
                     type="text"
                     bind:value={province}
@@ -425,8 +429,8 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label for="zip" class="field-label">ZIP/Postal Code <span class="text-error">*</span></label>
-                  <input
+                  <Label for="zip" class="field-label">ZIP/Postal Code <span class="text-error">*</span></Label>
+                  <Input
                     id="zip"
                     type="text"
                     bind:value={zip}
@@ -438,7 +442,7 @@
                   {/if}
                 </div>
                 <div>
-                  <label for="country" class="field-label">Country <span class="text-error">*</span></label>
+                  <Label for="country" class="field-label">Country <span class="text-error">*</span></Label>
                   <select
                     id="country"
                     bind:value={country}
@@ -452,8 +456,8 @@
               </div>
 
               <div>
-                <label for="phone" class="field-label">Phone <span class="text-error">*</span></label>
-                <input
+                <Label for="phone" class="field-label">Phone <span class="text-error">*</span></Label>
+                <Input
                   id="phone"
                   type="tel"
                   bind:value={phone}
@@ -504,9 +508,9 @@
             </div>
 
             <div class="flex justify-end">
-              <button class="btn-primary" onclick={handleContinueToReview}>
+              <Button onclick={handleContinueToReview}>
                 Continue to Review
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -619,11 +623,7 @@
             <div class="flex items-start gap-x-1">
               <label class="terms-label">
                 <div class="relative mt-0.5">
-                  <input
-                    type="checkbox"
-                    bind:checked={agreedToTerms}
-                    class="peer sr-only"
-                  />
+                  <Checkbox bind:checked={agreedToTerms} />
                   <div class="checkbox-box">
                     {#if agreedToTerms}
                       <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -641,13 +641,12 @@
               <div class="error-notice" role="alert">
                 <p class="text-sm text-[var(--color-error)]">{orderError}</p>
                 {#if paymentResult === 'failed'}
-                  <button
-                    type="button"
-                    class="mt-3 btn-primary text-sm"
+                  <Button
+                    class="mt-3 text-sm"
                     onclick={() => { orderError = ''; paymentResult = null; }}
                   >
                     Retry Payment
-                  </button>
+                  </Button>
                 {/if}
               </div>
             {/if}
@@ -660,10 +659,8 @@
               >
                 &larr; Back to Shipping
               </button>
-              <button
-                class="btn-primary"
+              <Button
                 disabled={!agreedToTerms || orderLoading}
-                class:disabled-btn={!agreedToTerms || orderLoading}
                 onclick={handlePlaceOrder}
               >
                 {#if orderLoading}
@@ -672,7 +669,7 @@
                 {:else}
                   Place Order &amp; Pay
                 {/if}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
