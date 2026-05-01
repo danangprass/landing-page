@@ -8,15 +8,16 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(303, `/login?redirect=${encodeURIComponent(url.pathname)}`);
 	}
 
-	// Allow _superusers (PocketBase admin panel users) to access admin pages
+	// PocketBase _superusers are always considered admins
 	if (locals.isSuperuser) {
 		return {
 			user: {
-				id: user.id as string,
-				email: user.email as string,
-				name: user.name as string,
-				role: 'superuser',
-				avatar: user.avatar,
+				id: user.id,
+				email: user.email,
+				name: (user as Record<string, unknown>).name ?? 'Superuser',
+				role: 'admin',
+				avatar: (user as Record<string, unknown>).avatar,
+				isSuperuser: true,
 			},
 		};
 	}

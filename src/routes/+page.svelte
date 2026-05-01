@@ -84,17 +84,17 @@
     {
       title: 'Premium Selection',
       desc: "Curated electronics from the world's leading brands, hand-picked for quality and performance.",
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
     },
     {
       title: 'Fast Delivery',
       desc: 'Free express shipping on orders over $99. Track your package in real-time from checkout to doorstep.',
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>',
     },
     {
       title: '2-Year Warranty',
       desc: "Every device is covered. If anything goes wrong, we'll repair or replace it — no questions asked.",
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
     },
   ];
 </script>
@@ -313,10 +313,16 @@
      VALUE PROPOSITIONS
      ============================================================ -->
 <section class="section-padding section-vertical">
+  <div class="reveal section-header">
+    <div>
+      <h2 class="section-heading">Why Shop With Us</h2>
+      <p class="section-subtitle">Everything you need for a seamless shopping experience.</p>
+    </div>
+  </div>
+
   <div class="value-grid">
     {#each valueProps as prop, i}
       <div class="reveal value-card" style="--stagger-index: {i};">
-        <div class="value-accent" aria-hidden="true"></div>
         <div class="value-icon">
           {@html prop.icon}
         </div>
@@ -993,12 +999,20 @@
   .value-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
+    .value-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
     .value-grid {
       grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
     }
   }
 
@@ -1006,8 +1020,9 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding: 2rem;
+    align-items: center;
+    text-align: center;
+    padding: 2.5rem 1.75rem;
     border-radius: var(--radius-lg);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -1016,19 +1031,9 @@
       background 250ms var(--ease-out);
   }
 
-  .value-accent {
-    position: absolute;
-    top: 0;
-    left: 1.5rem;
-    right: 1.5rem;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(41, 151, 255, 0.4), transparent);
-    opacity: 0.6;
-  }
-
   @media (hover: hover) and (pointer: fine) {
     .value-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-4px);
       background: var(--color-surface-hover);
       box-shadow: var(--shadow-elevated);
     }
@@ -1038,18 +1043,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: var(--radius-md);
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--radius-lg);
     background: rgba(41, 151, 255, 0.1);
     color: var(--color-accent);
-    margin-bottom: 1.25rem;
-    transition: box-shadow 250ms var(--ease-out);
+    margin-bottom: 1.5rem;
+    transition: box-shadow 250ms var(--ease-out), transform 250ms var(--ease-out);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .value-card:hover .value-icon {
-      box-shadow: 0 0 20px rgba(41, 151, 255, 0.15);
+      box-shadow: 0 0 24px rgba(41, 151, 255, 0.18);
+      transform: scale(1.05);
     }
   }
 
@@ -1057,7 +1063,7 @@
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.625rem;
   }
 
   .value-desc {
@@ -1065,6 +1071,7 @@
     color: var(--color-text-secondary);
     line-height: 1.6;
     text-wrap: pretty;
+    max-width: 24rem;
   }
 
   /* ── CTA BANNER ── */
