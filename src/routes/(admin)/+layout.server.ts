@@ -22,9 +22,6 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		};
 	}
 
-	// Fetch the full user record to get the role field.
-	// The auth cookie model may not include custom fields added after the user
-	// originally logged in (e.g. the `role` field).
 	const fullUser = await locals.pb.collection('users').getOne(user.id as string, { $autoCancel: false });
 	const role = (fullUser as Record<string, unknown>).role;
 	if (role !== 'admin') {

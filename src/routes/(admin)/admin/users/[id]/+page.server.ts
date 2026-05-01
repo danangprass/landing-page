@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				created: '-',
 			})),
 			totalOrders: orders.totalItems,
+			isSuperuser: locals.isSuperuser ?? false,
 		};
 	} catch {
 		throw error(404, 'User not found');
@@ -40,9 +41,10 @@ export const actions: Actions = {
 			return fail(403, { error: 'Cannot modify your own role' });
 		}
 
-		const data = await request.formData();
-		const currentRole = data.get('role') as string;
-		const newRole = currentRole === 'admin' ? 'customer' : 'admin';
+		// Fetch the actual role from DB, not from form data
+		const targetUser = await locals.pb.collection('users').getOne(params.id);
+		const actualRole = (targetUser as Record<string, unknown>).role ?? 'customer';
+		const newRole = actualRole === 'admin' ? 'customer' : 'admin';
 
 		try {
 			await locals.pb.collection('users').update(params.id, { role: newRole });
@@ -64,5 +66,24 @@ export const actions: Actions = {
 			return fail(400, { error: message });
 		}
 		throw redirect(303, `/admin/users/${params.id}`);
+	},
+
+	delete: async ({ request, params, locals }) => {
+		// Fetch the user from DB to get the server-authoritative role.
+		// Using form-data role would allow attackers to bypass the check.
+		const targetUser = await locals.pb.collection('users').getOne(params.id);
+		const actualRole = (targetUser as Record<string, unknown>).role ?? 'customer';
+
+		if (actualRole === 'admin' && !locals.isSuperuser) {
+			return fail(403, { error: 'Only superusers can delete admin accounts.' });
+		}
+
+		try {
+			await locals.pb.collection('users').delete(params.id);
+		} catch (e) {
+			const message = e instanceof Error ? e.message : 'Failed to delete user';
+			return fail(400, { error: message });
+		}
+		throw redirect(303, '/admin/users');
 	},
 };

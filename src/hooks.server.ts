@@ -6,10 +6,8 @@ import { env } from '$env/dynamic/private';
 const PB_URL = env.PB_URL ?? 'http://localhost:8090';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	// Create a server-side PB instance per request
 	const pb = new PocketBase(PB_URL);
 
-	// Load auth from httpOnly cookie
 	const authCookie = event.cookies.get('pb_auth');
 	if (authCookie) {
 		try {
@@ -19,7 +17,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 			const { token, model } = parsed;
 			pb.authStore.save(token, model);
-			// Verify the token is still valid
 			if (pb.authStore.isValid) {
 				try {
 					if (pb.authStore.isSuperuser) {
@@ -27,7 +24,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 					} else {
 						await pb.collection('users').authRefresh();
 					}
-					// Persist refreshed token back to cookie immediately
 					const payload = JSON.stringify({ token: pb.authStore.token, model: pb.authStore.record });
 					event.cookies.set('pb_auth', encodeURIComponent(payload), {
 						path: '/',
@@ -37,17 +33,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 						maxAge: 604800,
 					});
 				} catch {
-					// Token expired or invalid — clear it
 					pb.authStore.clear();
 					event.cookies.delete('pb_auth', { path: '/' });
 				}
 			}
 		} catch {
-			// Invalid cookie — ignore
+			// Invalid cookie
 		}
 	}
 
-	// Expose PB instance and auth state to load functions
 	event.locals.pb = pb;
 	event.locals.user = pb.authStore.record ?? null;
 	event.locals.isSuperuser = pb.authStore.isSuperuser;
