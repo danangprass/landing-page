@@ -2,11 +2,13 @@
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
+  import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 
   let { form } = $props();
 
   let slug = $state('');
   let nameValue = $state('');
+  let active = $state(form?.values?.active ?? true);
 
   function generateSlug(v: string) {
     nameValue = v;
@@ -78,8 +80,9 @@
       />
     </div>
 
+    <input type="hidden" name="active" value={String(active)} />
     <label class="flex items-center gap-2.5 cursor-pointer">
-      <input type="checkbox" name="active" checked={form?.values?.active ?? true} class="w-4 h-4 rounded accent-[#2997ff]" />
+      <Checkbox bind:checked={active} />
       <span class="text-sm text-[#f5f5f7]">Active</span>
     </label>
 

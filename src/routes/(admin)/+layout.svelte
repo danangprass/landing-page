@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
-  import StatusBadge from '$lib/admin/StatusBadge.svelte';
+  import Badge from '$lib/components/ui/badge/badge.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
 
   let { children } = $props();
@@ -99,7 +99,7 @@
           {#if page.data?.user}
             <div class="flex items-center gap-2">
               <span class="text-sm text-[#86868b]">{page.data.user.name}</span>
-              <StatusBadge status={page.data.user.role} size="sm" />
+              <Badge variant="outline" class={page.data.user.role === 'admin' ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' : 'bg-blue-500/15 text-blue-400 border-blue-500/30'}>{page.data.user.role}</Badge>
             </div>
           {/if}
         </div>
