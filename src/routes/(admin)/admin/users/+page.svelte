@@ -1,5 +1,10 @@
 <script lang="ts">
-  let { data } = $props();
+  let { data, form } = $props();
+
+  let deleteId = $state('');
+  let deleteRole = $state('');
+  let deleteName = $state('');
+  let showConfirm = $state(false);
 
   const formatDate = (d: string) => d === '-' ? '-' : new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 </script>
@@ -25,6 +30,12 @@
     </form>
   </div>
 
+  {#if form?.error}
+    <div class="mb-6 px-4 py-3 rounded-xl bg-[#ff453a]/15 border border-[#ff453a]/30 text-[#ff453a] text-sm">
+      {form.error}
+    </div>
+  {/if}
+
   {#if data.users.length === 0}
     <div class="bg-[#1d1d1f] border border-[#424245] rounded-xl px-5 py-12 text-center">
       <p class="text-[#86868b] text-sm">{data.search ? 'No users matching "' + data.search + '"' : 'No users found.'}</p>
@@ -40,6 +51,7 @@
               <th class="px-4 py-3 text-center text-xs font-medium text-[#86868b] uppercase">Role</th>
               <th class="px-4 py-3 text-center text-xs font-medium text-[#86868b] uppercase">Verified</th>
               <th class="px-4 py-3 text-left text-xs font-medium text-[#86868b] uppercase">Joined</th>
+              <th class="px-4 py-3 text-right text-xs font-medium text-[#86868b] uppercase">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -60,6 +72,17 @@
                   </span>
                 </td>
                 <td class="px-4 py-3 text-[#86868b] whitespace-nowrap">{formatDate(user.created)}</td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href="/admin/users/{user.id}" class="text-[#2997ff] text-xs hover:underline">View</a>
+                    <button
+                      class="text-[#ff453a] text-xs hover:underline"
+                      onclick={() => { deleteId = user.id; deleteRole = user.role; deleteName = user.name; showConfirm = true; }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
               </tr>
             {/each}
           </tbody>
@@ -81,3 +104,42 @@
     {/if}
   {/if}
 </div>
+
+{#if showConfirm}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    onclick={() => (showConfirm = false)}
+  >
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div
+      class="bg-[#1d1d1f] border border-[#424245] rounded-[18px] p-6 w-full max-w-md mx-4 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+      onclick={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+    >
+      <h3 class="text-lg font-semibold text-[#f5f5f7] mb-2">Delete User</h3>
+      <p class="text-[#86868b] text-sm mb-6">
+        Are you sure you want to delete <span class="text-[#f5f5f7]">{deleteName}</span>? This cannot be undone.
+      </p>
+      <div class="flex justify-end gap-3">
+        <button
+          class="px-4 py-2 rounded-xl text-sm font-medium text-[#f5f5f7] bg-[#2d2d2f] hover:bg-[#3d3d3f] transition-colors"
+          onclick={() => (showConfirm = false)}
+        >
+          Cancel
+        </button>
+        <form method="post" action="?/delete">
+          <input type="hidden" name="id" value={deleteId} />
+          <input type="hidden" name="role" value={deleteRole} />
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#ff453a] hover:bg-[#ff5f56] transition-colors"
+          >
+            Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+{/if}

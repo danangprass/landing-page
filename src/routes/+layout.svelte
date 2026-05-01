@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import '../app.css';
   import Navbar from '$lib/components/Navbar.svelte';
   import Footer from '$lib/components/Footer.svelte';
@@ -10,6 +11,8 @@
   import { getToasts, dismissToast } from '$lib/pb-error-handler.svelte';
 
   let { children } = $props();
+
+  const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
   const auth = setAuthContext();
   const cart = setCartContext();
@@ -38,11 +41,15 @@
 </script>
 
 <div class="min-h-screen flex flex-col bg-bg text-text-primary">
-  <Navbar />
-  <main class="flex-1 pt-12">
+  {#if !isAdminRoute}
+    <Navbar />
+  {/if}
+  <main class="flex-1 {isAdminRoute ? '' : 'pt-12'}">
     {@render children()}
   </main>
-  <Footer />
+  {#if !isAdminRoute}
+    <Footer />
+  {/if}
 </div>
 
 <!-- Global toast notifications -->

@@ -1,4 +1,5 @@
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
+import { fail, redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const pb = locals.pb;
@@ -28,5 +29,26 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		totalPages: result.totalPages,
 		page,
 		search,
+		isSuperuser: locals.isSuperuser ?? false,
 	};
+};
+
+export const actions: Actions = {
+	delete: async ({ request, locals }) => {
+		const data = await request.formData();
+		const id = data.get('id') as string;
+		if (!id) return fail(400, { error: 'Missing user ID' });
+
+		// Fetch the user from DB to get the server-authoritative role.
+		// Using form-data role would allow attackers to bypass the check.
+		const target = await locals.pb.collection('users').getOne(id);
+		const actualRole = (target as Record<string, unknown>).role ?? 'customer';
+
+		if (actualRole === 'admin' && !locals.isSuperuser) {
+			return fail(403, { error: 'Only superusers can delete admin accounts.' });
+		}
+
+		await locals.pb.collection('users').delete(id);
+		throw redirect(303, '/admin/users');
+	},
 };

@@ -13,6 +13,8 @@ export const actions: Actions = {
 		const password = data.get('password') as string;
 
 		const pb = new PocketBase(PB_URL);
+
+		// Try regular user auth first
 		try {
 			const auth = await pb.collection('users').authWithPassword(email, password);
 			const payload = JSON.stringify({ token: auth.token, model: auth.record });
@@ -30,6 +32,30 @@ export const actions: Actions = {
 					email: auth.record.email,
 					name: auth.record.name,
 					avatar: auth.record.avatar,
+				},
+			};
+		} catch {
+			// Fallback: try _superusers auth
+		}
+
+		// Try _superusers auth
+		try {
+			const auth = await pb.collection('_superusers').authWithPassword(email, password);
+			const payload = JSON.stringify({ token: auth.token, model: auth.record });
+			cookies.set('pb_auth', encodeURIComponent(payload), {
+				path: '/',
+				httpOnly: true,
+				secure: !dev,
+				sameSite: 'strict',
+				maxAge: 604800,
+			});
+			return {
+				success: true,
+				user: {
+					id: auth.record.id,
+					email: auth.record.email,
+					name: 'Superuser',
+					avatar: undefined,
 				},
 			};
 		} catch {
