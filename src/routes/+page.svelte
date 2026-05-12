@@ -1,9 +1,5 @@
 <script lang="ts">
   import { getProductsContext } from '$lib/stores/products.svelte';
-  import ProductCard from '$lib/components/ProductCard.svelte';
-  import HeroCarousel from '$lib/components/HeroCarousel.svelte';
-  import Button from '$lib/components/ui/button/button.svelte';
-  import Badge from '$lib/components/ui/badge/badge.svelte';
   import { getImageUrl } from '$lib/pb';
   import SmartphoneIcon from '@lucide/svelte/icons/smartphone';
   import LaptopIcon from '@lucide/svelte/icons/laptop';
@@ -24,7 +20,7 @@
     store.loadTestimonials();
   });
 
-  const newArrivals = $derived(store.products.filter(p => p.featured).slice(0, 5));
+  const newArrivals = $derived(store.products.filter((p) => p.featured).slice(0, 5));
   const featured = $derived(store.products.slice(0, 6));
   const categories = $derived(store.categories.slice(0, 6));
   const highlightProduct = $derived(store.products[1]);
@@ -33,18 +29,17 @@
       .filter((b) => b.active !== false)
       .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
   );
-  const activeTestimonials = $derived(
-    store.testimonials
-      .filter((t) => t.active !== false)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-  );
 
-  function formatPrice(dollars: number): string {
-    return `$${dollars.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  function formatPrice(n: number): string {
+    return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
-  /* ── Scroll-triggered reveal ── */
+  function excerpt(text: string | undefined | null, max: number): string {
+    if (!text) return '';
+    return text.length > max ? text.slice(0, max) + '…' : text;
+  }
 
+  /* Scroll-reveal observer */
   $effect(() => {
     store.products;
     store.categories;
@@ -63,13 +58,9 @@
       },
       { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
     );
-
     for (const el of els) observer.observe(el);
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   });
-
 </script>
 
 <svelte:head>
@@ -80,750 +71,658 @@
   />
 </svelte:head>
 
-<!-- ============================================================
-     HERO SECTION — New Arrival Carousel
-     ============================================================ -->
+<!-- ═══════════════════════════════════════
+     HERO — single full-width feature tile
+     ═══════════════════════════════════════ -->
 {#if newArrivals.length > 0}
-  <HeroCarousel products={newArrivals} />
-{/if}
-
-<!-- ============================================================
-     FEATURED PRODUCTS — BENTO GRID
-     ============================================================ -->
-{#if featured.length > 0}
-  <section class="section-padding section-vertical">
-    <div class="reveal section-header">
-      <div>
-        <h2 class="section-heading">Featured</h2>
-        <p class="section-subtitle">Hand-picked premium devices, curated just for you.</p>
-      </div>
-      <Button variant="link" href="/products">View all</Button>
-    </div>
-
-    <div class="bento-grid">
-      {#each featured as product, i (product.id)}
-        <div
-          class="reveal bento-item"
-          class:bento-large={i < 2}
-          style="--stagger-index: {i};"
-        >
-          <ProductCard {product} category={product.expand?.category} />
+  {@const hero = newArrivals[0]}
+  <section class="page-tiles">
+    <div class="tile tile-hero">
+      <a href="/products/{hero.slug}" class="tile-bg-link" aria-hidden="true" tabindex="-1"></a>
+      <div class="tile-body">
+        <p class="eyebrow">New</p>
+        <h1 class="tile-headline tile-headline-hero">{hero.name}</h1>
+        <p class="tile-subhead">{excerpt(hero.description, 80)}</p>
+        <div class="tile-ctas">
+          <a href="/products/{hero.slug}" class="cta-link">Learn more ›</a>
+          <a href="/products/{hero.slug}" class="cta-link cta-link-muted">Shop now ›</a>
         </div>
-      {/each}
-    </div>
-  </section>
-{/if}
-
-<!-- ============================================================
-     CATEGORY PILLS
-     ============================================================ -->
-{#if categories.length > 0}
-  <section class="section-padding section-vertical">
-    <div class="reveal section-header">
-      <div>
-        <h2 class="section-heading">Browse by Category</h2>
-        <p class="section-subtitle">Find exactly what you're looking for.</p>
       </div>
-      <Button variant="link" href="/products">See all</Button>
-    </div>
-
-    <div class="category-scroll reveal" style="--stagger-index: 1;">
-      {#each categories as category (category.id)}
-        <a href="/products?category={category.slug}" class="category-tile">
-          <div class="category-icon-wrap">
-            {#if category.slug === 'smartphones'}<SmartphoneIcon class="size-8" />
-            {:else if category.slug === 'laptops'}<LaptopIcon class="size-8" />
-            {:else if category.slug === 'audio'}<HeadphonesIcon class="size-8" />
-            {:else if category.slug === 'wearables'}<WatchIcon class="size-8" />
-            {:else if category.slug === 'gaming'}<GamepadIcon class="size-8" />
-            {:else}<CableIcon class="size-8" />{/if}
-          </div>
-          <span class="category-name">{category.name}</span>
-        </a>
-      {/each}
-    </div>
-  </section>
-{/if}
-
-<!-- ============================================================
-     FEATURE HIGHLIGHT
-     Single product spotlight with image and description
-     ============================================================ -->
-{#if highlightProduct}
-  <section class="section-padding section-vertical feature-section">
-    <div class="feature-grid">
-      <div class="reveal feature-visual">
-        {#if highlightProduct.images?.[0]}
-          <div class="feature-image-wrap">
-            <div class="feature-image-glow" aria-hidden="true"></div>
-            <img
-              src={getImageUrl(highlightProduct, highlightProduct.images[0])}
-              alt={highlightProduct.name}
-              class="feature-image"
-              loading="lazy"
-            />
-          </div>
+      <div class="tile-visual">
+        {#if hero.images?.[0]}
+          <img
+            src={getImageUrl(hero, hero.images[0])}
+            alt={hero.name}
+            class="tile-img"
+            loading="eager"
+          />
         {:else}
-          <div class="feature-image-placeholder">
-            <span class="feature-placeholder-text">{highlightProduct.name}</span>
-          </div>
+          <div class="tile-img-fallback">{hero.name.charAt(0)}</div>
         {/if}
       </div>
+    </div>
+  </section>
+{/if}
 
-      <div class="reveal feature-content" style="--stagger-index: 1;">
-        <Badge variant="secondary">Spotlight</Badge>
-        <h2 class="feature-title">{highlightProduct.name}</h2>
-        <p class="feature-desc">{highlightProduct.description ?? ''}</p>
-        <div class="feature-actions">
-          <Button href="/products/{highlightProduct.slug}">Learn more</Button>
-          <span class="feature-price">{formatPrice(highlightProduct.price)}</span>
+<!-- ═══════════════════════════════════════
+     PROMO GRID — 2-column pairs
+     ═══════════════════════════════════════ -->
+{#if featured.length >= 2}
+  <section class="page-tiles page-tiles-gap">
+    <div class="promo-grid">
+      {#each featured.slice(0, 4) as product, i (product.id)}
+        <div class="tile tile-promo reveal" style="--stagger: {i * 80}ms;">
+          <a
+            href="/products/{product.slug}"
+            class="tile-bg-link"
+            aria-hidden="true"
+            tabindex="-1"
+          ></a>
+          <div class="tile-body">
+            <h2 class="tile-headline tile-headline-md">{product.name}</h2>
+            <p class="tile-subhead">{excerpt(product.description, 60)}</p>
+            <div class="tile-ctas">
+              <a href="/products/{product.slug}" class="cta-link">Learn more ›</a>
+              <a href="/products/{product.slug}" class="cta-link cta-link-muted"
+                >{formatPrice(product.price)} ›</a
+              >
+            </div>
+          </div>
+          <div class="tile-visual tile-visual-promo">
+            {#if product.images?.[0]}
+              <img
+                src={getImageUrl(product, product.images[0])}
+                alt={product.name}
+                class="tile-img"
+                loading="lazy"
+              />
+            {:else}
+              <div class="tile-img-fallback">{product.name.charAt(0)}</div>
+            {/if}
+          </div>
         </div>
+      {/each}
+    </div>
+  </section>
+{/if}
+
+<!-- ═══════════════════════════════════════
+     CATEGORIES NAV
+     ═══════════════════════════════════════ -->
+{#if categories.length > 0}
+  <section class="page-tiles page-tiles-gap">
+    <div class="cat-section">
+      <div class="cat-header reveal">
+        <h2 class="section-heading">Shop by Category</h2>
+      </div>
+      <div class="cat-row">
+        {#each categories as category (category.id)}
+          <a href="/products?category={category.slug}" class="cat-tile reveal">
+            <div class="cat-icon">
+              {#if category.slug === 'smartphones'}<SmartphoneIcon class="icon-md" />
+              {:else if category.slug === 'laptops'}<LaptopIcon class="icon-md" />
+              {:else if category.slug === 'audio'}<HeadphonesIcon class="icon-md" />
+              {:else if category.slug === 'wearables'}<WatchIcon class="icon-md" />
+              {:else if category.slug === 'gaming'}<GamepadIcon class="icon-md" />
+              {:else}<CableIcon class="icon-md" />{/if}
+            </div>
+            <span class="cat-name">{category.name}</span>
+          </a>
+        {/each}
       </div>
     </div>
   </section>
 {/if}
 
-<!-- ============================================================
+<!-- ═══════════════════════════════════════
+     SPOTLIGHT — full-width product feature
+     ═══════════════════════════════════════ -->
+{#if highlightProduct}
+  <section class="page-tiles page-tiles-gap">
+    <div class="tile tile-spotlight reveal">
+      <a
+        href="/products/{highlightProduct.slug}"
+        class="tile-bg-link"
+        aria-hidden="true"
+        tabindex="-1"
+      ></a>
+      <div class="tile-body tile-body-left">
+        <p class="eyebrow">Spotlight</p>
+        <h2 class="tile-headline tile-headline-lg">{highlightProduct.name}</h2>
+        <p class="tile-subhead">{excerpt(highlightProduct.description, 120)}</p>
+        <div class="tile-ctas tile-ctas-left">
+          <a href="/products/{highlightProduct.slug}" class="cta-link">Learn more ›</a>
+          <a href="/products/{highlightProduct.slug}" class="cta-link cta-link-muted"
+            >From {formatPrice(highlightProduct.price)} ›</a
+          >
+        </div>
+      </div>
+      <div class="tile-visual tile-visual-spotlight">
+        {#if highlightProduct.images?.[0]}
+          <img
+            src={getImageUrl(highlightProduct, highlightProduct.images[0])}
+            alt={highlightProduct.name}
+            class="tile-img"
+            loading="lazy"
+          />
+        {:else}
+          <div class="tile-img-fallback">{highlightProduct.name.charAt(0)}</div>
+        {/if}
+      </div>
+    </div>
+  </section>
+{/if}
+
+<!-- ═══════════════════════════════════════
      PROMO BANNER
-     ============================================================ -->
+     ═══════════════════════════════════════ -->
 {#if activeBanners.length > 0}
   {@const banner = activeBanners[0]}
-  <section class="section-padding">
-    <a href={banner.link_url ?? '/products'} class="reveal promo-banner">
-      <div class="promo-glow" aria-hidden="true"></div>
-      <div class="promo-content">
-        <h3 class="promo-title">{banner.title}</h3>
+  <section class="page-tiles page-tiles-gap">
+    <a href={banner.link_url ?? '/products'} class="tile tile-banner reveal">
+      <div class="banner-glow" aria-hidden="true"></div>
+      <div class="tile-body tile-body-center">
+        <h2 class="tile-headline tile-headline-md">{banner.title}</h2>
         {#if banner.subtitle}
-          <p class="promo-subtitle">{banner.subtitle}</p>
+          <p class="tile-subhead">{banner.subtitle}</p>
         {/if}
+        <div class="tile-ctas">
+          <span class="cta-link cta-link-white">Shop now ›</span>
+        </div>
       </div>
     </a>
   </section>
 {/if}
 
-<!-- ============================================================
-     TESTIMONIALS
-     ============================================================ -->
-{#if activeTestimonials.length > 0}
-  <section class="section-padding section-vertical">
-    <div class="reveal section-header">
-      <div>
-        <h2 class="section-heading">What People Say</h2>
-        <p class="section-subtitle">Trusted by tech enthusiasts worldwide.</p>
-      </div>
-    </div>
-    <div class="testimonial-scroll reveal" style="--stagger-index: 1;">
-      {#each activeTestimonials as t (t.id)}
-        <div class="testimonial-card">
-          <div class="testimonial-header">
-            {#if t.avatar}
-              <img
-                src={getImageUrl(t, t.avatar)}
-                alt={t.name}
-                class="testimonial-avatar"
-                loading="lazy"
-              />
-            {:else}
-              <div class="testimonial-avatar-placeholder">{t.name.charAt(0)}</div>
-            {/if}
-            <div class="testimonial-meta">
-              <span class="testimonial-name">{t.name}</span>
-              {#if t.role}
-                <span class="testimonial-role">{t.role}</span>
-              {/if}
-            </div>
-          </div>
-          {#if t.rating}
-            <div class="testimonial-stars" aria-label="Rating: {t.rating} out of 5">
-              {#each Array(5) as _, i}
-                <span class="testimonial-star" class:filled={i < (t.rating ?? 0)}>★</span>
-              {/each}
-            </div>
-          {/if}
-          <p class="testimonial-body">{t.body}</p>
-        </div>
-      {/each}
-    </div>
-  </section>
-{/if}
-
-<!-- ============================================================
+<!-- ═══════════════════════════════════════
      VALUE PROPOSITIONS
-     ============================================================ -->
-<section class="section-padding section-vertical">
-  <div class="reveal section-header">
-    <div>
+     ═══════════════════════════════════════ -->
+<section class="page-tiles page-tiles-gap">
+  <div class="values-wrap">
+    <div class="cat-header reveal">
       <h2 class="section-heading">Why Shop With Us</h2>
-      <p class="section-subtitle">Everything you need for a seamless shopping experience.</p>
     </div>
-  </div>
-
-  <div class="value-grid">
-    <div class="reveal value-card" style="--stagger-index: 0;">
-      <div class="value-icon">
-        <SparklesIcon class="size-7" />
+    <div class="values-grid">
+      <div class="value-card reveal" style="--stagger: 0ms;">
+        <div class="value-icon"><SparklesIcon class="icon-md" /></div>
+        <h3 class="value-title">Premium Selection</h3>
+        <p class="value-desc">Top-tier products hand-picked for quality and performance.</p>
       </div>
-      <h3 class="value-title">Premium Selection</h3>
-      <p class="value-desc">Curated top-tier products hand-picked for quality and performance.</p>
-    </div>
-    <div class="reveal value-card" style="--stagger-index: 1;">
-      <div class="value-icon">
-        <TruckIcon class="size-7" />
+      <div class="value-card reveal" style="--stagger: 80ms;">
+        <div class="value-icon"><TruckIcon class="icon-md" /></div>
+        <h3 class="value-title">Fast Delivery</h3>
+        <p class="value-desc">Free 2-day shipping on all orders, straight to your door.</p>
       </div>
-      <h3 class="value-title">Fast Delivery</h3>
-      <p class="value-desc">Free 2-day shipping on all orders. Straight to your doorstep.</p>
-    </div>
-    <div class="reveal value-card" style="--stagger-index: 2;">
-      <div class="value-icon">
-        <ShieldCheckIcon class="size-7" />
+      <div class="value-card reveal" style="--stagger: 160ms;">
+        <div class="value-icon"><ShieldCheckIcon class="icon-md" /></div>
+        <h3 class="value-title">2-Year Warranty</h3>
+        <p class="value-desc">Every purchase includes comprehensive coverage for peace of mind.</p>
       </div>
-      <h3 class="value-title">2-Year Warranty</h3>
-      <p class="value-desc">Every purchase includes our comprehensive warranty for peace of mind.</p>
     </div>
   </div>
 </section>
 
-<!-- ============================================================
-     CTA BANNER
-     ============================================================ -->
-<section class="section-padding section-vertical">
-  <div class="cta-banner reveal">
-    <div class="cta-mesh" aria-hidden="true"></div>
-    <div class="cta-glow" aria-hidden="true"></div>
-    <h2 class="cta-heading">Ready to upgrade?</h2>
-    <p class="cta-subtitle">
-      Discover the full collection of premium devices, hand-picked for quality and performance.
-    </p>
-    <Button href="/products" class="mt-8">Explore all products</Button>
+<!-- ═══════════════════════════════════════
+     CTA BLOCK
+     ═══════════════════════════════════════ -->
+<section class="page-tiles page-tiles-gap page-tiles-bottom">
+  <div class="tile tile-cta-block reveal">
+    <div class="tile-body tile-body-center">
+      <h2 class="tile-headline tile-headline-md">Ready to upgrade?</h2>
+      <p class="tile-subhead">Discover the full collection of premium devices.</p>
+      <div class="tile-ctas">
+        <a href="/products" class="cta-pill">Explore all products</a>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
-  /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 3rem;
+  /* ══════════════════════════════════════════
+     PAGE SCAFFOLD
+     ══════════════════════════════════════════ */
+  .page-tiles {
+    padding-inline: 12px;
+  }
+  .page-tiles-gap {
+    margin-top: 12px;
+  }
+  .page-tiles-bottom {
+    margin-bottom: 48px;
   }
 
-  .section-subtitle {
-    margin-top: 0.5rem;
-    font-size: 1.0625rem;
-    color: var(--color-text-secondary);
-    line-height: 1.5;
-    max-width: 32rem;
-  }
-
-  .section-vertical {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
-  }
-
-  .section-heading {
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-  }
-
-  /* ── BENTO GRID ── */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  @media (min-width: 768px) {
-    .bento-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .bento-large {
-      grid-column: span 2;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .bento-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .bento-large {
-      grid-column: span 2;
-    }
-  }
-
-  /* ── CATEGORY PILLS ── */
-  .category-scroll {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding-bottom: 1rem;
-    margin-inline: -1.5rem;
-    padding-inline: 1.5rem;
-    scroll-snap-type: x mandatory;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .category-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .category-scroll {
-      margin-inline: -3rem;
-      padding-inline: 3rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    .category-scroll {
-      margin-inline: -5rem;
-      padding-inline: 5rem;
-    }
-  }
-
-  .category-tile {
+  /* ══════════════════════════════════════════
+     BASE TILE — Apple.com tile pattern
+     ══════════════════════════════════════════ */
+  .tile {
     position: relative;
+    background: #ffffff;
+    border-radius: 17px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-width: 9.5rem;
-    padding: 1.75rem 1.5rem;
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    text-decoration: none;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-    overflow: hidden;
-    transition: transform 200ms var(--ease-out), box-shadow 300ms var(--ease-out),
-      background 300ms var(--ease-out);
   }
 
-  .category-tile:active {
-    transform: scale(0.97);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .category-tile:hover {
-      transform: translateY(-3px);
-      background: var(--color-surface-hover);
-      box-shadow: var(--shadow-elevated);
-    }
-  }
-
-  .category-icon-wrap {
-    color: var(--color-text-secondary);
-    transition: color 250ms var(--ease-out), transform 250ms var(--ease-spring);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .category-tile:hover .category-icon-wrap {
-      color: var(--color-accent);
-      transform: scale(1.1);
-    }
-  }
-
-  .category-name {
-    margin-top: 0.875rem;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-
-  /* ── FEATURE HIGHLIGHT ── */
-  .feature-section {
-    background: linear-gradient(180deg, transparent 0%, rgba(41, 151, 255, 0.03) 50%, transparent 100%);
-  }
-
-  .feature-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-    align-items: center;
-    max-width: 72rem;
-    margin: 0 auto;
-  }
-
-  @media (min-width: 1024px) {
-    .feature-grid {
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 5rem;
-    }
-  }
-
-  .feature-visual {
-    position: relative;
-  }
-
-  .feature-image-wrap {
-    position: relative;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-
-  .feature-image-glow {
-    position: absolute;
-    inset: -10%;
-    background: radial-gradient(circle at 50% 50%, rgba(41, 151, 255, 0.12) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .feature-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-    border-radius: var(--radius-lg);
-    position: relative;
-    z-index: 1;
-  }
-
-  .feature-image-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 16 / 10;
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-  }
-
-  .feature-placeholder-text {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-  }
-
-  .feature-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .feature-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    text-wrap: balance;
-  }
-
-  .feature-desc {
-    margin-top: 1rem;
-    font-size: 1.0625rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    text-wrap: pretty;
-    max-width: 32rem;
-  }
-
-  .feature-actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 2.5rem;
-  }
-
-  .feature-price {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-
-  /* ── PROMO BANNER ── */
-  .promo-banner {
-    position: relative;
-    display: block;
-    text-decoration: none;
-    padding: 2.5rem 2rem;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, rgba(41, 151, 255, 0.12), rgba(168, 85, 247, 0.08));
-    border: 1px solid rgba(41, 151, 255, 0.2);
-    overflow: hidden;
-    text-align: center;
-    transition: transform 200ms var(--ease-out), box-shadow 300ms var(--ease-out);
-  }
-
-  .promo-banner:active {
-    transform: scale(0.98);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .promo-banner:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-elevated);
-    }
-  }
-
-  .promo-glow {
+  /* Invisible full-tile link overlay — sits beneath all interactive content */
+  .tile-bg-link {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(41, 151, 255, 0.1) 0%, transparent 70%);
-    pointer-events: none;
+    z-index: 0;
   }
 
-  .promo-content {
+  /* ─── Text area ─── */
+  .tile-body {
+    padding: 48px 24px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 660px;
+  }
+
+  .tile-body-left {
+    text-align: left;
+    max-width: none;
+    padding: 52px 40px 24px;
+  }
+
+  .tile-body-center {
+    text-align: center;
+    padding-top: 52px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6e6e73;
+    margin-bottom: 8px;
+  }
+
+  .tile-headline {
+    font-weight: 700;
+    color: #1d1d1f;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
+
+  .tile-headline-hero {
+    font-size: clamp(40px, 7vw, 88px);
+  }
+
+  .tile-headline-lg {
+    font-size: clamp(32px, 5vw, 64px);
+  }
+
+  .tile-headline-md {
+    font-size: clamp(24px, 3.5vw, 48px);
+  }
+
+  .tile-subhead {
+    margin-top: 8px;
+    font-size: 17px;
+    color: #6e6e73;
+    line-height: 1.42;
+  }
+
+  /* ─── CTA links (Apple text-link style) ─── */
+  .tile-ctas {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tile-ctas-left {
+    justify-content: flex-start;
+  }
+
+  .cta-link {
+    font-size: 17px;
+    color: #0071e3;
+    text-decoration: none;
+    position: relative;
+    z-index: 2;
+    transition: color 0.32s cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  .cta-link:hover {
+    color: #0077ed;
+    text-decoration: underline;
+  }
+
+  .cta-link-muted {
+    color: #6e6e73;
+  }
+
+  .cta-link-muted:hover {
+    color: #1d1d1f;
+    text-decoration: underline;
+  }
+
+  .cta-link-white {
+    color: #ffffff;
+  }
+
+  .cta-link-white:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  /* ─── Image area ─── */
+  .tile-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 32px 40px;
     position: relative;
     z-index: 1;
   }
 
-  .promo-title {
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.01em;
+  .tile-img {
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
   }
 
-  .promo-subtitle {
-    margin-top: 0.5rem;
-    font-size: 1rem;
-    color: var(--color-text-secondary);
-  }
-
-  /* ── TESTIMONIALS ── */
-  .testimonial-scroll {
-    display: flex;
-    gap: 1.25rem;
-    overflow-x: auto;
-    padding-bottom: 1rem;
-    margin-inline: -1.5rem;
-    padding-inline: 1.5rem;
-    scroll-snap-type: x mandatory;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .testimonial-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .testimonial-scroll {
-      margin-inline: -3rem;
-      padding-inline: 3rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    .testimonial-scroll {
-      margin-inline: -5rem;
-      padding-inline: 5rem;
-    }
-  }
-
-  .testimonial-card {
-    flex-shrink: 0;
-    width: 20rem;
-    padding: 1.75rem;
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    scroll-snap-align: start;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .testimonial-header {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-  }
-
-  .testimonial-avatar {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 9999px;
-    object-fit: cover;
-    border: 1px solid var(--color-border);
-  }
-
-  .testimonial-avatar-placeholder {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 9999px;
+  .tile-img-fallback {
+    width: 120px;
+    height: 120px;
+    border-radius: 17px;
+    background: #e8e8ed;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-surface-hover);
-    color: var(--color-text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    border: 1px solid var(--color-border);
+    font-size: 3rem;
+    font-weight: 700;
+    color: #aeaeb2;
   }
 
-  .testimonial-meta {
-    display: flex;
-    flex-direction: column;
+  /* ══════════════════════════════════════════
+     HERO TILE — full-width, above the fold
+     ══════════════════════════════════════════ */
+  .tile-hero {
+    background: #ffffff;
+    min-height: 80vh;
+    max-height: 900px;
   }
 
-  .testimonial-name {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
+  .tile-hero .tile-body {
+    padding-top: 64px;
   }
 
-  .testimonial-role {
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
+  .tile-hero .tile-visual {
+    flex: 1;
+    padding: 0 40px 48px;
+    max-height: 460px;
   }
 
-  .testimonial-stars {
-    display: flex;
-    gap: 0.125rem;
-    font-size: 0.875rem;
+  .tile-hero .tile-img {
+    max-height: 400px;
+    width: auto;
   }
 
-  .testimonial-star {
-    color: var(--color-text-secondary);
-  }
-  .testimonial-star.filled {
-    color: #ff9f0a;
-  }
-
-  .testimonial-body {
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    text-wrap: pretty;
-    font-style: italic;
-  }
-
-  /* ── VALUE PROPS ── */
-  .value-grid {
+  /* ══════════════════════════════════════════
+     PROMO GRID — 2-column product tiles
+     ══════════════════════════════════════════ */
+  .promo-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 12px;
   }
 
   @media (min-width: 640px) {
-    .value-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.75rem;
+    .promo-grid {
+      grid-template-columns: 1fr 1fr;
     }
   }
 
-  @media (min-width: 1024px) {
-    .value-grid {
+  .tile-promo {
+    min-height: 480px;
+  }
+
+  .tile-visual-promo {
+    flex: 1;
+    max-height: 260px;
+  }
+
+  .tile-visual-promo .tile-img {
+    max-height: 220px;
+    width: auto;
+  }
+
+  /* ══════════════════════════════════════════
+     CATEGORIES
+     ══════════════════════════════════════════ */
+  .cat-section {
+    padding: 48px 0 40px;
+  }
+
+  .cat-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .section-heading {
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 700;
+    color: #1d1d1f;
+    letter-spacing: -0.02em;
+  }
+
+  .cat-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cat-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cat-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 28px;
+    background: #ffffff;
+    border-radius: 17px;
+    text-decoration: none;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    transition: background 0.24s cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  .cat-tile:hover {
+    background: #f5f5f7;
+  }
+
+  .cat-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1d1d1f;
+  }
+
+  :global(.icon-md) {
+    width: 28px;
+    height: 28px;
+  }
+
+  .cat-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1d1d1f;
+    white-space: nowrap;
+  }
+
+  /* ══════════════════════════════════════════
+     SPOTLIGHT — split layout on desktop
+     ══════════════════════════════════════════ */
+  .tile-spotlight {
+    background: #ffffff;
+    min-height: 400px;
+  }
+
+  .tile-visual-spotlight {
+    padding: 0 32px 48px;
+    max-height: 340px;
+  }
+
+  .tile-visual-spotlight .tile-img {
+    max-height: 300px;
+    width: auto;
+  }
+
+  @media (min-width: 768px) {
+    .tile-spotlight {
+      flex-direction: row;
+      min-height: 500px;
+      align-items: stretch;
+    }
+
+    .tile-spotlight .tile-body-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 64px 32px 64px 60px;
+      max-width: none;
+    }
+
+    .tile-visual-spotlight {
+      flex: 1;
+      max-height: none;
+      padding: 40px 60px 40px 20px;
+      justify-content: flex-end;
+    }
+
+    .tile-visual-spotlight .tile-img {
+      max-height: 420px;
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     PROMO BANNER
+     ══════════════════════════════════════════ */
+  .tile-banner {
+    background: linear-gradient(135deg, #e3f0ff 0%, #f0f6ff 50%, #f5f5f7 100%);
+    min-height: 240px;
+    justify-content: center;
+    text-decoration: none;
+    padding: 52px 24px;
+    cursor: pointer;
+  }
+
+  .tile-banner .tile-body {
+    padding: 0;
+  }
+
+  .tile-banner .tile-headline {
+    color: #1d1d1f;
+  }
+
+  .banner-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 25% 50%, rgba(0, 113, 227, 0.1), transparent 65%);
+    pointer-events: none;
+  }
+
+  /* ══════════════════════════════════════════
+     VALUE PROPS
+     ══════════════════════════════════════════ */
+  .values-wrap {
+    padding: 48px 0;
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .values-grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 2.5rem;
     }
   }
 
   .value-card {
-    position: relative;
+    background: #ffffff;
+    border-radius: 17px;
+    padding: 32px 28px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 2.5rem 1.75rem;
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
-    transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out),
-      background 250ms var(--ease-out);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .value-card:hover {
-      transform: translateY(-4px);
-      background: var(--color-surface-hover);
-      box-shadow: var(--shadow-elevated);
-    }
+    gap: 12px;
   }
 
   .value-icon {
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: var(--radius-lg);
-    background: rgba(41, 151, 255, 0.1);
-    color: var(--color-accent);
-    margin-bottom: 1.5rem;
-    transition: box-shadow 250ms var(--ease-out), transform 250ms var(--ease-out);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .value-card:hover .value-icon {
-      box-shadow: 0 0 24px rgba(41, 151, 255, 0.18);
-      transform: scale(1.05);
-    }
+    color: #0071e3;
   }
 
   .value-title {
-    font-size: 1.125rem;
+    font-size: 17px;
     font-weight: 600;
-    color: var(--color-text-primary);
-    margin-bottom: 0.625rem;
+    color: #1d1d1f;
+    line-height: 1.3;
   }
 
   .value-desc {
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-    text-wrap: pretty;
-    max-width: 24rem;
-  }
-
-  /* ── CTA BANNER ── */
-  .cta-banner {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 5rem 2rem;
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
-  }
-
-  .cta-mesh {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 30% 50%, rgba(41, 151, 255, 0.08) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 70% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 55%);
-    pointer-events: none;
-    animation: mesh-shift 10s ease-in-out infinite alternate;
-  }
-
-  .cta-glow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(41, 151, 255, 0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .cta-heading {
-    position: relative;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    text-wrap: balance;
-  }
-
-  .cta-subtitle {
-    position: relative;
-    margin-top: 0.875rem;
-    font-size: 1.125rem;
-    color: var(--color-text-secondary);
-    max-width: 30rem;
+    font-size: 15px;
+    color: #6e6e73;
     line-height: 1.5;
   }
 
-  /* ── REDUCED MOTION ── */
-  @media (prefers-reduced-motion: reduce) {
-    .cta-mesh {
-      animation: none;
-    }
+  /* ══════════════════════════════════════════
+     CTA BLOCK
+     ══════════════════════════════════════════ */
+  .tile-cta-block {
+    background: #ffffff;
+    padding: 64px 24px;
+    min-height: 0;
+  }
+
+  .tile-cta-block .tile-body {
+    padding: 0;
+  }
+
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    background: #0071e3;
+    color: #ffffff;
+    border-radius: 980px;
+    font-size: 17px;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    z-index: 2;
+    transition: opacity 0.24s cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  .cta-pill:hover {
+    opacity: 0.88;
+    color: #ffffff;
+    text-decoration: none;
   }
 </style>

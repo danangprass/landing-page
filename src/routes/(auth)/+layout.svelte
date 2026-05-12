@@ -15,6 +15,12 @@
   });
 </script>
 
+<svelte:head>
+  {#if (page.data as Record<string, string>)?._title}
+    <title>{(page.data as Record<string, string>)._title}</title>
+  {/if}
+</svelte:head>
+
 {#if auth.isLoggedIn || auth.loading}
   {@render children()}
 {:else}

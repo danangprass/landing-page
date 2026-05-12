@@ -61,20 +61,20 @@
     />
   </div>
 
-  <div class="overflow-x-auto rounded-xl border border-[#424245]">
+  <div class="overflow-x-auto rounded-xl border border-border">
     <Table class="w-full">
       <TableHeader>
-        <TableRow class="border-b border-[#424245] bg-[#1d1d1f] hover:bg-transparent">
+        <TableRow class="border-b border-border bg-background hover:bg-transparent">
           {#each columns as col}
-            <TableHead class="text-[#86868b]">
+            <TableHead class="text-muted-foreground">
               {#if col.sortable !== false}
                 <button
-                  class="flex items-center gap-1 hover:text-[#f5f5f7] transition-colors"
+                  class="flex items-center gap-1 hover:text-foreground transition-colors"
                   onclick={() => toggleSort(col.key)}
                 >
                   {col.label}
                   {#if sortKey === col.key}
-                    <span class="text-[#2997ff]">{sortDir === 'asc' ? '^' : 'v'}</span>
+                    <span class="text-primary">{sortDir === 'asc' ? '^' : 'v'}</span>
                   {/if}
                 </button>
               {:else}
@@ -87,18 +87,18 @@
       <TableBody>
         {#if filtered.length === 0}
           <TableRow>
-            <TableCell colspan={columns.length} class="py-12 text-center text-[#86868b]">
+            <TableCell colspan={columns.length} class="py-12 text-center text-muted-foreground">
               {search.trim() ? 'No results for "' + search + '"' : emptyMessage}
             </TableCell>
           </TableRow>
         {:else}
           {#each filtered as row, i (row['id'] ?? i)}
             <TableRow
-              class="border-b border-[#424245]/50 {i % 2 === 0 ? 'bg-transparent' : 'bg-[#1d1d1f]/50'} hover:bg-[#2d2d2f] {onRowClick ? 'cursor-pointer' : ''}"
+              class="border-b border-border/50 {i % 2 === 0 ? 'bg-transparent' : 'bg-muted/50'} hover:bg-muted {onRowClick ? 'cursor-pointer' : ''}"
               onclick={() => onRowClick?.(row)}
             >
               {#each columns as col}
-                <TableCell class="text-[#f5f5f7]">
+                <TableCell class="text-foreground">
                   {String(row[col.key] ?? '')}
                 </TableCell>
               {/each}
@@ -109,5 +109,5 @@
     </Table>
   </div>
 {:else}
-  <p class="text-sm text-[#86868b] text-center py-8">{emptyMessage}</p>
+  <p class="text-sm text-muted-foreground text-center py-8">{emptyMessage}</p>
 {/if}

@@ -42,9 +42,9 @@
     return () => window.removeEventListener('scroll', onScroll);
   });
 
-  // Clear search on route changes
-  afterNavigate(() => {
-    searchQuery = '';
+  // Sync search box with URL on route changes
+  afterNavigate(({ to }) => {
+    searchQuery = to?.url?.searchParams?.get('search') ?? '';
     showSuggestions = false;
   });
 
@@ -62,22 +62,17 @@
     debounceTimer = setTimeout(() => {
       debouncedQuery = q.toLowerCase();
       highlightIndex = -1;
-    }, 300);
+    }, 500);
     return () => {
       if (debounceTimer) clearTimeout(debounceTimer);
     };
   });
 
-  let suggestions = $derived.by(() => {
-    if (!debouncedQuery || !productStore?.products) return [];
-    const q = debouncedQuery;
-    return productStore.products
-      .filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.slug.toLowerCase().includes(q)
-      )
-      .slice(0, 8);
+  $effect(() => {
+    productStore?.searchSuggestions(debouncedQuery);
   });
+
+  let suggestions = $derived(productStore?.suggestionResults ?? []);
 
   $effect(() => {
     showSuggestions = suggestions.length > 0;
@@ -100,7 +95,6 @@
         return;
       }
     }
-    searchQuery = '';
     showSuggestions = false;
     goto(`/products?search=${encodeURIComponent(q)}`);
   }
@@ -463,9 +457,10 @@
     padding: 0.375rem 0;
     list-style: none;
     background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
+    border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    /* Omnidirectional shadow so it's visible even against a same-color background */
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 4px 6px rgba(0, 0, 0, 0.06), 0 12px 28px rgba(0, 0, 0, 0.14);
     z-index: 52;
   }
 

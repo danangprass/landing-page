@@ -12,6 +12,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	return {
+		_title: 'Profile | ElectraStore',
 		user: {
 			id: user.id as string,
 			email: user.email as string,

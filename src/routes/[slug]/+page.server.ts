@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import { staticPagesBySlug } from '$lib/data/static-pages';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	try {
@@ -16,6 +17,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			},
 		};
 	} catch {
+		// Fallback to static content for known pages
+		const staticPage = staticPagesBySlug.get(params.slug);
+		if (staticPage) {
+			return {
+				page: {
+					id: 'static-' + staticPage.slug,
+					title: staticPage.title,
+					slug: staticPage.slug,
+					content: staticPage.content,
+				},
+			};
+		}
 		throw error(404, 'Page not found');
 	}
 };

@@ -6,6 +6,7 @@
 
   let {
     selectedCategory = '',
+    searchQuery = '',
     priceRange = [0, 2000],
     sortBy = 'featured',
     onCategoryChange,
@@ -15,6 +16,7 @@
     onClearAll
   }: {
     selectedCategory?: string;
+    searchQuery?: string;
     priceRange?: number[];
     sortBy?: string;
     onCategoryChange: (cat: string) => void;
@@ -63,12 +65,13 @@
   }
 
   let hasActiveFilters = $derived(
-    selectedCategory !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
+    selectedCategory !== '' || searchQuery !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
   );
 
   let activeFilterCount = $derived.by(() => {
     let count = 0;
     if (selectedCategory !== '') count++;
+    if (searchQuery !== '') count++;
     if (sortBy !== 'featured') count++;
     if (priceRange[0] !== 0 || priceRange[1] !== 2000) count++;
     return count;

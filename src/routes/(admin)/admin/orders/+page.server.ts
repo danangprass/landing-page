@@ -2,7 +2,6 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const pb = locals.pb;
-	const page = Number(url.searchParams.get('page') ?? '1');
 	const statusFilter = url.searchParams.get('status') ?? '';
 
 	const filterParts: string[] = [];
@@ -11,24 +10,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}
 	const filter = filterParts.length > 0 ? filterParts.join(' && ') : '';
 
-	const result = await pb.collection('orders').getList(page, 15, {
+	const result = await pb.collection('orders').getList(1, 50, {
 		expand: 'user',
 		filter,
-		fields: 'id,total,status,user',
+		fields: 'id,total,status,created,user',
 		$autoCancel: false,
 	}).catch(() => ({ items: [], totalPages: 0 }));
 
 	return {
 		orders: result.items.map((o) => ({
-			id: o.id,
-			total: o.total,
-			status: o.status,
-			order_status: o.status,
-			created: '-',
+			id: o.id as string,
+			total: o.total as number,
+			status: o.status as string,
+			created: (o.created as string) ?? '-',
 			userName: (o.expand?.user as { name?: string })?.name ?? 'Unknown',
 		})),
-		totalPages: result.totalPages,
-		page,
 		currentStatus: statusFilter,
 	};
 };

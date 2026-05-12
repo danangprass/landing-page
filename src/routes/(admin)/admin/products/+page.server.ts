@@ -1,36 +1,26 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	const pb = locals.pb;
-	const page = Number(url.searchParams.get('page') ?? '1');
 
-	const result = await pb.collection('products').getList(page, 10, {
+	const result = await pb.collection('products').getList(1, 50, {
 		sort: 'name',
 		expand: 'category',
 		$autoCancel: false,
 	}).catch(() => ({ items: [], totalPages: 0 }));
 
-	const categories = await pb.collection('categories').getFullList({
-		sort: 'name',
-		fields: 'id,name',
-		$autoCancel: false,
-	}).catch(() => []);
-
 	return {
 		products: result.items.map((p) => ({
-			id: p.id,
-			slug: p.slug,
-			name: p.name,
-			price: p.price,
-			stock: p.stock,
-			featured: p.featured,
-			active: p.active,
+			id: p.id as string,
+			slug: p.slug as string,
+			name: p.name as string,
+			price: p.price as number,
+			stock: p.stock as number,
+			featured: p.featured as boolean,
+			active: p.active as boolean,
 			categoryName: (p.expand?.category as { name?: string })?.name ?? '-',
 		})),
-		totalPages: result.totalPages,
-		page,
-		categories,
 	};
 };
 

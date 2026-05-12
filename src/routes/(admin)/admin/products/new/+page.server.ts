@@ -48,19 +48,21 @@ export const actions: Actions = {
 
 		const images = data.getAll('images').filter((f) => f instanceof File && f.size > 0) as File[];
 
-		await locals.pb.collection('products').create({
+		const createData: Record<string, unknown> = {
 			name,
 			slug,
 			price,
 			category,
-			description,
-			compare_at_price: compareAtPrice,
-			stock,
-			sku,
 			featured,
 			active,
-			images: images.length > 0 ? images : undefined,
-		});
+		};
+		if (description !== undefined) createData.description = description;
+		if (compareAtPrice !== undefined) createData.compare_at_price = compareAtPrice;
+		if (stock !== undefined) createData.stock = stock;
+		if (sku !== undefined) createData.sku = sku;
+		if (images.length > 0) createData.images = images;
+
+		await locals.pb.collection('products').create(createData);
 
 		throw redirect(303, '/admin/products');
 	},

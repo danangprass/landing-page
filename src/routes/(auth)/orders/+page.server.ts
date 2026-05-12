@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const page = Number(url.searchParams.get('page') ?? '1');
 
 	if (!user?.id) {
-		return { orders: [], totalPages: 0, page: 1 };
+		return { _title: 'My Orders | ElectraStore', orders: [], totalPages: 0, page: 1 };
 	}
 
 	const result = await pb
@@ -49,6 +49,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	);
 
 	return {
+		_title: 'My Orders | ElectraStore',
 		orders,
 		totalPages: result.totalPages,
 		page,

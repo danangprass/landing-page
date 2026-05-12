@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 
 @theme {
+  /* ─── Apple light design system tokens ─── */
   --color-bg: #f5f5f7;
   --color-surface: #ffffff;
   --color-surface-hover: #e8e8ed;
@@ -14,14 +15,15 @@
   --color-error: #ff453a;
   --color-border: #d2d2d7;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  /* SF Pro system font stack (resolves to native SF Pro on Apple devices) */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro AR', 'SF Pro Text', 'Helvetica Neue', sans-serif;
 
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 17px;
   --radius-full: 9999px;
 
-  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
   --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.12);
 
   /* Design engineering: custom easing curves */
@@ -29,10 +31,42 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-apple: cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Bridge shadcn-svelte CSS variables to Tailwind v4 theme */
+/* Tailwind v4 utilities (bg-primary, text-muted-foreground, etc.) resolve to
+   var(--color-*), but shadcn-svelte uses bare --* names. This inline theme
+   maps them so all shadcn components and our code using Tailwind classes work. */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 /* ─── shadcn-svelte CSS variables ─── */
-/* Public: Apple-inspired light */
+/* Public: Apple light */
 :root {
   --background: oklch(0.97 0.003 270);
   --foreground: oklch(0.18 0.006 270);
@@ -89,8 +123,8 @@
   --sidebar-foreground: oklch(0.59 0.009 270);
   --sidebar-primary: oklch(0.63 0.18 255);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.18 0.006 270);
-  --sidebar-accent-foreground: oklch(0.97 0.003 270);
+  --sidebar-accent: oklch(0.25 0.01 260);
+  --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.31 0.01 270);
   --sidebar-ring: oklch(0.63 0.18 255);
 }

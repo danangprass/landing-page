@@ -74,13 +74,13 @@ export const actions: Actions = {
 			slug,
 			price,
 			category,
-			description,
-			compare_at_price: compareAtPrice,
-			stock,
-			sku,
 			featured,
 			active,
 		};
+		if (description !== undefined) updateData.description = description;
+		if (compareAtPrice !== undefined) updateData.compare_at_price = compareAtPrice;
+		if (stock !== undefined) updateData.stock = stock;
+		if (sku !== undefined) updateData.sku = sku;
 
 		if (newImages.length > 0) {
 			updateData.images = newImages;

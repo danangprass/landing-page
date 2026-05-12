@@ -20,6 +20,7 @@
   let searchQuery = $state(page.url.searchParams.get('search') ?? '');
   let sortBy: string = $state('featured');
   let priceRange: number[] = $state([0, 2000]);
+  let priceApplied = $state(false);
   let mobileFilterOpen = $state(false);
 
   $effect(() => {
@@ -51,8 +52,8 @@
     const category = selectedCategory || undefined;
     const search = searchQuery || undefined;
     const sort = sortBy || undefined;
-    const min = priceRange[0] || undefined;
-    const max = priceRange[1] < 2000 ? priceRange[1] : undefined;
+    const min = priceApplied && priceRange[0] > 0 ? priceRange[0] : undefined;
+    const max = priceApplied ? priceRange[1] : undefined;
     store.loadProducts({ category, search, sort, minPrice: min, maxPrice: max });
   });
 
@@ -60,7 +61,7 @@
   let filteredProducts = $derived(store.products);
 
   let hasActiveFilters = $derived(
-    selectedCategory !== '' || searchQuery !== '' || sortBy !== 'featured' || priceRange[0] !== 0 || priceRange[1] !== 2000
+    selectedCategory !== '' || searchQuery !== '' || sortBy !== 'featured' || priceApplied
   );
 
   function handleCategoryChange(cat: string) {
@@ -75,11 +76,12 @@
   }
 
   function handleSortChange(sort: string) { sortBy = sort; }
-  function handlePriceChange(range: number[]) { priceRange = range; }
+  function handlePriceChange(range: number[]) { priceRange = range; priceApplied = true; }
 
   function handleClearAll() {
     sortBy = 'featured';
     priceRange = [0, 2000];
+    priceApplied = false;
     searchQuery = '';
     handleCategoryChange('');
     const url = new URL(page.url);
@@ -140,7 +142,7 @@
       aria-label="Filters"
     >
       <FilterSidebar
-        {selectedCategory} {sortBy} {priceRange}
+        {selectedCategory} {searchQuery} {sortBy} {priceRange}
         onCategoryChange={handleCategoryChange}
         onSortChange={handleSortChange}
         onPriceChange={handlePriceChange}

@@ -22,10 +22,10 @@ export const actions: Actions = {
 		const createData: Record<string, unknown> = {
 			name,
 			slug,
-			description,
-			sort_order: sortOrder,
 			active,
 		};
+		if (description !== undefined) createData.description = description;
+		if (sortOrder !== undefined) createData.sort_order = sortOrder;
 
 		if (image && image.size > 0) {
 			createData.image = image;

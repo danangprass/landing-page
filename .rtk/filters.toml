@@ -1,0 +1,60 @@
+# Project-local RTK filters — optimized for SvelteKit + Vite + Tailwind
+# Filters apply at runtime: .rtk/filters.toml > ~/.config/rtk/filters.toml > built-in
+
+[filters.vite-dev]
+description = "Strip Vite dev server startup boilerplate"
+match_command = "^(npm run dev|npx vite dev|npx vite)"
+strip_ansi = true
+strip_lines_matching = [
+    "^\\s*$",
+    "^VITE.*ready in",
+    "^➜\\s+Local:",
+    "^➜\\s+Network:",
+    "^➜\\s+press h",
+    "Shortcuts\\s*$",
+    "press h \\+ enter to show help",
+    "^\\s*$",
+]
+on_empty = "vite: dev server started"
+
+[filters.vite-build]
+description = "Strip Vite build stats, keep only summary"
+match_command = "^(npm run build|npx vite build)"
+strip_ansi = true
+strip_lines_matching = [
+    "^\\s*$",
+    "^vite v[\\d.]+",
+    "building for production",
+    "^✓\\s+\\d+ modules transformed",
+    "^✓ built in",
+    "\\d+\\.\\d+\\s*kB\\s*│\\s*gzip",
+    "^dist/.*map\\s+\\d",
+]
+max_lines = 15
+on_empty = "vite: build complete"
+
+[filters.svelte-check]
+description = "Strip svelte-check warnings/errors headers, keep findings"
+match_command = "^(npx svelte-check|npm run check)"
+strip_ansi = true
+strip_lines_matching = [
+    "^\\s*$",
+    "^Loading svelte-check",
+    "===========================================",
+    "svelte-check found",
+    "Svelte: checking",
+]
+max_lines = 30
+on_empty = "svelte-check: no issues"
+
+[filters.tailwind]
+description = "Strip Tailwind CSS compilation noise"
+match_command = "npx tailwindcss"
+strip_ansi = true
+strip_lines_matching = [
+    "^\\s*$",
+    "^Rebuilding",
+    "^Done in \\d+ms",
+    "^warn - ",
+]
+max_lines = 10

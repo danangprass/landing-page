@@ -80,6 +80,7 @@ function createProductsStore() {
   let page = $state(1);
   let totalPages = $state(1);
   const perPage = 20;
+  let suggestionResults = $state<ExpandedProduct[]>([]);
 
   let categoriesLoading = false;
 
@@ -160,7 +161,7 @@ function createProductsStore() {
     if (opts?.minPrice !== undefined && opts.minPrice > 0) {
       filters.push(`price >= ${opts.minPrice}`);
     }
-    if (opts?.maxPrice !== undefined && opts.maxPrice < 2000) {
+    if (opts?.maxPrice !== undefined) {
       filters.push(`price <= ${opts.maxPrice}`);
     }
     const filter = filters.length ? filters.join(' && ') : undefined;
@@ -221,6 +222,30 @@ function createProductsStore() {
     }
   }
 
+  async function searchSuggestions(query: string) {
+    if (!query || query.length < 2) {
+      suggestionResults = [];
+      return;
+    }
+    const s = safe(query);
+    const [result] = await safeCall(() =>
+      pb.collection('products').getList(1, 8, {
+        expand: 'category',
+        filter: `name ~ "${s}" || slug ~ "${s}"`,
+        sort: '-name',
+      }),
+      { silent: true }
+    );
+    if (result && result.items.length > 0) {
+      suggestionResults = result.items as unknown as ExpandedProduct[];
+    } else {
+      const q = query.toLowerCase();
+      suggestionResults = staticMapped
+        .filter(p => p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q))
+        .slice(0, 8);
+    }
+  }
+
   async function loadBanners() {
     const [result] = await safeCall(() =>
       pb.collection('banners').getFullList({
@@ -249,12 +274,14 @@ function createProductsStore() {
     get loading() { return loading; },
     get page() { return page; },
     get totalPages() { return totalPages; },
+    get suggestionResults() { return suggestionResults; },
     loadProducts,
     loadProductBySlug,
     loadFeatured,
     loadCategories,
     loadBanners,
     loadTestimonials,
+    searchSuggestions,
   };
 }
 

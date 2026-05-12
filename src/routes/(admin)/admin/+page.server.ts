@@ -52,9 +52,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 			monthlyRevenue,
 		},
 		recentOrders: recentOrdersResult.items.map((o) => ({
-			id: o.id,
-			total: o.total,
-			status: o.status,
+			id: o.id as string,
+			total: o.total as number,
+			status: o.status as string,
 			created: '-',
 			userName: (((o as Record<string, unknown>).expand as Record<string, unknown> | undefined)?.user as { name?: string })?.name ?? 'Unknown',
 		})),

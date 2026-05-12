@@ -1,11 +1,10 @@
 import type { PageServerLoad, Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	const pb = locals.pb;
-	const page = Number(url.searchParams.get('page') ?? '1');
 
-	const result = await pb.collection('reviews').getList(page, 15, {
+	const result = await pb.collection('reviews').getList(1, 50, {
 		expand: 'product,user',
 		$autoCancel: false,
 	}).catch(() => ({ items: [], totalPages: 0 }));
@@ -20,8 +19,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			userName: (r.expand?.user as { name?: string })?.name ?? 'Unknown',
 			created: '-',
 		})),
-		totalPages: result.totalPages,
-		page,
 	};
 };
 

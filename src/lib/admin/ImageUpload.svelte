@@ -34,12 +34,12 @@
   {#if currentImages.length > 0 || previewUrls.length > 0}
     <div class="flex flex-wrap gap-2">
       {#each currentImages as url}
-        <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-[#2d2d2f] border border-[#424245]">
+        <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border">
           <img src={url} alt="" class="w-full h-full object-cover" />
         </div>
       {/each}
       {#each previewUrls as url, i}
-        <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-[#2d2d2f] border border-[#424245]">
+        <div class="relative w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border">
           <img src={url} alt="" class="w-full h-full object-cover" />
           <button
             class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-xs flex items-center justify-center hover:bg-black/90"
@@ -54,7 +54,7 @@
 
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="relative border-2 border-dashed border-[#424245] rounded-xl px-4 py-6 text-center hover:border-[#86868b] transition-colors cursor-pointer {dragOver ? 'border-[#2997ff] bg-[#2997ff]/5' : ''}"
+    class="relative border-2 border-dashed border-border rounded-xl px-4 py-6 text-center hover:border-muted-foreground transition-colors cursor-pointer {dragOver ? 'border-primary bg-primary/5' : ''}"
     onclick={() => inputEl?.click()}
     ondragover={(e) => { e.preventDefault(); dragOver = true; }}
     ondragleave={() => { dragOver = false; }}
@@ -62,8 +62,8 @@
     role="button"
     tabindex="0"
   >
-    <p class="text-sm text-[#86868b]">Drop images here or click to browse</p>
-    <p class="text-xs text-[#86868b]/60 mt-1">{currentImages.length}/{max} images</p>
+    <p class="text-sm text-muted-foreground">Drop images here or click to browse</p>
+    <p class="text-xs text-muted-foreground/60 mt-1">{currentImages.length}/{max} images</p>
   </div>
 
   <input

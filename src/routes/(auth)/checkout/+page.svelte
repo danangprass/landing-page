@@ -628,16 +628,7 @@
             <!-- Terms checkbox -->
             <div class="flex items-start gap-x-1">
               <label class="terms-label">
-                <div class="relative mt-0.5">
-                  <Checkbox bind:checked={agreedToTerms} />
-                  <div class="checkbox-box">
-                    {#if agreedToTerms}
-                      <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    {/if}
-                  </div>
-                </div>
+                <Checkbox bind:checked={agreedToTerms} class="mt-0.5" />
                 <span class="text-sm text-text-secondary">I agree to the</span>
               </label>
               <a href="/terms" target="_blank" rel="noopener noreferrer" class="terms-link text-sm mt-0.5">Terms of Service</a>
@@ -950,27 +941,6 @@
     align-items: flex-start;
     gap: 0.75rem;
     cursor: pointer;
-  }
-
-  .checkbox-box {
-    width: 1.25rem;
-    height: 1.25rem;
-    border-radius: 4px;
-    border: 2px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-      background-color 200ms var(--ease-out),
-      border-color 200ms var(--ease-out);
-  }
-  .peer:checked ~ .checkbox-box {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
-  }
-  .peer:focus-visible ~ .checkbox-box {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
   }
 
   .terms-link {

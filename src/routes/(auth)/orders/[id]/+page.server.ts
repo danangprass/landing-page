@@ -44,6 +44,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const subtotal = lineItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
 	return {
+		_title: 'Order Details | ElectraStore',
 		order: {
 			id: order.id,
 			total: (order as Record<string, unknown>).total ?? subtotal,

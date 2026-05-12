@@ -20,7 +20,7 @@
   <nav class="flex items-center gap-1" aria-label="Pagination">
     <Button
       variant="ghost"
-      class="px-3 py-2 rounded-lg text-sm text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       disabled={page <= 1}
       onclick={() => onPage(page - 1)}
     >
@@ -30,7 +30,7 @@
     {#each pages as p}
       <Button
         variant="ghost"
-        class="min-w-[36px] h-9 rounded-lg text-sm font-medium transition-colors {p === page ? 'bg-[#2997ff] text-white' : 'text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f]'}"
+        class="min-w-[36px] h-9 rounded-lg text-sm font-medium transition-colors {p === page ? 'bg-primary text-white' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}"
         onclick={() => onPage(p)}
       >
         {p}
@@ -39,7 +39,7 @@
 
     <Button
       variant="ghost"
-      class="px-3 py-2 rounded-lg text-sm text-[#86868b] hover:text-[#f5f5f7] hover:bg-[#2d2d2f] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       disabled={page >= totalPages}
       onclick={() => onPage(page + 1)}
     >

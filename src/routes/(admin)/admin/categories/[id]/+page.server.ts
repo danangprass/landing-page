@@ -40,10 +40,10 @@ export const actions: Actions = {
 		const updateData: Record<string, unknown> = {
 			name,
 			slug,
-			description,
-			sort_order: sortOrder,
 			active,
 		};
+		if (description !== undefined) updateData.description = description;
+		if (sortOrder !== undefined) updateData.sort_order = sortOrder;
 
 		if (image && image.size > 0) {
 			updateData.image = image;
